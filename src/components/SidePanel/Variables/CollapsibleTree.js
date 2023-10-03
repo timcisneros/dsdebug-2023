@@ -25,7 +25,7 @@ import { useNode } from '../../../contexts/NodeContext';
 const TreeItem = memo(
     ({
         label,
-        children,
+        childNodes,
         icon,
         optionsMenu,
         onDelete,
@@ -38,7 +38,7 @@ const TreeItem = memo(
         inputRef,
     }) => {
         // Check if the node has children
-        const hasChildren = children && children.length > 0;
+        const hasChildren = childNodes && childNodes.length > 0;
         const { hasCopied, onCopy, onPaste } = useClipboard();
 
         const handlePasteFromClipboard = () => {
@@ -186,11 +186,11 @@ const TreeItem = memo(
                         >
                             {hasChildren && (
                                 <Accordion allowMultiple>
-                                    {children.map((child) => (
+                                    {childNodes.map((child) => (
                                         <TreeItem
                                             key={`child-${child.name}`}
                                             label={child.name}
-                                            children={child.nodes}
+                                            childNodes={child.nodes}
                                             optionsMenu={optionsMenu}
                                             onDelete={onDelete}
                                             deletable={child.deletable}
@@ -205,6 +205,8 @@ const TreeItem = memo(
         );
     }
 );
+
+TreeItem.displayName = 'TreeItem';
 
 const CollapsibleTree = ({ definedVariable, icon }) => {
     const { data, setData, definedVariables, setDefinedVariables } = useNode();
@@ -342,7 +344,7 @@ const CollapsibleTree = ({ definedVariable, icon }) => {
                         <TreeItem
                             key={`parent-${definedVariable.value.name}`}
                             label={definedVariable.value.name}
-                            children={definedVariable.value.schema.nodes}
+                            childNodes={definedVariable.value.schema.nodes}
                             icon={icon}
                             onDelete={handleDeleteVariable}
                             onRename={handleRenameVariable} // Pass the handleRenameVariable function

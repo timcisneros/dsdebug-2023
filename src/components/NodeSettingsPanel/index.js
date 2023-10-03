@@ -910,7 +910,8 @@ const NodeSettingsPanel = () => {
                         {selectedNode.data.inheritLimitedAttributeGroups && (
                             <FormControl>
                                 <FormLabel>
-                                    Inherit the parent folder's attribute groups
+                                    Inherit the parent folder&apos;s attribute
+                                    groups
                                 </FormLabel>
                                 <Checkbox
                                     backgroundColor="#fff"
@@ -1336,7 +1337,7 @@ const NodeSettingsPanel = () => {
                                         Comments are optional
                                     </option>
                                     <option value="No">
-                                        Don't show the comment field
+                                        Don&apos;t show the comment field
                                     </option>
                                 </Select>
                             </FormControl>
@@ -1473,13 +1474,14 @@ const NodeSettingsPanel = () => {
                         {selectedNode.data.updateValues?.value.map(
                             (value, index) => (
                                 <Box
+                                    key={index}
                                     borderWidth="1px"
                                     p={4}
                                     my={4}
                                     rounded="md"
                                     backgroundColor="#f0f0f0f0"
                                 >
-                                    <FormControl key={index}>
+                                    <FormControl>
                                         <FormLabel>Target Identifier</FormLabel>
                                         <Input
                                             backgroundColor="#fff"
@@ -1687,7 +1689,8 @@ const NodeSettingsPanel = () => {
                         {selectedNode.data.requiredApprovalCount && (
                             <FormControl>
                                 <FormLabel>
-                                    What should trigger an 'approved' output?
+                                    What should trigger an &apos;approved&apos;
+                                    output?
                                 </FormLabel>
                                 <RadioGroup
                                     name="assigneeType"

@@ -50,4 +50,6 @@ const LogsContainer = forwardRef(({ logs, setLogs }, ref) => {
     );
 });
 
+LogsContainer.displayName = 'LogsContainer';
+
 export default LogsContainer;
