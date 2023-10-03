@@ -1,0 +1,16 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Dark" fill-rule="evenodd">
+		<g transform="translate(1.000000, 1.000000)" fill="currentColor">
+			<polygon points="1.526 6.9735 20.232 6.9735 20.232 4.9735 1.526 4.9735"></polygon>
+			<polygon points="1.525 1.9995 20.231 1.9995 20.231 0.0005 1.525 0.0005"></polygon>
+			<polygon points="1.526 11.9455 20.232 11.9455 20.232 9.9455 1.526 9.9455"></polygon>
+			<polygon points="0 16.9725 10.01 16.9725 10.01 14.9715 0 14.9715"></polygon>
+			<polygon points="6.003 16.3175 8.003 16.3175 8.003 5.9735 6.003 5.9735"></polygon>
+			<polygon points="0 16.3175 2.001 16.3175 2.001 0.0005 0 0.0005"></polygon>
+			<polygon points="19.758 16.3175 21.758 16.3175 21.758 0.0005 19.758 0.0005"></polygon>
+			<polygon points="13.878 11.6295 15.878 11.6295 15.878 5.9735 13.878 5.9735"></polygon>
+			<polygon points="18.2485 16.1705 16.9615 17.4565 14.8785 15.3725 12.7955 17.4565 11.5095 16.1705 14.8785 12.7995"></polygon>
+			<polygon points="13.878 22.0045 15.879 22.0045 15.879 14.1745 13.878 14.1745"></polygon>
+		</g>
+    </g>
+</svg>

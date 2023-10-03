@@ -1,0 +1,101 @@
+import { useState, useEffect } from 'react';
+import { Grid, GridItem, Flex, Text, Box } from '@chakra-ui/react';
+import Step from './Step';
+import Search from '../Search';
+import AddTemplateButton from './AddTemplateButton';
+
+const TemplateList = () => {
+    const [templateLists, setTemplateLists] = useState([]);
+
+    // Load items from local storage on page load
+    useEffect(() => {
+        const storedTemplates =
+            JSON.parse(localStorage.getItem('templates')) || [];
+        setTemplateLists(storedTemplates);
+    }, []);
+
+    const handleUpload = (jsonData, fileName) => {
+        // Add the uploaded data to the template list
+        setTemplateLists((prevList) => [
+            ...prevList,
+            { name: fileName, data: jsonData },
+        ]);
+
+        // Save the uploaded data to local storage
+        const storedTemplates =
+            JSON.parse(localStorage.getItem('templates')) || [];
+        const updatedTemplates = [
+            ...storedTemplates,
+            { name: fileName, data: jsonData },
+        ];
+        localStorage.setItem('templates', JSON.stringify(updatedTemplates));
+    };
+
+    return (
+        <Box pb={4}>
+            <Flex p={2}>
+                <Text fontSize="2xl" color="#212121" pr={4}>
+                    Templates
+                </Text>
+            </Flex>
+            <Grid
+                marginTop={2}
+                templateColumns="repeat(auto-fit, minmax(6rem, 1fr))"
+                gap={1}
+                autoFlow="row"
+            >
+                {templateLists.map((templateList) => (
+                    <GridItem key={templateList.name}>
+                        <Step
+                            stepName={templateList.name}
+                            stepImage="basic-shape-ui.svg"
+                            stepImageColor="#757575"
+                            stepType="Template"
+                            activityName="CaaSIndexing"
+                            stepData={templateList.data}
+                        />
+                    </GridItem>
+                ))}
+                <GridItem>
+                    <Step
+                        stepName="CaaS Indexing"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="CaaSIndexing"
+                    />
+                </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="CaaS Routing"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="CaaSRouting"
+                    />
+                </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="XYZ Contract Management"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="XyzContractManagement"
+                    />
+                </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Internal Approval"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="InternalApproval"
+                    />
+                </GridItem>
+            </Grid>
+            <AddTemplateButton onUpload={handleUpload} />
+        </Box>
+    );
+};
+
+export default TemplateList;

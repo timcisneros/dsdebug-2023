@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+<g id="Dark">
+	<path fill="currentColor" d="M10,15.4v-2.2h4.5h2h5.7H23v-0.9v-0.7v-0.4V9V7V5V3.7V3h-1h-1H2H1v1v1v0.2V7v2v10.9V20v1.1V22h1.1h8.5h1.1v-2
+		h-1.1H10v-0.2v-2.4h0.9H12v-2h-1.1H10z M8,15.4H3v-2.2h5V15.4z M8,11.2H3V9h5V11.2z M10,11.2V9h4.5v2.2H10z M16.5,9H21v2.2h-4.5V9z
+		 M21,7H10H8H3V5.2V5h18V7z M8,19.8V20H3v-0.1v-2.5h5V19.8z"/>
+	<polygon fill="currentColor" points="16.9,16.7 15.5,15.3 13.2,17.6 12.5,18.3 13.2,19 15.6,21.4 17,19.9 15.3,18.2 	"/>
+	<polygon fill="currentColor" points="22.4,17.5 20,15.2 18.6,16.6 20.3,18.3 18.6,20 20,21.3 22.4,18.9 23.1,18.2 	"/>
+</g>
+</svg>

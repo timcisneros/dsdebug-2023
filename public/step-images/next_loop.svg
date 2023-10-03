@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+<g id="Dark">
+	<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" points="16.041,8.958 20.198,11.076 22.359,6.835"/>
+	<path fill="none" stroke="currentColor" stroke-width="2" stroke-miterlimit="10" d="M20.128,10.061 C19.091,6.557,15.848,4,12.007,4C7.331,4,3.54,7.791,3.54,12.467c0,0.721,0.09,1.422,0.26,2.09"/>
+	<path fill="currentColor" d="M8.417,15.892c0.131,0.385,0.202,0.797,0.202,1.226c0,2.101-1.706,3.804-3.81,3.804S1,19.219,1,17.118 c0-2.101,1.706-3.804,3.81-3.804c1.093,0,2.078,0.459,2.772,1.195l-2.586,2.695L3.988,15.65L2.7,16.534l1.579,2.294l0.542,0.788 l0.664-0.688L8.417,15.892z"/>
+</g>
+</svg>

@@ -1,0 +1,14 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Dark" fill-rule="evenodd">
+		<g transform="translate(1.000000, 1.000000)" fill="currentColor">
+			<polygon points="0 11.931 2 11.931 2 9.972 0 9.972"></polygon>
+			<polygon points="4 11.931 6 11.931 6 9.972 4 9.972"></polygon>
+			<polygon points="8 11.931 10 11.931 10 9.972 8 9.972"></polygon>
+			<polygon points="12 11.931 14 11.931 14 9.972 12 9.972"></polygon>
+			<polygon points="16 11.931 18 11.931 18 9.972 16 9.972"></polygon>
+			<polygon points="18.0414 11.9309 18.0414 17.9479 18.0414 18.1099 18.0414 19.9019 3.9994 19.9019 3.9994 11.9309 1.9994 11.9309 1.9994 21.9019 20.0414 21.9019 20.0414 18.1099 20.0414 17.9479 20.0414 11.9309"></polygon>
+			<polygon points="1.9998 -0.0004 1.9998 9.9716 3.9998 9.9716 3.9998 1.9996 18.0418 1.9996 18.0418 9.9716 20.0408 9.9716 20.0408 -0.0004"></polygon>
+			<polygon points="20.083 11.931 22.083 11.931 22.083 9.972 20.083 9.972"></polygon>
+		</g>
+    </g>
+</svg>

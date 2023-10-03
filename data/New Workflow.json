@@ -1,0 +1,198 @@
+{
+    "cells": [
+        {
+            "size": { "width": 100, "height": 100 },
+            "content": "",
+            "type": "springcm.Circle",
+            "position": { "x": 86, "y": 70 },
+            "angle": 0,
+            "activityName": "StartActivity",
+            "group": "hidden",
+            "icon": { "path": "start.svg#Dark", "color": "white" },
+            "z": 2000001,
+            "id": "5b10d9fd-d7f5-4892-9954-4db387131806",
+            "name": { "type": "String", "value": "Start" },
+            "definedVariables": {
+                "type": "Variable",
+                "value": [
+                    {
+                        "type": "User",
+                        "value": {
+                            "name": "SubmittedBy",
+                            "displayName": "Submitted By",
+                            "description": "",
+                            "displayType": "Actor",
+                            "schema": {
+                                "name": "UserAccount",
+                                "nodes": [
+                                    {
+                                        "name": "Name",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "5da0ca8f-9ad3-40a9-8b84-1ea24dac73cd"
+                                    },
+                                    {
+                                        "name": "CreatedDate",
+                                        "dataType": "dateTime",
+                                        "type": "element",
+                                        "guid": "edfcd7e6-d277-4ff9-ba71-3328c45f3d20"
+                                    },
+                                    {
+                                        "name": "Email",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "93d8a4bd-7bc4-48cc-9d16-a8f2d96d19cb"
+                                    },
+                                    {
+                                        "name": "FirstName",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "a428bb6f-1433-40e7-ae88-8f14dd24c998"
+                                    },
+                                    {
+                                        "name": "LastName",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "a9c6071f-13d7-42a8-a2a5-b4e6dfd428c4"
+                                    },
+                                    {
+                                        "name": "ManagerUid",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "23e0f2d5-9936-48f9-a04c-422efbf09934"
+                                    },
+                                    {
+                                        "name": "Role",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "1dec2228-3eb0-4ef1-a6b3-42ede4dcab98"
+                                    },
+                                    {
+                                        "name": "Uid",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "a697cab9-cd4a-4b17-a4e7-70577b56a824"
+                                    },
+                                    {
+                                        "name": "Language",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "0d463f1b-45b2-44f9-9279-117a905781d1"
+                                    },
+                                    {
+                                        "name": "Region",
+                                        "dataType": "string",
+                                        "type": "element",
+                                        "guid": "db3c487c-d282-4fc6-8e97-6b5dfcf60902"
+                                    }
+                                ]
+                            },
+                            "sortable": false,
+                            "editable": false,
+                            "editableValue": false,
+                            "deletable": false,
+                            "draggable": true,
+                            "preDefined": true
+                        }
+                    },
+                    {
+                        "type": "String",
+                        "value": {
+                            "name": "Comments",
+                            "displayName": "Comments",
+                            "description": "",
+                            "displayType": "Text",
+                            "schema": {},
+                            "sortable": false,
+                            "editable": false,
+                            "editableValue": true,
+                            "deletable": false,
+                            "draggable": true,
+                            "preDefined": false
+                        }
+                    },
+                    {
+                        "type": "System",
+                        "value": {
+                            "name": "Date",
+                            "displayName": "Current Date",
+                            "description": "",
+                            "displayType": "System",
+                            "schema": {},
+                            "sortable": false,
+                            "editable": false,
+                            "editableValue": false,
+                            "deletable": false,
+                            "draggable": true,
+                            "preDefined": true
+                        }
+                    },
+                    {
+                        "type": "System",
+                        "value": {
+                            "name": "Time",
+                            "displayName": "Current Time",
+                            "description": "",
+                            "displayType": "System",
+                            "schema": {},
+                            "sortable": false,
+                            "editable": false,
+                            "editableValue": false,
+                            "deletable": false,
+                            "draggable": true,
+                            "preDefined": true
+                        }
+                    },
+                    {
+                        "type": "System",
+                        "value": {
+                            "name": "Link",
+                            "displayName": "Current Step Link",
+                            "description": "",
+                            "displayType": "System",
+                            "schema": {},
+                            "sortable": false,
+                            "editable": false,
+                            "editableValue": false,
+                            "deletable": false,
+                            "draggable": true,
+                            "preDefined": true
+                        }
+                    },
+                    {
+                        "type": "System",
+                        "value": {
+                            "name": "LastAbortEmail",
+                            "displayName": "Last Abort Email",
+                            "description": "",
+                            "displayType": "System",
+                            "schema": {},
+                            "sortable": false,
+                            "editable": false,
+                            "editableValue": false,
+                            "deletable": false,
+                            "draggable": true,
+                            "preDefined": true
+                        }
+                    }
+                ]
+            },
+            "workflowName": { "type": "String", "value": "New Workflow" },
+            "sendNotification": { "type": "Bool", "value": false },
+            "trackActivity": { "type": "Bool", "value": true },
+            "attrs": {
+                ".steptext": {
+                    "ref-y": ".66",
+                    "y-alignment": "middle",
+                    "text": "Start",
+                    "lineHeight": "1.4em"
+                },
+                "use": {
+                    "xlink:href": "/atlassupport/scripts/jointjs/svg/start.svg#Dark"
+                },
+                "svg": { "color": "white" },
+                "circle": { "fill": "#A0CC23" }
+            }
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Dark" fill-rule="evenodd">
+		<g transform="translate(2.000000, 1.000000)">
+			<path d="M0,7.371 L0,21.038 L15.833,21.038 L15.833,10.117 L8.496,10.117 L5.698,7.371 L0,7.371 Z M2,9.372 L4.882,9.372 L7.68,12.117 L13.833,12.117 L13.833,19.039 L2,19.039 L2,9.372 Z" fill="currentColor"></path>
+			<g transform="translate(8.000000, 0.038400)">
+				<path d="M4.9908,6.2902 C4.9908,5.1852 4.0958,4.2902 2.9908,4.2902 C1.8858,4.2902 0.9908,5.1852 0.9908,6.2902 C0.9908,7.3952 1.8858,8.2902 2.9908,8.2902 C4.0958,8.2902 4.9908,7.3952 4.9908,6.2902" fill="currentColor"></path>
+				<g transform="translate(2.000000, 0.000000)">
+					<polygon fill="currentColor" points="9.845 7.2897 0.991 7.2897 0.991 5.2897 7.845 5.2897 7.845 0.9617 9.845 0.9617"></polygon>
+				</g>
+			</g>
+		</g>
+    </g>
+</svg>
