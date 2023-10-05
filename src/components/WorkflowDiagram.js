@@ -12,6 +12,7 @@ import ReactFlow, {
     MiniMap,
     applyNodeChanges,
     applyEdgeChanges,
+    Background,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import StepNode from './NodeTypes/StepNode';
@@ -835,6 +836,7 @@ const WorkflowDiagram = () => {
                                     nodesFocusable
                                     style={{ width: '100%', height: '100%' }}
                                 >
+                                    <Background variant="cross" />
                                     <Controls>
                                         <ControlButton
                                             onClick={handleReset}
