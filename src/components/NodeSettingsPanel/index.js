@@ -104,14 +104,31 @@ const NodeSettingsPanel = () => {
                 {selectedNodes.map((selectedNode) => (
                     <Box position={'relative'} p={4} key={selectedNode.id}>
                         <FormControl>
+                            <Flex alignItems="center" mb={2}>
+                                <Badge
+                                    width="100%"
+                                    textOverflow="ellipsis"
+                                    overflow="hidden"
+                                    colorScheme="white"
+                                    color="#999999"
+                                >
+                                    <CopyToClipboard text={selectedNode.id}>
+                                        <IconButton
+                                            icon={<CopyIcon />}
+                                            variant="ghost"
+                                            onClick={handleShowCopyMessage}
+                                            size="xs"
+                                            color="#999999"
+                                        />
+                                    </CopyToClipboard>
+                                    ID: {selectedNode.id}
+                                </Badge>
+                            </Flex>
                             <FormLabel
                                 borderLeft={`3px solid ${selectedNode.data.icon.color}`}
                                 backgroundColor={`${selectedNode.data.icon.color}0D`}
                                 // padding={2}
-                                overflow="hidden"
-                                whiteSpace="nowrap"
                                 width="100%"
-                                textOverflow="ellipsis"
                             >
                                 <Flex alignItems="center">
                                     <CopyToClipboard
@@ -123,7 +140,12 @@ const NodeSettingsPanel = () => {
                                             onClick={handleShowCopyMessage}
                                         />
                                     </CopyToClipboard>
-                                    <Text fontSize="lg">
+                                    <Text
+                                        fontSize="lg"
+                                        overflow="hidden"
+                                        whiteSpace="nowrap"
+                                        textOverflow="ellipsis"
+                                    >
                                         {selectedNode.data.activityName}
                                     </Text>
                                 </Flex>
