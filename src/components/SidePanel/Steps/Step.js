@@ -80,7 +80,7 @@ const Step = ({
             </div>
 
             {/* Create the custom drag image */}
-            {isDragging && dragImageX && dragImageY && (
+            {isDragging && dragImageX && dragImageY ? (
                 <>
                     <div
                         style={{
@@ -157,6 +157,8 @@ const Step = ({
                         <div>{stepName}</div>
                     </div> */}
                 </>
+            ) : (
+                <div />
             )}
         </>
     );

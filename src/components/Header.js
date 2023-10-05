@@ -155,25 +155,35 @@ const Header = () => {
                 }}
             >
                 {isEditing ? (
-                    <Input
-                        maxLength={200}
-                        fontSize="1.2rem"
-                        height="max-content"
-                        ref={inputRef}
-                        spellCheck="false"
-                        variant="flushed"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                handleRenameWorkflow(
-                                    workflowName.value,
-                                    newName
-                                ); // Pass the previous name and the new name
-                                setIsEditing(false);
-                            }
-                        }}
-                    />
+                    <div position="relative">
+                        <Input
+                            maxLength={200}
+                            fontSize="1.2rem"
+                            height="max-content"
+                            ref={inputRef}
+                            spellCheck="false"
+                            variant="flushed"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleRenameWorkflow(
+                                        workflowName.value,
+                                        newName
+                                    ); // Pass the previous name and the new name
+                                    setIsEditing(false);
+                                }
+                            }}
+                        />
+                        <Box
+                            position="absolute"
+                            top={0}
+                            right={0}
+                            mt="48px"
+                            width="100vw"
+                            height="calc(100vh - 48px)"
+                        />
+                    </div>
                 ) : (
                     <Box>{workflowName?.value || 'Workflow'}</Box>
                 )}
