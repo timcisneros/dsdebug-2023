@@ -19,8 +19,12 @@ import {
     Select,
     Badge,
     useToast,
+    IconButton,
+    Flex,
 } from '@chakra-ui/react';
 import { useNode } from '../../contexts/NodeContext';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyIcon } from '@chakra-ui/icons';
 
 const NodeSettingsPanel = () => {
     const { selectedNodes, handleUpdateNode } = useNode();
@@ -69,6 +73,23 @@ const NodeSettingsPanel = () => {
 
     const toast = useToast();
 
+    const toastMessageId = 'copy';
+    const handleShowCopyMessage = () => {
+        if (!toast.isActive(toastMessageId)) {
+            toast({
+                toastMessageId,
+                position: 'top-right',
+                description: 'Copied to clipboard',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+                containerStyle: {
+                    // marginTop: '55px',
+                },
+            });
+        }
+    };
+
     const handleSaveChanges = () => {
         handleUpdateNode(editedNode);
     };
@@ -86,14 +107,26 @@ const NodeSettingsPanel = () => {
                             <FormLabel
                                 borderLeft={`3px solid ${selectedNode.data.icon.color}`}
                                 backgroundColor={`${selectedNode.data.icon.color}0D`}
-                                padding={2}
+                                // padding={2}
                                 overflow="hidden"
                                 whiteSpace="nowrap"
                                 width="100%"
+                                textOverflow="ellipsis"
                             >
-                                <Text fontSize="lg">
-                                    {selectedNode.data.activityName}
-                                </Text>
+                                <Flex alignItems="center">
+                                    <CopyToClipboard
+                                        text={selectedNode.data.activityName}
+                                    >
+                                        <IconButton
+                                            icon={<CopyIcon />}
+                                            variant="ghost"
+                                            onClick={handleShowCopyMessage}
+                                        />
+                                    </CopyToClipboard>
+                                    <Text fontSize="lg">
+                                        {selectedNode.data.activityName}
+                                    </Text>
+                                </Flex>
                             </FormLabel>
                         </FormControl>
                         {/* Conditionally render the FormControl for Name */}
