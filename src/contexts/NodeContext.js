@@ -12,6 +12,7 @@ export const useNode = () => {
 // Create the NodeProvider component to wrap your main component and manage the state of selectedNodes
 export const NodeProvider = ({ children }) => {
     const [selectedNodes, setSelectedNodes] = useState(null);
+    const [selectedEdge, setSelectedEdge] = useState(null);
     const [data, setData] = useState(initialData);
     const [startActivity, setStartActivity] = useState(null);
     const [definedVariables, setDefinedVariables] = useState(null);
@@ -129,6 +130,8 @@ export const NodeProvider = ({ children }) => {
                 setData,
                 selectedNodes,
                 setSelectedNodes,
+                selectedEdge,
+                setSelectedEdge,
                 handleUpdateNode,
                 workflowName,
                 setWorkflowName,

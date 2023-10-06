@@ -28,7 +28,7 @@ import { CopyIcon } from '@chakra-ui/icons';
 
 const NodeSettingsPanel = () => {
     const { selectedNodes, handleUpdateNode } = useNode();
-    const [editedNode, setEditedNode] = useState(selectedNodes[0]);
+    const [editedNode, setEditedNode] = useState(null);
 
     const toastId = 'error-toast';
 
@@ -276,7 +276,7 @@ const NodeSettingsPanel = () => {
                                             ?.value?.value ||
                                         editedNode.data.documents?.value[0]
                                             ?.value ||
-                                        editedNode.data.documents.value[0] ||
+                                        editedNode.data.documents?.value[0] ||
                                         ''
                                     }
                                     onChange={handleInputChange}
@@ -1083,8 +1083,7 @@ const NodeSettingsPanel = () => {
                                     backgroundColor="#fff"
                                     name="trackActivity"
                                     isChecked={
-                                        editedNode.data.trackActivity.value ||
-                                        false
+                                        editedNode.data.trackActivity.value
                                     }
                                     onChange={handleInputChange}
                                     onBlur={handleSaveChanges}
@@ -2336,7 +2335,6 @@ const NodeSettingsPanel = () => {
         //         },
         //     });
         // }
-        console.error(error);
     }
 };
 

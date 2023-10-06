@@ -22,6 +22,7 @@ import DiamondNode from './NodeTypes/DiamondNode';
 import { Box, Flex, useToast, IconButton, Grid, Input } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import NodeSettingsPanel from './NodeSettingsPanel';
+import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import DefaultCustomEdge from './EdgeTypes/DefaultCustomEdge';
 import { useNode } from '../contexts/NodeContext';
 import Header from './Header';
@@ -55,6 +56,8 @@ const WorkflowDiagram = () => {
         setData,
         selectedNodes,
         setSelectedNodes,
+        selectedEdge,
+        setSelectedEdge,
         definedVariables,
         setDefinedVariables,
         mergeDefinedVariables,
@@ -107,11 +110,11 @@ const WorkflowDiagram = () => {
                         width:
                             item.size?.width !== undefined
                                 ? item.size.width
-                                : item.data.size.width,
+                                : item.data?.size.width,
                         height:
                             item.size?.height !== undefined
                                 ? item.size.height
-                                : item.data.size.height,
+                                : item.data?.size.height,
                         zIndex:
                             item.type === 'springcm.Group' ||
                             item.type === 'springcm.Lane'
@@ -650,10 +653,7 @@ const WorkflowDiagram = () => {
                         paddingTop={50}
                     >
                         {/* Set a fixed height to enable scrolling */}
-                        <NodeSettingsPanel
-                            isVisible={isVisible}
-                            setIsVisible={setIsVisible}
-                        />
+                        <NodeSettingsPanel />
                     </Box>
                 )}
             </>
@@ -774,6 +774,11 @@ const WorkflowDiagram = () => {
         } else {
             setSelectedNodes(params.nodes);
         }
+        if (params.edges.length === 0) {
+            setSelectedEdge(null);
+        } else {
+            setSelectedEdge(params.edges[0]);
+        }
     }, []);
 
     const [minimapVisible, setMinimapVisible] = useState(false);
@@ -781,6 +786,8 @@ const WorkflowDiagram = () => {
     const handleMinimapVisible = () => {
         setMinimapVisible((prevVisible) => !prevVisible);
     };
+
+    const snapGrid = [25, 25];
 
     return (
         <>
@@ -835,8 +842,10 @@ const WorkflowDiagram = () => {
                                     elevateEdgesOnSelect
                                     nodesFocusable
                                     style={{ width: '100%', height: '100%' }}
+                                    snapToGrid
+                                    snapGrid={snapGrid}
                                 >
-                                    <Background variant="cross" />
+                                    <Background variant="cross" gap={25} />
                                     <Controls>
                                         <ControlButton
                                             onClick={handleReset}
@@ -895,6 +904,7 @@ const WorkflowDiagram = () => {
 
                     {/* NodeSettingsPanel */}
                     {selectedNodes && nodeSettingsPanelComponent}
+                    {selectedEdge && !selectedNodes && <EdgeSettings />}
                 </Flex>
             </Box>
         </>
