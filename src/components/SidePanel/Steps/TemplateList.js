@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Grid, GridItem, Flex, Text, Box } from '@chakra-ui/react';
+import {
+    Grid,
+    GridItem,
+    Flex,
+    Text,
+    Box,
+    IconButton,
+    CloseButton,
+} from '@chakra-ui/react';
 import Step from './Step';
 import Search from '../Search';
 import AddTemplateButton from './AddTemplateButton';
@@ -13,6 +21,15 @@ const TemplateList = () => {
             JSON.parse(localStorage.getItem('templates')) || [];
         setTemplateLists(storedTemplates);
     }, []);
+
+    // Function to remove a template by name from state and local storage
+    const removeTemplate = (templateName) => {
+        const updatedTemplates = templateLists.filter(
+            (template) => template.name !== templateName
+        );
+        setTemplateLists(updatedTemplates);
+        localStorage.setItem('templates', JSON.stringify(updatedTemplates));
+    };
 
     const handleUpload = (jsonData, fileName) => {
         // Add the uploaded data to the template list
@@ -45,7 +62,15 @@ const TemplateList = () => {
                 autoFlow="row"
             >
                 {templateLists.map((templateList) => (
-                    <GridItem key={templateList.name}>
+                    <GridItem key={templateList.name} position="relative">
+                        <CloseButton
+                            position="absolute"
+                            margin={1}
+                            zIndex={1}
+                            size="sm"
+                            onClick={() => removeTemplate(templateList.name)}
+                        />
+
                         <Step
                             stepName={templateList.name}
                             stepImage="basic-shape-ui.svg"

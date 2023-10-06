@@ -98,7 +98,7 @@ const NodeSettingsPanel = () => {
                 <Box position={'relative'} p={4}>
                     {/* Set a fixed height to enable scrolling */}
                     <FormControl>
-                        Edge ID: {selectedEdge.id}
+                        {/* Edge ID: {selectedEdge.id} */}
                         <FormLabel>Output</FormLabel>
                         <Select
                             backgroundColor="#fff"
