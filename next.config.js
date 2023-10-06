@@ -3,7 +3,7 @@ const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
     images: {
-        domains: ['localhost:3000', process.env.NEXT_PUBLIC_IMAGE_URL],
+        domains: ['localhost:3000'],
     },
     webpack(config) {
         config.module.rules.push({
