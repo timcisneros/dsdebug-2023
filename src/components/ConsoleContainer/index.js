@@ -142,6 +142,7 @@ const ConsoleContainer = ({
                 update: handleUpdateCommand,
                 steps: handleStepsCommand,
                 alias: handleAliasCommand,
+                unalias: handleDeleteAliasCommand,
                 start: handleStartCommand,
                 select: handleSelectCommand,
                 // Add more commands and their corresponding functions here
@@ -192,6 +193,7 @@ const ConsoleContainer = ({
             'dsdebug-log',
             "alias - Create alias (friendly name) to refer to a node's id"
         );
+        console.log('dsdebug-log', 'unalias - Delete an alias');
         console.log(
             'dsdebug-log',
             'list nodes alias - List current alias names and values for nodes'
@@ -242,6 +244,30 @@ const ConsoleContainer = ({
             'dsdebug-log',
             `Alias '${alias}' created for item with id '${itemId}'.`
         );
+    };
+
+    const handleDeleteAliasCommand = (aliasToDelete) => {
+        if (!aliasToDelete) {
+            console.log(
+                'dsdebug-log',
+                'Invalid command. Usage: delete alias <alias>'
+            );
+            return;
+        }
+
+        // Check if the alias exists in the alias map
+        if (!aliasMap.hasOwnProperty(aliasToDelete)) {
+            console.log('dsdebug-log', `Alias '${aliasToDelete}' not found.`);
+            return;
+        }
+
+        // Remove the alias from the alias map
+        const updatedAliasMap = { ...aliasMap };
+        delete updatedAliasMap[aliasToDelete];
+
+        setAliasMap(updatedAliasMap);
+
+        console.log('dsdebug-log', `Alias '${aliasToDelete}' removed.`);
     };
 
     const handleStepsCommand = () => {
