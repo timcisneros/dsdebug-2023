@@ -123,8 +123,10 @@ const NodeSettingsPanel = () => {
                                 >
                                     {stepDataMapping[
                                         sourceStep.activityName
-                                    ].outputData.map((output) => (
-                                        <option value={output}>{output}</option>
+                                    ].outputData.map((output, index) => (
+                                        <option key={index} value={output}>
+                                            {output}
+                                        </option>
                                     ))}
                                 </Select>
                                 {/* <option value="Success">Success</option>
