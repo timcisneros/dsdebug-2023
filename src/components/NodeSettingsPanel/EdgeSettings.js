@@ -104,7 +104,7 @@ const NodeSettingsPanel = () => {
                             .length > 0 && (
                             <FormControl>
                                 {/* Edge ID: {selectedEdge.id} */}
-                                <FormLabel>Output</FormLabel>
+                                <FormLabel>Link Output</FormLabel>
                                 <Select
                                     backgroundColor="#fff"
                                     name="output"

@@ -583,6 +583,8 @@ const WorkflowDiagram = () => {
 
                 templateData.forEach((step) => {
                     if (step.type === 'springcm.Link') {
+                        step.vertices = []; // Set vertices to an empty array
+
                         // Handle link nodes
                         const oldSourceStepId = step.source.id;
                         const oldTargetStepId = step.target.id;
