@@ -6,7 +6,7 @@ const DiamondNode = ({ data, selected }) => {
     const svgPath = `step-images/${icon.path}`;
 
     // Default name value if it's not available
-    const displayName = name?.value || 'Default Name';
+    const displayName = name?.value || '';
 
     // Step description value if it's available
     const stepDescription = data.stepDescription?.value || '';

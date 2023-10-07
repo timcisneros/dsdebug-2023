@@ -4,7 +4,7 @@ import { useNode } from '../../contexts/NodeContext';
 
 const GroupNode = ({ id, data, selected }) => {
     const { name, attrs } = data;
-    const displayName = name?.value || 'Default Name';
+    const displayName = name?.value || '';
     const { setData } = useNode();
 
     const handleResizeEnd = (event, params) => {

@@ -39,32 +39,20 @@ const NodeSettingsPanel = () => {
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
-        // console.log('dsdebug-log', 'Name:', name);
-        // console.log('dsdebug-log', 'Value:', value);
-        // console.log('dsdebug-log', 'Previous editedNode:', editedNode);
-        if (value !== '') {
-            setEditedNode((prevEditedNode) => ({
-                ...prevEditedNode,
-                data: {
-                    ...prevEditedNode.data,
-                    [name]: {
-                        ...prevEditedNode.data[name],
-                        value,
-                    },
+
+        // Check if the value is empty or not
+        const newValue = value !== '' ? value : ''; // Use an empty string or any other default value if it's empty
+
+        setEditedNode((prevEditedNode) => ({
+            ...prevEditedNode,
+            data: {
+                ...prevEditedNode.data,
+                [name]: {
+                    ...prevEditedNode.data[name],
+                    value: newValue, // Set the value based on whether it's empty or not
                 },
-            }));
-        } else {
-            setEditedNode((prevEditedNode) => ({
-                ...prevEditedNode,
-                data: {
-                    ...prevEditedNode.data,
-                    [name]: {
-                        ...prevEditedNode.data[name],
-                        value: '',
-                    },
-                },
-            }));
-        }
+            },
+        }));
     };
 
     // useEffect(() => {
@@ -153,13 +141,13 @@ const NodeSettingsPanel = () => {
                         </FormControl>
                         {/* Conditionally render the FormControl for Name */}
                         {selectedNode.data.name && (
-                            <FormControl>
+                            <FormControl isRequired>
                                 <FormLabel>Step Name</FormLabel>
                                 <Input
                                     backgroundColor="#fff"
                                     placeholder="Step Name"
                                     name="name"
-                                    value={editedNode.data.name?.value || ''}
+                                    value={editedNode.data.name.value || ''}
                                     onChange={handleInputChange}
                                     onBlur={handleSaveChanges}
                                 />

@@ -3,7 +3,7 @@ import { useNode } from '../../contexts/NodeContext';
 
 const LaneNode = ({ id, data, selected }) => {
     const { name, size, attrs, color } = data;
-    const displayName = name?.value || 'Default Name';
+    const displayName = name?.value || '';
     const { setData } = useNode();
 
     const handleResizeEnd = (event, params) => {

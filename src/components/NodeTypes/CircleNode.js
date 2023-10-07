@@ -8,7 +8,7 @@ const CircleNode = ({ data, selected }) => {
     const svgPath = `step-images/${icon.path}`;
 
     // Default name value if it's not available
-    const displayName = name?.value || 'Default Name';
+    const displayName = name?.value || '';
 
     const backgroundColor =
         activityName === 'StartActivity' ? '#f7b618' : '#29bdbe';
