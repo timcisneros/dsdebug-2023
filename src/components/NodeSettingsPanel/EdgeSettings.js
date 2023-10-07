@@ -42,10 +42,6 @@ const NodeSettingsPanel = () => {
         );
     }, [selectedEdge]);
 
-    useEffect(() => {
-        console.log('dsdebug-log', 'Source Step', sourceStep);
-    }, [sourceStep]);
-
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         if (name === 'output') {
@@ -85,10 +81,6 @@ const NodeSettingsPanel = () => {
             // });
         }
     };
-
-    // useEffect(() => {
-    //     console.log('dsdebug-log', 'Updated editedNode:', selectedEdge[0]);
-    // }, [editedNode]);
 
     const toast = useToast();
 
