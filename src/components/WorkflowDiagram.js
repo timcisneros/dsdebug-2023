@@ -490,14 +490,15 @@ const WorkflowDiagram = () => {
                 // Add a new StepNode to the nodes state
                 const nodeId = generateId();
                 const newNode = {
-                    ...stepDataMapping[nodeData.activityName],
+                    ...stepDataMapping[nodeData.activityName].type,
                     id: nodeId,
                     size: { width: 100, height: 100 },
                     position,
                     name: {
                         type: 'String',
                         value: generateUniqueName(
-                            stepDataMapping[nodeData.activityName].name.value,
+                            stepDataMapping[nodeData.activityName].type.name
+                                .value,
                             existingStepNames
                         ),
                     },

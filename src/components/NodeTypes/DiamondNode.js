@@ -34,13 +34,13 @@ const DiamondNode = ({ data, selected }) => {
             >
                 <Handle
                     type="source"
-                    position={Position.Left}
-                    id={`${id}-left`}
+                    position={Position.Right}
+                    id={`${id}-right`}
                 />
                 <Handle
                     type="target"
-                    position={Position.Right}
-                    id={`${id}-right`}
+                    position={Position.Left}
+                    id={`${id}-left`}
                 />
                 <div
                     style={{

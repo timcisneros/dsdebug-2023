@@ -5501,104 +5501,448 @@ const xmlMergeDocumentActivity = {
 };
 
 export const stepDataMapping = {
-    AddWatchedDocumentsActivity: addWatchedDocumentsActivity,
-    AddSalesForceActivityHistoryActivity: addSalesForceActivityHistoryActivity,
-    AddSalesForceTaskActivity: addSalesForceTaskActivity,
-    AppendTextDocumentActivity: appendTextDocumentActivity,
-    ApproveDocumentsActivity: approveDocumentsActivity,
-    CancelElectronicSignatureActivity: cancelElectronicSignatureActivity,
-    CheckInDocumentActivity: checkInDocumentActivity,
-    CheckOutDocumentActivity: checkOutDocumentActivity,
-    CheckOutDocumentCancelActivity: checkOutDocumentCancelActivity,
-    ChoiceActivity: choiceActivity,
-    ChooseDocumentsActivity: chooseDocumentsActivity,
-    ChooseUsersActivity: chooseUsersActivity,
-    MergePdfDocumentActivity: mergePdfDocumentActivity,
-    CompareDocumentVersionsActivity: compareDocumentVersionsActivity,
-    CompareDocumentsActivity: compareDocumentsActivity,
-    CompareTrackedContentActivity: compareTrackedContentActivity,
-    ConvertJsonToXmlActivity: convertJsonToXmlActivity,
-    CopyMoveDocumentActivity: copyMoveDocumentActivity,
-    CopyFolderActivity: copyFolderActivity,
-    CreateFolderActivity: createFolderActivity,
-    CreateLinkActivity: createLinkActivity,
-    InsertSalesforceActivity: insertSalesforceActivity,
-    FindOrCreateSalesForceFolderActivity: findOrCreateSalesForceFolderActivity,
-    UpdateXMLVariableFromCSVActivity: updateXMLVariableFromCSVActivity,
-    CreateDocumentActivity: createDocumentActivity,
-    DataReconciliationActivity: dataReconciliationActivity,
-    DecisionActivity: decisionActivity,
-    DeleteDocumentReminderActivity: deleteDocumentReminderActivity,
-    DocLauncherActivity: docLauncherActivity,
-    EditDocumentsActivity: editDocumentsActivity,
-    EditFormActivity: editFormActivity,
-    SendEmailActivity: sendEmailActivity,
-    EmailDocumentActivity: emailDocumentActivity,
-    EvaluateDocumentText: evaluateDocumentText,
-    EvaluateXPathActivity: evaluateXPathActivity,
-    ExcelEtlActivity: excelEtlActivity,
-    ExtractPdfFieldsActivity: extractPdfFieldsActivity,
-    FaxDocumentActivity: faxDocumentActivity,
-    FaxDocumentAndWaitActivity: faxDocumentAndWaitActivity,
-    FillFormActivity: fillFormActivity,
-    GetDocumentAttachmentsActivity: getDocumentAttachmentsActivity,
-    FindDocumentActivity: findDocumentActivity,
-    FindDocumentsByFolderActivity: findDocumentsByFolderActivity,
-    FindDocumentsByMetadataActivity: findDocumentsByMetadataActivity,
-    FindEOSParentFolderActivity: findEOSParentFolderActivity,
-    FindFolderActivity: findFolderActivity,
-    FindUserActivity: findUserActivity,
-    FindOrCreateEOSFolderActivity: findOrCreateEOSFolderActivity,
-    EndActivity: endActivity,
-    ForLoopActivity: forLoopActivity,
-    XPathForEachLoopActivity: xPathForEachLoopActivity,
-    FullPageEditFormActivity: fullPageEditFormActivity,
-    FullPageFillFormActivity: fullPageFillFormActivity,
-    GetNextAutoNumberValueActivity: getNextAutoNumberValueActivity,
-    GetPathActivity: getPathActivity,
-    GetTrackedContentActivity: getTrackedContentActivity,
-    GroupBoxActivity: groupBoxActivity,
-    HttpClientActivity: httpClientActivity,
-    WebServiceActivity: webServiceActivity,
-    LaneActivity: laneActivity,
-    LogActivity: logActivity,
-    MergeTrackedContentActivity: mergeTrackedContentActivity,
-    NextLoopActivity: nextLoopActivity,
-    PoolActivity: poolActivity,
-    RemoveWatchedDocumentsActivity: removeWatchedDocumentsActivity,
-    RenameDocumentActivity: renameDocumentActivity,
-    ResourceVariableActivity: resourceVariableActivity,
-    DataReviewActivity: dataReviewActivity,
-    ReviewAndSendForExternalReviewActivity:
-        reviewAndSendForExternalReviewActivity,
-    ReviewAndSendForSignatureActivity: reviewAndSendForSignatureActivity,
-    RoutingActivity: routingActivity,
-    RuleActivity: ruleActivity,
-    SalesforceEtlActivity: salesforceEtlActivity,
-    ScheduleDocumentReminderActivity: scheduleDocumentReminderActivity,
-    SearchActivity: searchActivity,
-    SendForExternalReviewNewActivity: sendForExternalReviewNewActivity,
-    SendForSignatureActivity: sendForSignatureActivity,
-    UpdateWorkflowOutputActivity: updateWorkflowOutputActivity,
-    SetWorkflowScopeNameActivity: setWorkflowScopeNameActivity,
-    SplitDocumentActivity: splitDocumentActivity,
-    SimpleDelayActivity: simpleDelayActivity,
-    UpdateDocumentKeywordActivity: updateDocumentKeywordActivity,
-    UpdateDocumentMetadataActivity: updateDocumentMetadataActivity,
-    UpdateFolderDescriptionActivity: updateFolderDescriptionActivity,
-    UpdateFolderMetadataActivity: updateFolderMetadataActivity,
-    UpdateStatusActivity: updateStatusActivity,
-    UpdateParentVariableActivity: updateParentVariableActivity,
-    UpdateSalesForceActivity: updateSalesForceActivity,
-    UpdateSecurityActivity: updateSecurityActivity,
-    UpdateVariableFromCSVActivity: updateVariableFromCSVActivity,
-    UpdateVariableFromXMLActivity: updateVariableFromXMLActivity,
-    UpdateVariableActivity: updateVariableActivity,
-    WaitForExternalReviewActivity: waitForExternalReviewActivity,
-    WaitForSignal: waitForSignal,
-    WaitForSignatureActivity: waitForSignatureActivity,
-    WatermarkDocumentActivity: watermarkDocumentActivity,
-    WorkflowActivity: workflowActivity,
-    WriteTextDocumentActivity: writeTextDocumentActivity,
-    XmlMergeDocumentActivity: xmlMergeDocumentActivity,
+    AddWatchedDocumentsActivity: {
+        type: addWatchedDocumentsActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    AddSalesForceActivityHistoryActivity: {
+        type: addSalesForceActivityHistoryActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    AddSalesForceTaskActivity: {
+        type: addSalesForceTaskActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    AppendTextDocumentActivity: {
+        type: appendTextDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    ApproveDocumentsActivity: {
+        type: approveDocumentsActivity,
+        outputData: [
+            'Approved',
+            'Rejected',
+            'Cancel',
+            'Failure',
+            'Timeout - Action',
+        ],
+    },
+    CancelElectronicSignatureActivity: {
+        type: cancelElectronicSignatureActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    CheckInDocumentActivity: {
+        type: checkInDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    CheckOutDocumentActivity: {
+        type: checkOutDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    CheckOutDocumentCancelActivity: {
+        type: checkOutDocumentCancelActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    ChoiceActivity: {
+        type: choiceActivity,
+        outputData: ['Failure'],
+    },
+    ChooseDocumentsActivity: {
+        type: chooseDocumentsActivity,
+        outputData: ['Failure', 'ActionCompleted', 'ActionRejected'],
+    },
+    ChooseUsersActivity: {
+        type: chooseUsersActivity,
+        outputData: ['Failure', 'ActionCompleted', 'ActionRejected'],
+    },
+    MergePdfDocumentActivity: {
+        type: mergePdfDocumentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    CompareDocumentVersionsActivity: {
+        type: compareDocumentVersionsActivity,
+        outputData: [
+            'Success',
+            'Failure',
+            'Timed Out',
+            'Compare Timeout',
+            'No Version',
+        ],
+    },
+    CompareDocumentsActivity: {
+        type: compareDocumentsActivity,
+        outputData: ['Success', 'Failure', 'Timed Out', 'Compare Timeout'],
+    },
+    CompareTrackedContentActivity: {
+        type: compareTrackedContentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    ConvertJsonToXmlActivity: {
+        type: convertJsonToXmlActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    CopyMoveDocumentActivity: {
+        type: copyMoveDocumentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    CopyFolderActivity: {
+        type: copyFolderActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    CreateFolderActivity: {
+        type: createFolderActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    CreateLinkActivity: {
+        type: createLinkActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    InsertSalesforceActivity: {
+        type: insertSalesforceActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    FindOrCreateSalesForceFolderActivity: {
+        type: findOrCreateSalesForceFolderActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateXMLVariableFromCSVActivity: {
+        type: updateXMLVariableFromCSVActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    CreateDocumentActivity: {
+        type: createDocumentActivity,
+        outputData: ['Action Canceled', 'Action Completed', 'Failure'],
+    },
+    DataReconciliationActivity: {
+        type: dataReconciliationActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    DecisionActivity: {
+        type: decisionActivity,
+        outputData: ['Failure'],
+    },
+    DeleteDocumentReminderActivity: {
+        type: deleteDocumentReminderActivity,
+        outputData: ['Success', 'Failure Reminder Not Found', 'Failure'],
+    },
+    DocLauncherActivity: {
+        type: docLauncherActivity,
+        outputData: ['Success', 'Conditional Success', 'Failure'],
+    },
+    EditDocumentsActivity: {
+        type: editDocumentsActivity,
+        outputData: ['ActionCompleted', 'ActionRejected', 'Failure'],
+    },
+    EditFormActivity: {
+        type: editFormActivity,
+        outputData: ['ActionCompleted', 'Failure'],
+    },
+    SendEmailActivity: {
+        type: sendEmailActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    EmailDocumentActivity: {
+        type: emailDocumentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    EvaluateDocumentText: {
+        type: evaluateDocumentText,
+        outputData: ['Failure', 'Match', 'No Match'],
+    },
+    EvaluateXPathActivity: {
+        type: evaluateXPathActivity,
+        outputData: ['Failure', 'Match', 'No Match'],
+    },
+    ExcelEtlActivity: {
+        type: excelEtlActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    ExtractPdfFieldsActivity: {
+        type: extractPdfFieldsActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    FaxDocumentActivity: {
+        type: faxDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    FaxDocumentAndWaitActivity: {
+        type: faxDocumentAndWaitActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    FillFormActivity: {
+        type: fillFormActivity,
+        outputData: ['ActionCompleted', 'Failure'],
+    },
+    GetDocumentAttachmentsActivity: {
+        type: getDocumentAttachmentsActivity,
+        outputData: ['Success', 'Failure', 'Has Attachments', 'No Attachments'],
+    },
+    FindDocumentActivity: {
+        type: findDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    FindDocumentsByFolderActivity: {
+        type: findDocumentsByFolderActivity,
+        outputData: ['Success', 'Failure', 'Match', 'No Match'],
+    },
+    FindDocumentsByMetadataActivity: {
+        type: findDocumentsByMetadataActivity,
+        outputData: ['Success', 'Failure', 'Match', 'No Match'],
+    },
+    FindEOSParentFolderActivity: {
+        type: findEOSParentFolderActivity,
+        outputData: ['Found', 'Not Found'],
+    },
+    FindFolderActivity: {
+        type: findFolderActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    FindUserActivity: {
+        type: findUserActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    FindOrCreateEOSFolderActivity: {
+        type: findOrCreateEOSFolderActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    EndActivity: { type: endActivity },
+    ForLoopActivity: {
+        type: forLoopActivity,
+        outputData: ['Step', 'Loop End', 'Failure'],
+    },
+    XPathForEachLoopActivity: {
+        type: xPathForEachLoopActivity,
+        outputData: ['Step', 'Loop End', 'Failure'],
+    },
+    FullPageEditFormActivity: {
+        type: fullPageEditFormActivity,
+        outputData: ['ActionCompleted', 'Failure'],
+    },
+    FullPageFillFormActivity: {
+        type: fullPageFillFormActivity,
+        outputData: ['ActionCompleted', 'Failure'],
+    },
+    GetNextAutoNumberValueActivity: {
+        type: getNextAutoNumberValueActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    GetPathActivity: {
+        type: getPathActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    GetTrackedContentActivity: {
+        type: getTrackedContentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    GroupBoxActivity: {
+        type: groupBoxActivity,
+    },
+    HttpClientActivity: {
+        type: httpClientActivity,
+        outputData: ['Success', 'Failure', 'Response Failure'],
+    },
+    WebServiceActivity: {
+        type: webServiceActivity,
+        outputData: [
+            'Success',
+            'Webservice Execution Failed',
+            'Failure',
+            'Timed Out',
+        ],
+    },
+    LaneActivity: { type: laneActivity },
+    LogActivity: { type: logActivity, outputData: ['Failure'] },
+    MergeTrackedContentActivity: {
+        type: mergeTrackedContentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    NextLoopActivity: {
+        type: nextLoopActivity,
+        outputData: ['Next Step', 'Failure'],
+    },
+    PoolActivity: { type: poolActivity },
+    RemoveWatchedDocumentsActivity: {
+        type: removeWatchedDocumentsActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    RenameDocumentActivity: {
+        type: renameDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    ResourceVariableActivity: {
+        type: resourceVariableActivity,
+        outputData: ['Not Enough Resources', 'Action Executed', 'Failure'],
+    },
+    DataReviewActivity: {
+        type: dataReviewActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    ReviewAndSendForExternalReviewActivity: {
+        type: reviewAndSendForExternalReviewActivity,
+        outputData: [
+            'Action Completed - External Review Rejected by Sender',
+            'Action Completed - External Review Sent by Sender',
+            'Action Canceled',
+            'Canceled',
+            'Failure',
+        ],
+    },
+    ReviewAndSendForSignatureActivity: {
+        type: reviewAndSendForSignatureActivity,
+        outputData: [
+            'Action Completed - Sent by Sender',
+            'Action Completed - Rejected by Sender',
+            'Action Canceled',
+            'Failure',
+        ],
+    },
+    RoutingActivity: {
+        type: routingActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    RuleActivity: {
+        type: ruleActivity,
+        outputData: ['True', 'False', 'Failure'],
+    },
+    SalesforceEtlActivity: {
+        type: salesforceEtlActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    ScheduleDocumentReminderActivity: {
+        type: scheduleDocumentReminderActivity,
+        outputData: ['Success', 'Duplicate Reminder', 'Failure'],
+    },
+    SearchActivity: {
+        type: searchActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    SendForExternalReviewNewActivity: {
+        type: sendForExternalReviewNewActivity,
+        outputData: [
+            'Cancelled - Invalid Recipient',
+            'Cancelled - Manual Override',
+            'Completed without Document',
+            'Completed with Document',
+            'Expired',
+            'Failure',
+        ],
+    },
+    SendForSignatureActivity: {
+        type: sendForSignatureActivity,
+        outputData: [
+            'Cancelled',
+            'Signed',
+            'Rejected',
+            'Updated',
+            'Failure',
+            'Timed Out',
+        ],
+    },
+    UpdateWorkflowOutputActivity: {
+        type: updateWorkflowOutputActivity,
+        outputData: ['Set', 'Not Set', 'Failure'],
+    },
+    SetWorkflowScopeNameActivity: {
+        type: setWorkflowScopeNameActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    SplitDocumentActivity: {
+        type: splitDocumentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    SimpleDelayActivity: {
+        type: simpleDelayActivity,
+        outputData: ['Failure'],
+    },
+    UpdateDocumentKeywordActivity: {
+        type: updateDocumentKeywordActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateDocumentMetadataActivity: {
+        type: updateDocumentMetadataActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateFolderDescriptionActivity: {
+        type: updateFolderDescriptionActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateFolderMetadataActivity: {
+        type: updateFolderMetadataActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateStatusActivity: {
+        type: updateStatusActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateParentVariableActivity: {
+        type: updateParentVariableActivity,
+        outputData: ['Updated', 'Not Updated', 'Failure'],
+    },
+    UpdateSalesForceActivity: {
+        type: updateSalesForceActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    UpdateSecurityActivity: {
+        type: updateSecurityActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateVariableFromCSVActivity: {
+        type: updateVariableFromCSVActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateVariableFromXMLActivity: {
+        type: updateVariableFromXMLActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    UpdateVariableActivity: {
+        type: updateVariableActivity,
+        outputData: ['Updated', 'Not Updated', 'Failure'],
+    },
+    WaitForExternalReviewActivity: {
+        type: waitForExternalReviewActivity,
+        outputData: [
+            'Cancelled - Invalid Recipient',
+            'Cancelled - Manual Override',
+            'Completed without Document',
+            'Completed with Document',
+            'Expired',
+            'Failure',
+        ],
+    },
+    WaitForSignal: {
+        type: waitForSignal,
+        outputData: ['Timeout', 'Signalled', 'Failure'],
+    },
+    WaitForSignatureActivity: {
+        type: waitForSignatureActivity,
+        outputData: [
+            'Cancelled',
+            'Signed',
+            'Rejected',
+            'Updated',
+            'Failure',
+            'Timed Out',
+        ],
+    },
+    WatermarkDocumentActivity: {
+        type: watermarkDocumentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    WorkflowActivity: {
+        type: workflowActivity,
+        outputData: [
+            'Child Workflow Aborted',
+            'Child Workflow Failure',
+            'Failure',
+            'Success',
+        ],
+    },
+    WriteTextDocumentActivity: {
+        type: writeTextDocumentActivity,
+        outputData: ['Success', 'Failure'],
+    },
+    XmlMergeDocumentActivity: {
+        type: xmlMergeDocumentActivity,
+        outputData: ['Success', 'Failure', 'Timed Out'],
+    },
 };

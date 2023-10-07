@@ -434,7 +434,7 @@ const ConsoleContainer = ({
         }
 
         const createStep = (activityName, x, y, alias, tempStepNames) => {
-            if (!stepDataMapping[activityName]) {
+            if (!stepDataMapping[activityName].type) {
                 console.log(
                     'dsdebug-log',
                     `Could not find valid activity name for: '${activityName}'. Type "steps" for available names.`
@@ -444,7 +444,8 @@ const ConsoleContainer = ({
 
             const nodeId = generateId();
             const name =
-                stepDataMapping[activityName]?.name?.value || activityName;
+                stepDataMapping[activityName]?.type?.name?.value ||
+                activityName;
 
             const existingStepNames = nodes.map(
                 (node) => node.data.name?.value
@@ -462,7 +463,7 @@ const ConsoleContainer = ({
             }
 
             const newNode = {
-                ...stepDataMapping[activityName],
+                ...stepDataMapping[activityName].type,
                 id: nodeId,
                 size: { width: 100, height: 100 },
                 position: { x: parseFloat(x), y: parseFloat(y) },
