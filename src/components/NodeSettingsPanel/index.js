@@ -21,10 +21,14 @@ import {
     useToast,
     IconButton,
     Flex,
+    Tag,
+    TagLabel,
+    TagCloseButton,
 } from '@chakra-ui/react';
 import { useNode } from '../../contexts/NodeContext';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { CopyIcon } from '@chakra-ui/icons';
+import TagInput from './TagInput';
 
 const NodeSettingsPanel = () => {
     const { selectedNodes, handleUpdateNode } = useNode();
@@ -779,7 +783,9 @@ const NodeSettingsPanel = () => {
                                     backgroundColor="#fff"
                                     name="fieldValue"
                                     value={
-                                        editedNode.data.fieldValue.value || ''
+                                        editedNode.data.fieldValue.value.code ||
+                                        editedNode.data.fieldValue.value ||
+                                        ''
                                     }
                                     onChange={handleInputChange}
                                     onBlur={handleSaveChanges}
@@ -802,16 +808,28 @@ const NodeSettingsPanel = () => {
                                                 variable
                                             )}
                                             <FormLabel>Variable</FormLabel>
-                                            <Input
-                                                backgroundColor="#fff"
-                                                name={`variableConfigure.value[${index}]`}
-                                                value={
-                                                    variable.variableToConfigure
-                                                        .value.value || ''
-                                                }
-                                                onChange={handleInputChange}
-                                                onBlur={handleSaveChanges}
-                                            />
+                                            {variable.variableToConfigure
+                                                .type !== 'Variable' ? (
+                                                <Input
+                                                    backgroundColor="#fff"
+                                                    name={`variableConfigure.value[${index}]`}
+                                                    value={
+                                                        variable
+                                                            .variableToConfigure
+                                                            .value.value || ''
+                                                    }
+                                                    onChange={handleInputChange}
+                                                    onBlur={handleSaveChanges}
+                                                />
+                                            ) : (
+                                                <TagInput
+                                                    variable={
+                                                        variable
+                                                            .variableToConfigure
+                                                            .value.value
+                                                    }
+                                                />
+                                            )}
                                             <FormLabel>Value</FormLabel>
                                             <Input
                                                 backgroundColor="#fff"
