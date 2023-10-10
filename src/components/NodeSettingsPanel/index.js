@@ -749,7 +749,11 @@ const NodeSettingsPanel = () => {
                                 <Input
                                     backgroundColor="#fff"
                                     name="status"
-                                    value={editedNode.data.status.value || ''}
+                                    value={
+                                        editedNode.data.status.value.code ||
+                                        editedNode.data.status.value ||
+                                        ''
+                                    }
                                     onChange={handleInputChange}
                                     onBlur={handleSaveChanges}
                                 />
@@ -793,6 +797,10 @@ const NodeSettingsPanel = () => {
                                 {selectedNode.data.variableUpdates.value.map(
                                     (variable, index) => (
                                         <FormControl key={index}>
+                                            {console.log(
+                                                'dsbebug-log',
+                                                variable
+                                            )}
                                             <FormLabel>Variable</FormLabel>
                                             <Input
                                                 backgroundColor="#fff"
@@ -809,6 +817,8 @@ const NodeSettingsPanel = () => {
                                                 backgroundColor="#fff"
                                                 name={`variableUpdates.value[${index}].variableValue.value.value`}
                                                 value={
+                                                    variable.variableValue.value
+                                                        .code ||
                                                     variable.variableValue.value
                                                         .value ||
                                                     variable.variableValue
