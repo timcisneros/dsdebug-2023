@@ -90,38 +90,40 @@ const NodeSettingsPanel = () => {
 
     try {
         return (
-            <Box
-                w="20rem"
-                backgroundColor="#fff"
-                borderLeft="1px solid #ccc"
-                overflowY="auto"
-                paddingTop={50}
-            >
-                <Box position={'relative'} p={4}>
-                    {/* Set a fixed height to enable scrolling */}
-                    {sourceStep &&
-                        stepDataMapping[sourceStep.activityName].outputData
-                            .length > 0 && (
-                            <FormControl>
-                                {/* Edge ID: {selectedEdge.id} */}
-                                <FormLabel>Link Output</FormLabel>
-                                <Select
-                                    backgroundColor="#fff"
-                                    name="output"
-                                    value={editedEdge?.label}
-                                    onChange={handleInputChange}
-                                    onBlur={handleSaveChanges}
-                                    placeholder=" "
-                                >
-                                    {stepDataMapping[
-                                        sourceStep.activityName
-                                    ].outputData.map((output, index) => (
-                                        <option key={index} value={output}>
-                                            {output}
-                                        </option>
-                                    ))}
-                                </Select>
-                                {/* <option value="Success">Success</option>
+            <>
+                {sourceStep &&
+                    stepDataMapping[sourceStep.activityName].outputData.length >
+                        0 && (
+                        <Box
+                            w="20rem"
+                            backgroundColor="#fff"
+                            borderLeft="1px solid #ccc"
+                            overflowY="auto"
+                            paddingTop={50}
+                        >
+                            <Box position={'relative'} p={4}>
+                                {/* Set a fixed height to enable scrolling */}
+
+                                <FormControl>
+                                    {/* Edge ID: {selectedEdge.id} */}
+                                    <FormLabel>Link Output</FormLabel>
+                                    <Select
+                                        backgroundColor="#fff"
+                                        name="output"
+                                        value={editedEdge?.label}
+                                        onChange={handleInputChange}
+                                        onBlur={handleSaveChanges}
+                                        placeholder=" "
+                                    >
+                                        {stepDataMapping[
+                                            sourceStep.activityName
+                                        ].outputData.map((output, index) => (
+                                            <option key={index} value={output}>
+                                                {output}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                    {/* <option value="Success">Success</option>
                             <option value="Failure">Failure</option>
                             <option value="Timed Out">Timed Out</option>
                             <option value="Approved">Approved</option>
@@ -236,10 +238,11 @@ const NodeSettingsPanel = () => {
                             <option value="Child Workflow Failure">
                                 Child Workflow Failure
                             </option> */}
-                            </FormControl>
-                        )}
-                </Box>
-            </Box>
+                                </FormControl>
+                            </Box>
+                        </Box>
+                    )}
+            </>
         );
     } catch (error) {
         // if (!toast.isActive(toastId)) {
