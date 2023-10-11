@@ -18,6 +18,7 @@ export const NodeProvider = ({ children }) => {
     const [definedVariables, setDefinedVariables] = useState(null);
     const [workflowName, setWorkflowName] = useState(null);
     const [newNodesAdded, setNewNodesAdded] = useState(false);
+    const [iterateVars, setIterateVars] = useState(false);
     // useState to store defaultNodePositions and setDefaultNodePositions
     const [defaultNodePositions, setDefaultNodePositions] = useState(null);
 
@@ -56,7 +57,7 @@ export const NodeProvider = ({ children }) => {
                     existingVar.value.name === templateVar.value.name
             );
 
-            if (existingVar) {
+            if (existingVar && iterateVars) {
                 let newName = `${templateVar.value.name}_1`;
                 let iterator = 2;
 
@@ -69,7 +70,7 @@ export const NodeProvider = ({ children }) => {
                     iterator++;
                 }
 
-                // Create a new object with the updated name to avoid modifying the templateVar directly
+                // Create a new object with the updated name
                 templateVar = {
                     ...templateVar,
                     value: {
@@ -79,7 +80,10 @@ export const NodeProvider = ({ children }) => {
                 };
             }
 
-            mergedVariables.push(templateVar);
+            // Only push if not found in existingVariables, or if found and iterateVars is true
+            if (!existingVar || (existingVar && iterateVars)) {
+                mergedVariables.push(templateVar);
+            }
         });
 
         return mergedVariables;
@@ -145,6 +149,8 @@ export const NodeProvider = ({ children }) => {
                 setNewNodesAdded,
                 defaultNodePositions,
                 setDefaultNodePositions,
+                iterateVars,
+                setIterateVars,
             }}
         >
             {children}

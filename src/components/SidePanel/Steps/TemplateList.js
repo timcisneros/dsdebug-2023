@@ -5,14 +5,19 @@ import {
     Flex,
     Text,
     Box,
+    Checkbox,
+    Tooltip,
     IconButton,
     CloseButton,
 } from '@chakra-ui/react';
 import Step from './Step';
 import Search from '../Search';
 import AddTemplateButton from './AddTemplateButton';
+import { useNode } from '../../../contexts/NodeContext';
+import { InfoIcon } from '@chakra-ui/icons';
 
 const TemplateList = () => {
+    const { iterateVars, setIterateVars } = useNode();
     const [templateLists, setTemplateLists] = useState([]);
 
     // Load items from local storage on page load
@@ -118,7 +123,28 @@ const TemplateList = () => {
                     />
                 </GridItem>
             </Grid>
-            <AddTemplateButton onUpload={handleUpload} />
+            <Flex
+                flexDirection="column"
+                justifyContent="space-evenly"
+                alignItems="center"
+            >
+                <AddTemplateButton onUpload={handleUpload} />
+                <Flex alignItems="center" mt={2}>
+                    <Checkbox
+                        name="iterateVars"
+                        isChecked={iterateVars}
+                        onChange={() => setIterateVars(!iterateVars)}
+                    >
+                        Unique Variables
+                    </Checkbox>
+                    <Tooltip
+                        label="Make merged variable names unique"
+                        placement="top"
+                    >
+                        <InfoIcon ml={2} cursor="help" />
+                    </Tooltip>
+                </Flex>
+            </Flex>
         </Box>
     );
 };
