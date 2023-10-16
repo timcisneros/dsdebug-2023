@@ -42,10 +42,18 @@ const NodeSettingsPanel = () => {
     }, [selectedNodes]);
 
     const handleInputChange = (event) => {
-        const { name, value } = event.target;
+        const { name, value, type, checked } = event.target;
 
-        // Check if the value is empty or not
-        const newValue = value !== '' ? value : ''; // Use an empty string or any other default value if it's empty
+        // Determine the updated value based on the type
+        let newValue;
+
+        if (type === 'checkbox') {
+            // If it's a checkbox, use the 'checked' property
+            newValue = checked;
+        } else {
+            // If it's not a checkbox, use the 'value' property
+            newValue = value !== '' ? value : '';
+        }
 
         setEditedNode((prevEditedNode) => ({
             ...prevEditedNode,
@@ -53,7 +61,7 @@ const NodeSettingsPanel = () => {
                 ...prevEditedNode.data,
                 [name]: {
                     ...prevEditedNode.data[name],
-                    value: newValue, // Set the value based on whether it's empty or not
+                    value: newValue,
                 },
             },
         }));
@@ -260,7 +268,7 @@ const NodeSettingsPanel = () => {
                         {selectedNode.data.documents && (
                             <FormControl>
                                 <FormLabel>Document(s)</FormLabel>
-                                <Input
+                                {/* <Input
                                     backgroundColor="#fff"
                                     name="documents"
                                     value={
@@ -273,7 +281,8 @@ const NodeSettingsPanel = () => {
                                     }
                                     onChange={handleInputChange}
                                     onBlur={handleSaveChanges}
-                                />
+                                /> */}
+                                <p>VariableInput</p>
                             </FormControl>
                         )}
                         {selectedNode.data.query && (
@@ -336,13 +345,14 @@ const NodeSettingsPanel = () => {
                         {selectedNode.data.users && (
                             <FormControl>
                                 <FormLabel>User(s)</FormLabel>
-                                <Input
+                                {/* <Input
                                     backgroundColor="#fff"
                                     name="users"
                                     value={editedNode.data.users.value[0] || ''}
                                     onChange={handleInputChange}
                                     onBlur={handleSaveChanges}
-                                />
+                                /> */}
+                                <p>VariableInput</p>
                             </FormControl>
                         )}
                         {selectedNode.data.action && (
@@ -803,10 +813,6 @@ const NodeSettingsPanel = () => {
                                 {selectedNode.data.variableUpdates.value.map(
                                     (variable, index) => (
                                         <FormControl key={index}>
-                                            {console.log(
-                                                'dsbebug-log',
-                                                variable
-                                            )}
                                             <FormLabel>Variable</FormLabel>
                                             {variable.variableToConfigure
                                                 .type !== 'Variable' ? (
@@ -823,11 +829,16 @@ const NodeSettingsPanel = () => {
                                                 />
                                             ) : (
                                                 <TagInput
-                                                    variable={
+                                                    variable={variable}
+                                                    variableName={
                                                         variable
                                                             .variableToConfigure
                                                             .value.value
                                                     }
+                                                    setEditedNode={
+                                                        setEditedNode
+                                                    }
+                                                    name={`variableConfigure.value[${index}]`}
                                                 />
                                             )}
                                             <FormLabel>Value</FormLabel>
@@ -1107,16 +1118,20 @@ const NodeSettingsPanel = () => {
                             </FormControl>
                         )}
                         {selectedNode.data.targetDocument && (
-                            <Input
-                                backgroundColor="#fff"
-                                Form
-                                name="Document"
-                                value={
-                                    editedNode.data.targetDocument.value[0] ||
-                                    ''
-                                }
-                                handleInputChange={handleInputChange}
-                            />
+                            <FormControl>
+                                {/* <FormLabel>Document</FormLabel>
+                                <Input
+                                    backgroundColor="#fff"
+                                    Form
+                                    name="Document"
+                                    value={
+                                        editedNode.data.targetDocument
+                                            .value[0] || ''
+                                    }
+                                    handleInputChange={handleInputChange}
+                                /> */}
+                                <p>VariableInput</p>
+                            </FormControl>
                         )}
                         {selectedNode.data.textSourceType && (
                             <FormControl>

@@ -434,7 +434,7 @@ const ConsoleContainer = ({
         }
 
         const createStep = (activityName, x, y, alias, tempStepNames) => {
-            if (!stepDataMapping[activityName].type) {
+            if (!stepDataMapping[activityName]?.type) {
                 console.log(
                     'dsdebug-log',
                     `Could not find valid activity name for: '${activityName}'. Type "steps" for available names.`
@@ -890,47 +890,49 @@ const ConsoleContainer = ({
                     color="white"
                     size="xs"
                 />
-                <Box
-                    position="relative"
-                    borderTop="1px solid #2C2C2C"
-                    marginTop="24px"
-                    width="100%"
-                    height="calc(100% - 60px)"
-                    overflowY="scroll"
-                    className="console"
-                >
-                    <LogsContainer
-                        ref={logsEndRef}
-                        logs={logs}
-                        setLogs={setLogs}
-                    />
-                </Box>
-                <Box position="absolute" bottom="0" width="100%">
-                    <form onSubmit={handleInputSubmit}>
-                        {inputVisible && (
-                            <InputGroup>
-                                <InputLeftElement pointerEvents="none">
-                                    <ChevronRightIcon color="gray.300" />
-                                </InputLeftElement>
-                                <Input
-                                    spellCheck="false"
-                                    placeholder="command line"
-                                    fontFamily="Consolas,Lucida Console,Courier New,monospace"
-                                    fontSize="12px"
-                                    color="#fff"
-                                    variant="unstyled"
-                                    width="100%"
-                                    px={35}
-                                    py="10px"
-                                    value={inputValue}
-                                    onKeyDown={handleKeyDown}
-                                    onChange={handleInputChange}
-                                    onSubmit={handleInputSubmit}
-                                />
-                            </InputGroup>
-                        )}
-                    </form>
-                </Box>
+                {inputVisible && (
+                    <>
+                        <Box
+                            position="relative"
+                            borderTop="1px solid #2C2C2C"
+                            marginTop="24px"
+                            width="100%"
+                            height="calc(100% - 60px)"
+                            overflowY="scroll"
+                            className="console"
+                        >
+                            <LogsContainer
+                                ref={logsEndRef}
+                                logs={logs}
+                                setLogs={setLogs}
+                            />
+                        </Box>
+                        <Box position="absolute" bottom="0" width="100%">
+                            <form onSubmit={handleInputSubmit}>
+                                <InputGroup>
+                                    <InputLeftElement pointerEvents="none">
+                                        <ChevronRightIcon color="gray.300" />
+                                    </InputLeftElement>
+                                    <Input
+                                        spellCheck="false"
+                                        placeholder="command line"
+                                        fontFamily="Consolas,Lucida Console,Courier New,monospace"
+                                        fontSize="12px"
+                                        color="#fff"
+                                        variant="unstyled"
+                                        width="100%"
+                                        px={35}
+                                        py="10px"
+                                        value={inputValue}
+                                        onKeyDown={handleKeyDown}
+                                        onChange={handleInputChange}
+                                        onSubmit={handleInputSubmit}
+                                    />
+                                </InputGroup>
+                            </form>
+                        </Box>
+                    </>
+                )}
                 {/* Resizing handle */}
                 <Box
                     position="absolute"

@@ -1,4 +1,4 @@
-import { useState, useMemo, memo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import {
     Box,
     Tabs,
@@ -15,11 +15,30 @@ import Search from './Search';
 import { varDataMapping } from './Variables/varData';
 import TemplateList from './Steps/TemplateList';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { useNode } from '../../contexts/NodeContext';
+import { findVariables } from '../../utils/jsonUtils';
 
 const SidePanel = ({ definedVariables }) => {
     // State to control the width of the SidePanel
     const [panelWidth, setPanelWidth] = useState(350);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
+    const { data } = useNode();
+    const [variables, setVariables] = useState([]);
+
+    // useEffect(() => {
+    //     try {
+    //         const jsonData = data.cells;
+    //         const foundVariables = findVariables(jsonData);
+    //         setVariables(foundVariables);
+    //         // Rest of your code
+    //     } catch (error) {
+    //         console.error('dsdebug-log', 'Invalid JSON data:', error);
+    //     }
+    // }, [data]);
+
+    // useEffect(() => {
+    //     console.log('dsdebug-log', 'variables', variables);
+    // }, [variables]);
 
     // Function to handle the resizing of the SidePanel
     const handleResize = (e, { size }) => {
@@ -81,7 +100,7 @@ const SidePanel = ({ definedVariables }) => {
                     height={Infinity} // Set to Infinity to allow vertical resizing if needed
                     onResize={handleResize}
                     minConstraints={[120, Infinity]} // Set the minimum width for the SidePanel
-                    maxConstraints={[400, Infinity]} // Set the maximum width for the SidePanel
+                    maxConstraints={[455, Infinity]} // Set the maximum width for the SidePanel
                     resizeHandles={['e']} // Enable the east (right) handle for horizontal resizing
                     axis="x" // Allow horizontal resizing only
                 >
