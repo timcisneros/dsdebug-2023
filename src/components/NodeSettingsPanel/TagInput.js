@@ -13,7 +13,14 @@ import {
 } from '@chakra-ui/react';
 import { useNode } from '../../contexts/NodeContext';
 
-function TagInput({ variable, variableName, setEditedNode, name }) {
+function TagInput({
+    variable,
+    variableName,
+    editedNode,
+    setEditedNode,
+    name,
+    handleUpdateNode,
+}) {
     const [searchTerm, setSearchTerm] = useState('');
     const { definedVariables } = useNode();
     const [tags, setTags] = useState([]);
@@ -66,20 +73,50 @@ function TagInput({ variable, variableName, setEditedNode, name }) {
             setInputDisabled(true); // Disable the input when a tag exists
             setError(''); // Clear the error message
 
-            // setEditedNode((prevEditedNode) => ({
-            //     ...prevEditedNode,
-            //     data: {
-            //         ...prevEditedNode.data,
-            //         [name]: {
-            //             ...prevEditedNode.data[name],
-            //             value: searchTerm,
-            //         },
-            //     },
-            // }));
+            const definedVariableType = definedVariables.find(
+                (definedVariable) => definedVariable.value.name === searchTerm
+            ).type;
+
+            // Specify the path to the "Location_XML" value in your data
+            setEditedNode((prevEditedNode) => ({
+                ...prevEditedNode,
+                data: {
+                    ...prevEditedNode.data,
+                    variableUpdates: {
+                        ...prevEditedNode.data.variableUpdates,
+                        value: prevEditedNode.data.variableUpdates.value.map(
+                            (variableUpdate) => {
+                                if (
+                                    variableUpdate.variableToConfigure.value
+                                        .value === variableName
+                                ) {
+                                    // Update the "Location_XML" value with the new value
+                                    return {
+                                        ...variableUpdate,
+                                        variableToConfigure: {
+                                            ...variableUpdate.variableToConfigure,
+                                            value: {
+                                                type: definedVariableType,
+                                                value: searchTerm,
+                                            },
+                                        },
+                                    };
+                                } else {
+                                    return variableUpdate;
+                                }
+                            }
+                        ),
+                    },
+                },
+            }));
         } else {
             setError('Variable does not exist.');
         }
     };
+
+    useEffect(() => {
+        handleUpdateNode(editedNode);
+    }, [editedNode]);
 
     const handleTagRemove = (tagToRemove) => {
         const updatedTags = tags.filter((tag) => tag !== tagToRemove);

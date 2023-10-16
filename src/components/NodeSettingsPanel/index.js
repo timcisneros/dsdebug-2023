@@ -835,10 +835,14 @@ const NodeSettingsPanel = () => {
                                                             .variableToConfigure
                                                             .value.value
                                                     }
+                                                    editedNode={editedNode}
                                                     setEditedNode={
                                                         setEditedNode
                                                     }
                                                     name={`variableConfigure.value[${index}]`}
+                                                    handleUpdateNode={
+                                                        handleUpdateNode
+                                                    }
                                                 />
                                             )}
                                             <FormLabel>Value</FormLabel>
