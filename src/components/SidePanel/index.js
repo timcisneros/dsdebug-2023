@@ -12,18 +12,22 @@ import { Resizable } from 'react-resizable';
 import StepList from './Steps/StepList';
 import CollapsibleTree from './Variables/CollapsibleTree';
 import Search from './Search';
-import { varDataMapping } from './Variables/varData';
 import TemplateList from './Steps/TemplateList';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { useNode } from '../../contexts/NodeContext';
-import { findVariables } from '../../utils/jsonUtils';
+// import { useNode } from '../../contexts/NodeContext';
+// import { findVariables } from '../../utils/jsonUtils';
 
-const SidePanel = ({ definedVariables }) => {
+const SidePanel = ({
+    definedVariables,
+    data,
+    setData,
+    setDefinedVariables,
+}) => {
     // State to control the width of the SidePanel
     const [panelWidth, setPanelWidth] = useState(350);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
-    const { data } = useNode();
-    const [variables, setVariables] = useState([]);
+
+    // const [variables, setVariables] = useState([]);
 
     // useEffect(() => {
     //     try {
@@ -53,17 +57,15 @@ const SidePanel = ({ definedVariables }) => {
     const collapsibleTreeComponent = useMemo(() => {
         return (
             <>
-                <Search definedVariables={definedVariables} />
                 {definedVariables ? (
                     definedVariables.map((definedVariable, index) => (
                         <div key={index}>
                             <CollapsibleTree
                                 definedVariable={definedVariable}
-                                icon={
-                                    varDataMapping[
-                                        definedVariable.value.displayType
-                                    ].icon
-                                }
+                                data={data}
+                                setData={setData}
+                                definedVariables={definedVariables}
+                                setDefinedVariables={setDefinedVariables}
                             />
                         </div>
                     ))
@@ -72,7 +74,7 @@ const SidePanel = ({ definedVariables }) => {
                 )}
             </>
         );
-    }, [definedVariables]);
+    }, [definedVariables, data]);
 
     return (
         <>
@@ -124,6 +126,10 @@ const SidePanel = ({ definedVariables }) => {
                                     <StepList />
                                 </TabPanel>
                                 <TabPanel overflowY="scroll" height="100vh">
+                                    <Search
+                                        definedVariables={definedVariables}
+                                    />
+                                    <p>Variables: {definedVariables?.length}</p>
                                     {collapsibleTreeComponent}
                                 </TabPanel>
                             </TabPanels>

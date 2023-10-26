@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import {
     Grid,
     GridItem,
@@ -149,4 +149,4 @@ const TemplateList = () => {
     );
 };
 
-export default TemplateList;
+export default memo(TemplateList);

@@ -25,20 +25,23 @@ import {
     TagLabel,
     TagCloseButton,
 } from '@chakra-ui/react';
-import { useNode } from '../../contexts/NodeContext';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { CopyIcon } from '@chakra-ui/icons';
 import TagInput from './TagInput';
 
-const NodeSettingsPanel = () => {
-    const { selectedNodes, handleUpdateNode } = useNode();
+const NodeSettingsPanel = ({
+    selectedNodes,
+    handleUpdateNode,
+    definedVariables,
+}) => {
     const [editedNode, setEditedNode] = useState(null);
+    // const [editedNodeVariables, setEditedNodeVariables] = useState([]);
 
     const toastId = 'error-toast';
 
     // May be a better way to update the node side panel when selection changes
     useEffect(() => {
-        setEditedNode(selectedNodes[0]);
+        selectedNodes && setEditedNode(selectedNodes[0]);
     }, [selectedNodes]);
 
     const handleInputChange = (event) => {
@@ -67,9 +70,36 @@ const NodeSettingsPanel = () => {
         }));
     };
 
-    // useEffect(() => {
-    //     console.log('dsdebug-log', 'Updated editedNode:', selectedNodes[0]);
-    // }, [editedNode]);
+    const handleAddVariableToConfigure = () => {
+        setEditedNode((prevEditedNode) => ({
+            ...prevEditedNode,
+            data: {
+                ...prevEditedNode.data,
+                variableUpdates: {
+                    type: 'VariableUpdate',
+                    value: [
+                        ...prevEditedNode.data.variableUpdates.value,
+                        {
+                            variableToConfigure: {
+                                type: 'Variable',
+                                value: {
+                                    type: 'String',
+                                    value: '',
+                                },
+                            },
+                            variableValue: {
+                                type: 'String',
+                                value: '',
+                            },
+                        },
+                    ],
+                },
+            },
+        }));
+        handleSaveChanges();
+
+        console.log('dsdebug-log', editedNode);
+    };
 
     const toast = useToast();
 
@@ -828,7 +858,8 @@ const NodeSettingsPanel = () => {
                                                     onBlur={handleSaveChanges}
                                                 />
                                             ) : (
-                                                <TagInput
+                                                <>
+                                                    {/* <TagInput
                                                     variable={variable}
                                                     variableName={
                                                         variable
@@ -843,7 +874,11 @@ const NodeSettingsPanel = () => {
                                                     handleUpdateNode={
                                                         handleUpdateNode
                                                     }
-                                                />
+                                                    definedVariables={
+                                                        definedVariables
+                                                    }
+                                                /> */}
+                                                </>
                                             )}
                                             <FormLabel>Value</FormLabel>
                                             <Input
@@ -860,10 +895,18 @@ const NodeSettingsPanel = () => {
                                                 }
                                                 onChange={handleInputChange}
                                                 onBlur={handleSaveChanges}
+                                                placeholder="Add Value"
                                             />
                                         </FormControl>
                                     )
                                 )}
+                                <Button
+                                    mt={4}
+                                    colorScheme="pink"
+                                    onClick={handleAddVariableToConfigure}
+                                >
+                                    Add Variable
+                                </Button>
                             </Box>
                         )}
                         {selectedNode.data.metadata && (

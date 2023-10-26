@@ -22,12 +22,14 @@ export const NodeProvider = ({ children }) => {
     // useState to store defaultNodePositions and setDefaultNodePositions
     const [defaultNodePositions, setDefaultNodePositions] = useState(null);
 
+    // RUNNING MORE THAN NEEDED, OPTIMIZE
     useEffect(() => {
         if (startActivity) {
             setDefinedVariables(startActivity.definedVariables.value);
             setWorkflowName(startActivity.workflowName);
         }
-    }, [startActivity, data]);
+        // console.log('dsdebug-log', 'run');
+    }, [startActivity?.definedVariables?.value, startActivity?.workflowName]);
 
     const generateUniqueName = (baseName, existingNames) => {
         let newName = baseName;
@@ -42,25 +44,20 @@ export const NodeProvider = ({ children }) => {
     // Function to merge definedVariables with templateDefinedVariables
     const mergeDefinedVariables = (existingVariables, templateVariables) => {
         const mergedVariables = existingVariables.slice();
-
         templateVariables.forEach((templateVar) => {
             // Check if the variable name is one of the excluded names
             const isExcludedVariable = !templateVar.value.deletable;
-
             // If the variable is excluded, skip the merging process for it
             if (isExcludedVariable) {
                 return;
             }
-
             const existingVar = mergedVariables.find(
                 (existingVar) =>
                     existingVar.value.name === templateVar.value.name
             );
-
             if (existingVar && iterateVars) {
                 let newName = `${templateVar.value.name}_1`;
                 let iterator = 2;
-
                 while (
                     mergedVariables.some(
                         (varItem) => varItem.value.name === newName
@@ -69,7 +66,6 @@ export const NodeProvider = ({ children }) => {
                     newName = `${templateVar.value.name}_${iterator}`;
                     iterator++;
                 }
-
                 // Create a new object with the updated name
                 templateVar = {
                     ...templateVar,
@@ -79,18 +75,53 @@ export const NodeProvider = ({ children }) => {
                     },
                 };
             }
-
             // Only push if not found in existingVariables, or if found and iterateVars is true
             if (!existingVar || (existingVar && iterateVars)) {
                 mergedVariables.push(templateVar);
             }
         });
-
         return mergedVariables;
     };
 
+    // const handleUpdateNode = (editedNode) => {
+    //     // Find the index of the node in data.cells with the matching id
+    //     const nodeIndex = data.cells.findIndex(
+    //         (item) => item.id === editedNode.id
+    //     );
+
+    //     if (nodeIndex !== -1) {
+    //         // Create a new copy of data to avoid directly mutating the state
+    //         let updatedData = { ...data };
+
+    //         // Create a filtered copy of editedNode.data with undefined properties removed
+    //         const filteredEditedData = Object.entries(editedNode.data).reduce(
+    //             (result, [key, value]) => {
+    //                 if (value !== undefined) {
+    //                     result[key] = value;
+    //                 }
+    //                 return result;
+    //             },
+    //             {}
+    //         );
+
+    //         // Merge the properties of the filteredEditedData with the existing node data
+    //         updatedData.cells[nodeIndex] = {
+    //             ...updatedData.cells[nodeIndex],
+    //             ...filteredEditedData,
+    //         };
+
+    //         // console.log(
+    //         //     'dsdebug-log',
+    //         //     '- Node Updated',
+    //         //     updatedData.cells[nodeIndex]
+    //         // );
+
+    //         // Set the updated data back to the state
+    //         setData(updatedData);
+    //     }
+    // };
+
     const handleUpdateNode = (editedNode) => {
-        // Find the index of the node in data.cells with the matching id
         const nodeIndex = data.cells.findIndex(
             (item) => item.id === editedNode.id
         );
@@ -99,31 +130,16 @@ export const NodeProvider = ({ children }) => {
             // Create a new copy of data to avoid directly mutating the state
             let updatedData = { ...data };
 
-            // Create a filtered copy of editedNode.data with undefined properties removed
-            const filteredEditedData = Object.entries(editedNode.data).reduce(
-                (result, [key, value]) => {
-                    if (value !== undefined) {
-                        result[key] = value;
-                    }
-                    return result;
-                },
-                {}
-            );
-
-            // Merge the properties of the filteredEditedData with the existing node data
+            // Merge the properties of the editedNode with the existing node data
             updatedData.cells[nodeIndex] = {
                 ...updatedData.cells[nodeIndex],
-                ...filteredEditedData,
+                ...editedNode.data,
             };
-
-            // console.log(
-            //     'dsdebug-log',
-            //     '- Node Updated',
-            //     updatedData.cells[nodeIndex]
-            // );
 
             // Set the updated data back to the state
             setData(updatedData);
+            // console.log('dsdebug-log', 'edited', editedNode.data);
+            // console.log('dsdebug-log', 'updated', updatedData);
         }
     };
 

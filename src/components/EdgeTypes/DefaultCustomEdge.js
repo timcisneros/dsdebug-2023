@@ -27,21 +27,26 @@ const DefaultCustomEdge = ({
         <>
             <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
             <EdgeLabelRenderer>
-                <div
-                    style={{
-                        position: 'absolute',
-                        transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-                        fontSize: 12,
-                        // everything inside EdgeLabelRenderer has no pointer events by default
-                        // if you have an interactive element, set pointer-events: all
-                        pointerEvents: 'all',
-                        backgroundColor: edgeColor,
-                        borderRadius: 3,
-                    }}
-                    className="nodrag nopan"
-                >
-                    {label}
-                </div>
+                {label && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+                            fontSize: 12,
+                            // everything inside EdgeLabelRenderer has no pointer events by default
+                            // if you have an interactive element, set pointer-events: all
+                            pointerEvents: 'all',
+                            backgroundColor: edgeColor,
+                            padding: 5,
+                            borderRadius: 3,
+                            zIndex: 1000,
+                            cursor: 'pointer',
+                        }}
+                        className="nodrag nopan"
+                    >
+                        {label}
+                    </div>
+                )}
             </EdgeLabelRenderer>
         </>
     );

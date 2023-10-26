@@ -20,9 +20,9 @@ function TagInput({
     setEditedNode,
     name,
     handleUpdateNode,
+    definedVariables,
 }) {
     const [searchTerm, setSearchTerm] = useState('');
-    const { definedVariables } = useNode();
     const [tags, setTags] = useState([]);
     const [inputDisabled, setInputDisabled] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1); // To keep track of the selected ListItem index

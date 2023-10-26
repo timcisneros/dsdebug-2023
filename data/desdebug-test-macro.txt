@@ -1,0 +1,12 @@
+create ChooseUsersActivity 0 0 c1
+create ChooseDocumentsActivity 105 0 c2
+create MergePdfDocumentActivity 210 0 c3
+create CompareDocumentsActivity 315 0 c4
+create CreateLinkActivity 420 0 c5
+create DecisionActivity 525 0 c6
+
+connect c1 c2
+connect c2 c3
+connect c3 c4
+connect c4 c5
+connect c5 c6

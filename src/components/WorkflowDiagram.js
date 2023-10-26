@@ -34,6 +34,8 @@ import { stepDataMapping } from './SidePanel/Steps/StepData';
 import { templateDataMapping } from './SidePanel/Steps/templateData';
 import ConsoleContainer from './ConsoleContainer';
 import 'react-resizable/css/styles.css';
+import Panel from './NodeSettingsPanel/Panel';
+import DeepFieldExplorer from './NodeSettingsPanel/DeepFieldExplorer';
 
 const proOptions = { hideAttribution: true };
 
@@ -50,6 +52,10 @@ const edgeTypes = {
     defaultCustomEdge: DefaultCustomEdge,
 }; // Define the edge types as strings
 
+const snapGrid = [25, 25];
+
+const deleteKeyCode = ['Backspace', 'Delete'];
+
 const WorkflowDiagram = () => {
     const {
         data,
@@ -58,6 +64,7 @@ const WorkflowDiagram = () => {
         setSelectedNodes,
         selectedEdge,
         setSelectedEdge,
+        handleUpdateNode,
         definedVariables,
         setDefinedVariables,
         mergeDefinedVariables,
@@ -88,6 +95,13 @@ const WorkflowDiagram = () => {
         []
     );
 
+    const unwantedProperties = [
+        'id',
+        'type',
+        'position',
+        // ... any other properties you don't want in `data`
+    ];
+
     useEffect(() => {
         if (data) {
             setStartActivity(
@@ -104,177 +118,45 @@ const WorkflowDiagram = () => {
             // console.log('running');
             const updatedNodes = data.cells
                 .filter((item) => item.type !== 'springcm.Link')
-                .map((item) => ({
-                    id: item.id,
-                    style: {
-                        width:
-                            item.size?.width !== undefined
-                                ? item.size.width
-                                : item.data?.size.width,
-                        height:
-                            item.size?.height !== undefined
-                                ? item.size.height
-                                : item.data?.size.height,
-                        zIndex:
-                            item.type === 'springcm.Group' ||
-                            item.type === 'springcm.Lane'
-                                ? 0
-                                : 1,
-                    },
-                    data: {
-                        name: item.name,
-                        icon: item.icon,
-                        color: item.color,
-                        attrs: item.attrs,
-                        size: item.size,
-                        stepDescription: item.stepDescription,
-                        sourceDocument: item.sourceDocument,
-                        targetFolder: item.targetFolder,
-                        decisions: item.decisions,
-                        variableUpdates: item.variableUpdates,
-                        status: item.status,
-                        notifyOnException: item.notifyOnException,
-                        newFolder: item.newFolder,
-                        description: item.description,
-                        parentFolder: item.parentFolder,
-                        outputFolders: item.outputFolders,
-                        outputDocuments: item.outputDocuments,
-                        sendNotification: item.sendNotification,
-                        trackActivity: item.trackActivity,
-                        limitedAttributeGroups: item.limitedAttributeGroups,
-                        action: item.action,
-                        activityName: item.activityName,
-                        documents: item.documents,
-                        metadata: item.metadata,
-                        outputDecision: item.outputDecision,
-                        fieldId: item.fieldId,
-                        fieldValue: item.fieldValue,
-                        returnExisting: item.returnExisting,
-                        inheritLimitedAttributeGroups:
-                            item.inheritLimitedAttributeGroups,
-                        stageName: item.stageName,
-                        sender: item.sender,
-                        recipient: item.recipient,
-                        notes: item.notes,
-                        subject: item.subject,
-                        hideDueDateFromEmail: item.hideDueDateFromEmail,
-                        addMySignatureToThisEmail:
-                            item.addMySignatureToThisEmail,
-                        sendOutNotifications: item.sendOutNotifications,
-                        emailAppearance: item.emailAppearance,
-                        expirationDays: item.expirationDays,
-                        dateFormat: item.dateFormat,
-                        suppressSenderEmails: item.suppressSenderEmails,
-                        keywords: item.keywords,
-                        users: item.users,
-                        whatId: item.whatId,
-                        ownerId: item.ownerId,
-                        contactId: item.contactId,
-                        dueDate: item.dueDate,
-                        targetDocument: item.targetDocument,
-                        textSourceType: item.textSourceType,
-                        sourceText: item.sourceText,
-                        outputXml: item.outputXml,
-                        activityDisplayName: item.activityDisplayName,
-                        checkoutDocuments: item.checkoutDocuments,
-                        compareVersion: item.compareVersion,
-                        assigneeType: item.assigneeType,
-                        requiredCompletion: item.requiredCompletion,
-                        assignedUsersInOrder: item.assignedUsersInOrder,
-                        instructions: item.instructions,
-                        approveText: item.approveText,
-                        rejectText: item.rejectText,
-                        addCustomAction: item.addCustomAction,
-                        allowComment: item.allowComment,
-                        waitForNextStep: item.waitForNextStep,
-                        notificationFromAddress: item.notificationFromAddress,
-                        notificationSubject: item.notificationSubject,
-                        notificationBody: item.notificationBody,
-                        timeout: item.timeout,
-                        timeoutWarningFromStepExecution:
-                            item.timeoutWarningFromStepExecution,
-                        outputComments: item.outputComments,
-                        requiredApprovalCount: item.requiredApprovalCount,
-                        checkedOutDocument: item.checkedOutDocument,
-                        revisionDocument: item.revisionDocument,
-                        assignedUsers: item.assignedUsers,
-                        outputs: item.outputs,
-                        documentName: item.documentName,
-                        outputType: item.outputType,
-                        deleteOriginals: item.deleteOriginals,
-                        revisedDocumentProperty: item.revisedDocumentProperty,
-                        sourceDocumentCompareProperty:
-                            item.sourceDocumentCompareProperty,
-                        resultDocumentTypeProperty:
-                            item.resultDocumentTypeProperty,
-                        resultDocumentNameProperty:
-                            item.resultDocumentNameProperty,
-                        resultDocumentFolderProperty:
-                            item.resultDocumentFolderProperty,
-                        outputDocumentsProperty: item.outputDocumentsProperty,
-                        conversionType: item.conversionType,
-                        jsonToXmlVariable: item.jsonToXmlVariable,
-                        outputVariable: item.outputVariable,
-                        sourceFolder: item.sourceFolder,
-                        newFolderName: item.newFolderName,
-                        linkName: item.linkName,
-                        linkURL: item.linkURL,
-                        linkDescription: item.linkDescription,
-                        salesForceObjectType: item.salesForceObjectType,
-                        fieldValues: item.fieldValues,
-                        outputIdVariable: item.outputIdVariable,
-                        sfdcAccountId: item.sfdcAccountId,
-                        sfdcAccountName: item.sfdcAccountName,
-                        sfdcObjectId: item.sfdcObjectId,
-                        sfdcObjectName: item.sfdcObjectName,
-                        sfdcObjectType: item.sfdcObjectType,
-                        delimiter: item.delimiter,
-                        selectConfigurationDocument:
-                            item.selectConfigurationDocument,
-                        configurationName: item.configurationName,
-                        configTemplateName: item.configTemplateName,
-                        dataSource: item.dataSource,
-                        sourceType: item.sourceType,
-                        objectType: item.objectType,
-                        objectId: item.objectId,
-                        objectName: item.objectName,
-                        trackingDocuments: item.trackingDocuments,
-                        sfPath: item.sfPath,
-                        trackedNames: item.trackedNames,
-                        recipients: item.recipients,
-                        outputXML: item.outputXML,
-                        reminderName: item.reminderName,
-                        reminderDate: item.reminderDate,
-                        reminderTime: item.reminderTime,
-                        docLauncherConfigName: item.docLauncherConfigName,
-                        entityType: item.entityType,
-                        updateValues: item.updateValues,
-                        outputXmlDocument: item.outputXmlDocument,
-                        outputXmlVariable: item.outputXmlVariable,
-                        formdocument: item.formdocument,
-                        from: item.from,
-                        to: item.to,
-                        body: item.body,
-                        fromDisplayName: item.fromDisplayName,
-                        note: item.note,
-                        cclink: item.cclink,
-                        bcclink: item.bcclink,
-                        includeSignature: item.includeSignature,
-                        query: item.query,
-                        exactMatch: item.exactMatch,
-                        // Add additional data fields based on your JSON data here...
-                    },
-                    position: item.position || { x: 0, y: 0 },
-                    type: customNodeTypes[item.type] || 'default',
-                    selectable: true,
-                    selected:
-                        selectedNodes &&
-                        selectedNodes.find(
-                            (selectedNode) => selectedNode.id === item.id
-                        )
-                            ? true
-                            : false,
-                }));
+                .map((item) => {
+                    // Dynamically create the data object by filtering out unwanted properties
+                    const dataProps = Object.keys(item)
+                        .filter((key) => !unwantedProperties.includes(key))
+                        .reduce((obj, key) => {
+                            obj[key] = item[key];
+                            return obj;
+                        }, {});
+
+                    return {
+                        id: item.id,
+                        style: {
+                            width:
+                                item.size?.width !== undefined
+                                    ? item.size.width
+                                    : item.data?.size.width,
+                            height:
+                                item.size?.height !== undefined
+                                    ? item.size.height
+                                    : item.data?.size.height,
+                            zIndex:
+                                item.type === 'springcm.Group' ||
+                                item.type === 'springcm.Lane'
+                                    ? 0
+                                    : 1,
+                        },
+                        data: dataProps,
+                        position: item.position || { x: 0, y: 0 },
+                        type: customNodeTypes[item.type] || 'default',
+                        selectable: true,
+                        selected:
+                            selectedNodes &&
+                            selectedNodes.find(
+                                (selectedNode) => selectedNode.id === item.id
+                            )
+                                ? true
+                                : false,
+                    };
+                });
             setNodes(updatedNodes);
 
             // TODO: update this so node reference labels are not lost on refresh
@@ -382,6 +264,7 @@ const WorkflowDiagram = () => {
                     : cell;
             }),
         }));
+        console.log('dsdebug-log', 'run');
     }, []);
 
     const handleReset = () => {
@@ -421,9 +304,9 @@ const WorkflowDiagram = () => {
     const reactFlowWrapper = useRef(null);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
-    const handleDragOver = (event) => {
+    const handleDragOver = useCallback((event) => {
         event.preventDefault(); // Prevent default behavior to allow drop
-    };
+    }, []);
 
     const [templateDefinedVariables, setTemplateDefinedVariables] =
         useState(null);
@@ -433,7 +316,7 @@ const WorkflowDiagram = () => {
         if (templateDefinedVariables !== null) {
             // Existing definedVariables
             const existingDefinedVariables =
-                startActivity.definedVariables.value.slice();
+                startActivity.definedVariables?.value?.slice();
 
             // Merge the variables
             const mergedVars = mergeDefinedVariables(
@@ -466,167 +349,191 @@ const WorkflowDiagram = () => {
         }
     }, [templateDefinedVariables]);
 
-    const handleDrop = (event) => {
-        if (data) {
-            event.preventDefault();
-            const reactFlowBounds =
-                reactFlowWrapper.current.getBoundingClientRect();
-            const nodeData = JSON.parse(
-                event.dataTransfer.getData('application/json')
-            );
-
-            console.log('dsdebug-log', nodeData);
-
-            const position = reactFlowInstance.project({
-                x: event.clientX - reactFlowBounds.left,
-                y: event.clientY - reactFlowBounds.top,
-            });
-
-            const existingStepNames = data.cells.map((node) => node.name.value);
-
-            // Check if the data dropped is a value that exists in nodeTypes
-            if (nodeData.stepType in nodeTypes) {
-                setNewNodesAdded(true);
-                // Add a new StepNode to the nodes state
-                const nodeId = generateId();
-                const newNode = {
-                    ...stepDataMapping[nodeData.activityName].type,
-                    id: nodeId,
-                    size: { width: 100, height: 100 },
-                    position,
-                    name: {
-                        type: 'String',
-                        value: generateUniqueName(
-                            stepDataMapping[nodeData.activityName].type.name
-                                .value,
-                            existingStepNames
-                        ),
-                    },
-                };
-
-                console.log('dsdebug-log', '- Node Created:', newNode);
-
-                // Update the JSON data object with the new node
-                setData((prevData) => ({
-                    cells: [...prevData.cells, newNode],
-                }));
-            }
-
-            if (
-                (nodeData.stepType === 'Template' &&
-                    nodeData.activityName in templateDataMapping) ||
-                (nodeData.stepType === 'Template' &&
-                    typeof nodeData.stepData === 'object')
-            ) {
-                setNewNodesAdded(true);
+    const handleDrop = useCallback(
+        (event) => {
+            if (data) {
+                event.preventDefault();
+                const reactFlowBounds =
+                    reactFlowWrapper.current.getBoundingClientRect();
+                const nodeData = JSON.parse(
+                    event.dataTransfer.getData('application/json')
+                );
 
                 console.log('dsdebug-log', nodeData);
 
-                // Get the drop position
-                const dropPosition = reactFlowInstance.project({
+                const zoomLevel = reactFlowInstance.getZoom();
+
+                console.log('dsdebug-log', zoomLevel);
+
+                const position = reactFlowInstance.project({
                     x: event.clientX - reactFlowBounds.left,
                     y: event.clientY - reactFlowBounds.top,
                 });
 
-                const newNodes = [];
-                const newLinks = [];
-                const stepIdMapping = {};
+                const existingStepNames = data.cells.map(
+                    (node) => node.name.value
+                );
 
-                let templateData = [];
+                // Check if the data dropped is a value that exists in nodeTypes
+                if (nodeData.stepType in nodeTypes) {
+                    setNewNodesAdded(true);
+                    // Add a new StepNode to the nodes state
+                    const nodeId = generateId();
+                    const newNode = {
+                        ...stepDataMapping[nodeData.activityName].type,
+                        id: nodeId,
+                        size: { width: 100, height: 100 },
+                        position,
+                        name: {
+                            type: 'String',
+                            value: generateUniqueName(
+                                stepDataMapping[nodeData.activityName].type.name
+                                    .value,
+                                existingStepNames
+                            ),
+                        },
+                    };
 
-                // Check if this is an imported template, it will have the JSON data directly added to nodeData.stepData instead of referencing templateDataMapping
-                if (typeof nodeData.stepData === 'object') {
-                    templateData = nodeData.stepData.cells;
-                } else {
-                    templateData = templateDataMapping[nodeData.activityName];
+                    console.log('dsdebug-log', '- Node Created:', newNode);
+
+                    // Update the JSON data object with the new node
+                    setData((prevData) => ({
+                        cells: [...prevData.cells, newNode],
+                    }));
                 }
 
-                const templateStartActivity = templateData.find(
-                    (step) => step.activityName === 'StartActivity'
-                );
+                if (
+                    (nodeData.stepType === 'Template' &&
+                        nodeData.activityName in templateDataMapping) ||
+                    (nodeData.stepType === 'Template' &&
+                        typeof nodeData.stepData === 'object')
+                ) {
+                    setNewNodesAdded(true);
 
-                setTemplateDefinedVariables(
-                    templateStartActivity.definedVariables.value
-                );
+                    console.log('dsdebug-log', nodeData);
 
-                templateData.forEach((step) => {
-                    if (
-                        step.type !== 'springcm.Link' &&
-                        step.activityName !== 'StartActivity'
-                    ) {
-                        // Handle step nodes
-                        const oldStepId = step.id;
-                        const newStepId = generateId();
-                        stepIdMapping[oldStepId] = newStepId;
+                    // Get the drop position
+                    const dropPosition = reactFlowInstance.project({
+                        x: event.clientX - reactFlowBounds.left,
+                        y: event.clientY - reactFlowBounds.top,
+                    });
 
-                        newNodes.push({
-                            ...step,
-                            id: newStepId,
-                            size: {
-                                width: step.size?.width,
-                                height: step.size?.height,
-                            },
-                            position: {
-                                x: dropPosition.x + (step.position?.x || 0),
-                                y: dropPosition.y + (step.position?.y || 0),
-                            },
-                            name: {
-                                type: 'String',
-                                value: generateUniqueName(
-                                    step.name.value,
-                                    existingStepNames
-                                ),
-                            },
-                        });
+                    const newNodes = [];
+                    const newLinks = [];
+                    const stepIdMapping = {};
+
+                    let templateData = [];
+
+                    // Check if this is an imported template, it will have the JSON data directly added to nodeData.stepData instead of referencing templateDataMapping
+                    if (typeof nodeData.stepData === 'object') {
+                        templateData = nodeData.stepData.cells;
+                    } else {
+                        templateData =
+                            templateDataMapping[nodeData.activityName];
                     }
-                });
 
-                templateData.forEach((step) => {
-                    if (step.type === 'springcm.Link') {
-                        step.vertices = []; // Set vertices to an empty array
+                    const templateStartActivity = templateData.find(
+                        (step) => step.activityName === 'StartActivity'
+                    );
 
-                        // Handle link nodes
-                        const oldSourceStepId = step.source.id;
-                        const oldTargetStepId = step.target.id;
+                    setTemplateDefinedVariables(
+                        templateStartActivity.definedVariables.value
+                    );
 
-                        const newSourceStepId = stepIdMapping[oldSourceStepId];
-                        const newTargetStepId = stepIdMapping[oldTargetStepId];
+                    templateData.forEach((step) => {
+                        if (
+                            step.type !== 'springcm.Link' &&
+                            step.activityName !== 'StartActivity'
+                        ) {
+                            // Handle step nodes
+                            const oldStepId = step.id;
+                            const newStepId = generateId();
+                            stepIdMapping[oldStepId] = newStepId;
 
-                        if (newSourceStepId && newTargetStepId) {
-                            newLinks.push({
+                            newNodes.push({
                                 ...step,
-                                id: generateId(),
-                                name: generateUniqueName(
-                                    step.name.value,
-                                    existingStepNames
-                                ),
-                                source: {
-                                    ...step.source,
-                                    id: newSourceStepId,
+                                id: newStepId,
+                                size: {
+                                    width: step.size?.width,
+                                    height: step.size?.height,
                                 },
-                                target: {
-                                    ...step.target,
-                                    id: newTargetStepId,
+                                position: {
+                                    x: dropPosition.x + (step.position?.x || 0),
+                                    y: dropPosition.y + (step.position?.y || 0),
+                                },
+                                name: {
+                                    type: 'String',
+                                    value: generateUniqueName(
+                                        step.name.value,
+                                        existingStepNames
+                                    ),
                                 },
                             });
                         }
-                    }
-                });
+                    });
 
-                setData((prevData) => ({
-                    cells: [...prevData.cells, ...newNodes, ...newLinks],
-                }));
+                    templateData.forEach((step) => {
+                        if (step.type === 'springcm.Link') {
+                            step.vertices = []; // Set vertices to an empty array
 
-                console.log('dsdebug-log', '- Template Added:', data.cells);
+                            // Handle link nodes
+                            const oldSourceStepId = step.source.id;
+                            const oldTargetStepId = step.target.id;
+
+                            const newSourceStepId =
+                                stepIdMapping[oldSourceStepId];
+                            const newTargetStepId =
+                                stepIdMapping[oldTargetStepId];
+
+                            if (newSourceStepId && newTargetStepId) {
+                                newLinks.push({
+                                    ...step,
+                                    id: generateId(),
+                                    name: generateUniqueName(
+                                        step.name?.value,
+                                        existingStepNames
+                                    ),
+                                    source: {
+                                        ...step.source,
+                                        id: newSourceStepId,
+                                    },
+                                    target: {
+                                        ...step.target,
+                                        id: newTargetStepId,
+                                    },
+                                });
+                            }
+                        }
+                    });
+
+                    setData((prevData) => ({
+                        cells: [...prevData.cells, ...newNodes, ...newLinks],
+                    }));
+
+                    console.log('dsdebug-log', '- Template Added:', data.cells);
+                }
+            } else {
+                console.log('dsdebug-log', 'Start activity missing.');
             }
-        } else {
-            console.log('dsdebug-log', 'Start activity missing.');
-        }
-    };
+        },
+        [reactFlowInstance]
+    );
+
+    const memoizedDefinedVariables = useMemo(
+        () => definedVariables,
+        [definedVariables]
+    );
 
     const sidePanelComponent = useMemo(
-        () => <SidePanel definedVariables={definedVariables} />,
-        [definedVariables]
+        () => (
+            <SidePanel
+                definedVariables={definedVariables}
+                data={data}
+                setData={setData}
+                setDefinedVariables={setDefinedVariables}
+            />
+        ),
+        [definedVariables, data]
     );
 
     const [isVisible, setIsVisible] = useState(true);
@@ -656,44 +563,73 @@ const WorkflowDiagram = () => {
                         paddingTop={50}
                     >
                         {/* Set a fixed height to enable scrolling */}
-                        <NodeSettingsPanel />
+                        {/* <NodeSettingsPanel
+                            selectedNodes={selectedNodes}
+                            handleUpdateNode={handleUpdateNode}
+                            definedVariables={definedVariables}
+                        /> */}
+                        {/* <Panel /> */}
+                        {selectedNodes && (
+                            <DeepFieldExplorer data={selectedNodes[0]} />
+                        )}
                     </Box>
                 )}
             </>
         ),
-        [isVisible] // Add isVisible as a dependency to useMemo
+        [isVisible, selectedNodes, definedVariables] // Add isVisible as a dependency to useMemo
     );
 
     const [splitHeight, setSplitHeight] = useState(150); // Initial height of the bottom resizable box
 
-    const handleNodeDelete = (nodes) => {
-        setData((prevData) => {
-            // Filter out the selected nodes and their connected links
-            const filteredCells = prevData.cells.filter(
-                (cell) =>
-                    !selectedNodes.some(
-                        (selectedNode) => cell.id === selectedNode.id
-                    ) &&
-                    !(
-                        cell.type === 'springcm.Link' &&
-                        selectedNodes.some(
-                            (selectedNode) =>
-                                cell.source?.id === selectedNode.id ||
-                                cell.target?.id === selectedNode.id
-                        )
-                    )
-            );
+    // const handleNodeDelete = useCallback((nodes) => {
+    //     setData((prevData) => {
+    //         // Filter out the selected nodes and their connected links
+    //         const filteredCells = prevData.cells.filter(
+    //             (cell) =>
+    //                 !selectedNodes.some(
+    //                     (selectedNode) => cell.id === selectedNode.id
+    //                 ) &&
+    //                 !(
+    //                     cell.type === 'springcm.Link' &&
+    //                     selectedNodes.some(
+    //                         (selectedNode) =>
+    //                             cell.source?.id === selectedNode.id ||
+    //                             cell.target?.id === selectedNode.id
+    //                     )
+    //                 )
+    //         );
 
-            return {
-                ...prevData,
-                cells: filteredCells,
-            };
-        });
+    //         return {
+    //             ...prevData,
+    //             cells: filteredCells,
+    //         };
+    //     });
+
+    //     console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
+    // }, []);
+
+    const handleNodeDelete = useCallback((nodes) => {
+        const isNodeSelected = (cell) =>
+            nodes.some((node) => cell.id === node.id);
+        const isLinkConnectedToSelectedNode = (cell) =>
+            cell.type === 'springcm.Link' &&
+            nodes.some(
+                (node) =>
+                    cell.source?.id === node.id || cell.target?.id === node.id
+            );
+        setData((prevData) => ({
+            ...prevData,
+            cells: prevData.cells.filter(
+                (cell) =>
+                    !isNodeSelected(cell) &&
+                    !isLinkConnectedToSelectedNode(cell)
+            ),
+        }));
 
         console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
-    };
+    }, []);
 
-    const handleEdgesDelete = (edges) => {
+    const handleEdgesDelete = useCallback((edges) => {
         // Create a Set to store the IDs of the edges to be deleted
         const edgesToDelete = new Set(edges.map((edge) => edge.id));
 
@@ -710,9 +646,9 @@ const WorkflowDiagram = () => {
         }));
 
         console.log('dsdebug-log', '- Link(s) Deleted:', edges);
-    };
+    }, []);
 
-    const onConnect = (params) => {
+    const onConnect = useCallback((params) => {
         const { source, target, type } = params;
 
         // Check if the connection is allowed based on your business logic (if needed)
@@ -769,7 +705,7 @@ const WorkflowDiagram = () => {
         }));
 
         console.log('dsdebug-log', '- Link Added:', { source, target });
-    };
+    }, []);
 
     const handleSelectionChange = useCallback((params) => {
         if (params.nodes.length === 0) {
@@ -789,8 +725,6 @@ const WorkflowDiagram = () => {
     const handleMinimapVisible = () => {
         setMinimapVisible((prevVisible) => !prevVisible);
     };
-
-    const snapGrid = [25, 25];
 
     return (
         <>
@@ -821,7 +755,7 @@ const WorkflowDiagram = () => {
                             {/* ReactFlow */}
                             <Flex h="100%" ref={reactFlowWrapper}>
                                 <ReactFlow
-                                    deleteKeyCode={['Backspace', 'Delete']}
+                                    deleteKeyCode={deleteKeyCode}
                                     proOptions={proOptions}
                                     minZoom={0.1}
                                     nodes={memoizedNodes}

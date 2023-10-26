@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/icons';
 import xmljs from 'xml-js';
 import { useNode } from '../../../contexts/NodeContext';
+import { varDataMapping } from './varData';
 
 const TreeItem = memo(
     ({
@@ -40,7 +41,6 @@ const TreeItem = memo(
         // Check if the node has children
         const hasChildren = childNodes && childNodes.length > 0;
         const { hasCopied, onCopy, onPaste } = useClipboard();
-
         const handlePasteFromClipboard = () => {
             if (hasCopied) {
                 const clipboardData = onPaste();
@@ -208,11 +208,18 @@ const TreeItem = memo(
 
 TreeItem.displayName = 'TreeItem';
 
-const CollapsibleTree = ({ definedVariable, icon }) => {
-    const { data, setData, definedVariables, setDefinedVariables } = useNode();
+const CollapsibleTree = ({
+    definedVariable,
+    data,
+    setData,
+    definedVariables,
+    setDefinedVariables,
+}) => {
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
     const inputRef = useRef(null); // Create a ref for the Input element
+
+    const icon = varDataMapping[definedVariable.value.displayType].icon;
 
     useEffect(() => {
         const handleDocumentClick = (e) => {
@@ -274,7 +281,7 @@ const CollapsibleTree = ({ definedVariable, icon }) => {
                 setDefinedVariables(updatedVariables);
             }
         },
-        [definedVariables, data, setData, setDefinedVariables]
+        [definedVariables, data]
     );
 
     const handleRenameVariable = useCallback(
@@ -333,7 +340,27 @@ const CollapsibleTree = ({ definedVariable, icon }) => {
                 setDefinedVariables(updatedVariables);
             }
         },
-        [definedVariables, data, setData, setDefinedVariables]
+        [definedVariables, data]
+    );
+
+    const treeItemComponent = useMemo(
+        () => (
+            <TreeItem
+                key={`parent-${definedVariable.value.name}`}
+                label={definedVariable.value.name}
+                childNodes={definedVariable.value.schema.nodes}
+                icon={icon}
+                onDelete={handleDeleteVariable}
+                onRename={handleRenameVariable} // Pass the handleRenameVariable function
+                deletable={definedVariable.value.deletable}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                newName={newName}
+                setNewName={setNewName}
+                inputRef={inputRef}
+            />
+        ),
+        [definedVariables, data]
     );
 
     return (
@@ -341,20 +368,7 @@ const CollapsibleTree = ({ definedVariable, icon }) => {
             <Accordion allowMultiple>
                 {Object.keys(definedVariable.value.schema).length !== 0 ? (
                     <Box background="#fff" my={2}>
-                        <TreeItem
-                            key={`parent-${definedVariable.value.name}`}
-                            label={definedVariable.value.name}
-                            childNodes={definedVariable.value.schema.nodes}
-                            icon={icon}
-                            onDelete={handleDeleteVariable}
-                            onRename={handleRenameVariable} // Pass the handleRenameVariable function
-                            deletable={definedVariable.value.deletable}
-                            isEditing={isEditing}
-                            setIsEditing={setIsEditing}
-                            newName={newName}
-                            setNewName={setNewName}
-                            inputRef={inputRef}
-                        />
+                        {treeItemComponent}
                     </Box>
                 ) : (
                     <AccordionItem

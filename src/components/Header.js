@@ -9,7 +9,6 @@ const Header = () => {
         data,
         setData,
         workflowName,
-        setWorkflowName,
         setNewNodesAdded,
         setSelectedNodes,
         setDefaultNodePositions,
@@ -126,7 +125,7 @@ const Header = () => {
                 setData(updatedData);
             }
         },
-        [data, setData, workflowName, setWorkflowName]
+        [data, workflowName]
     );
 
     return (

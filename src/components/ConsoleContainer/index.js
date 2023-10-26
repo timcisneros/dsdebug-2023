@@ -610,7 +610,8 @@ const ConsoleContainer = ({
                     console.log('dsdebug-log', 'List of all nodes:');
                     console.log(
                         'dsdebug-log',
-                        itemList.map((node) => node.data)
+                        // Using node.data to hide other values that shouldn't change and appending the id so that it can still be seen for reference
+                        itemList.map((node) => ({ id: node.id, ...node.data }))
                     );
                 } else {
                     console.log(
