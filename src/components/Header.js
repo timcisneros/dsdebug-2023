@@ -125,7 +125,7 @@ const Header = () => {
                 setData(updatedData);
             }
         },
-        [data, workflowName]
+        [workflowName]
     );
 
     return (
@@ -146,11 +146,9 @@ const Header = () => {
         >
             <Box
                 onClick={(e) => {
+                    // Always set the Input value back to the original name when Box is clicked
+                    setNewName(workflowName.value);
                     setIsEditing(true);
-                    // If renaming is toggled off, set the Input value back to the original name
-                    if (!isEditing) {
-                        setNewName(workflowName.value);
-                    }
                 }}
             >
                 {isEditing ? (
