@@ -241,7 +241,8 @@ const CollapsibleTree = ({
     // useEffect to focus the Input when isEditing is set to true
     useEffect(() => {
         if (isEditing) {
-            inputRef.current.focus();
+            //Optional added to current to prevent crash for XML var types
+            inputRef.current?.focus();
         }
     }, [isEditing]);
 
