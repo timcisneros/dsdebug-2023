@@ -125,7 +125,7 @@ const Header = () => {
                 setData(updatedData);
             }
         },
-        [workflowName]
+        [workflowName, data]
     );
 
     return (

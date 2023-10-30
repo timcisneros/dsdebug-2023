@@ -10,6 +10,12 @@ const CircleNode = ({ data, selected }) => {
     // Default name value if it's not available
     const displayName = name?.value || '';
 
+    // Step description value if it's available
+    const stepDescription = data.stepDescription?.value || '';
+
+    // Calculate the translateY value to align the description box at the bottom of the StepNode
+    const translateYValue = size?.height ? size?.height + 10 : 70; // You can adjust the offset (10) as needed
+
     const backgroundColor =
         activityName === 'StartActivity' ? '#f7b618' : '#29bdbe';
 
@@ -60,6 +66,23 @@ const CircleNode = ({ data, selected }) => {
                         src={svgPath}
                     />
                     {displayName} {/* Use the displayName variable */}
+                    {stepDescription && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '-5px',
+                                padding: '5px',
+                                backgroundColor: '#212121',
+                                color: '#fff',
+                                textAlign: 'center',
+                                borderRadius: '5px',
+                                transformOrigin: '0 0',
+                                transform: `translateY(${translateYValue}px)`, // Use the calculated translateY value
+                            }}
+                        >
+                            {stepDescription}
+                        </div>
+                    )}
                 </Box>
             </div>
         </>

@@ -12,14 +12,23 @@ const AddTemplateButton = ({ onUpload }) => {
             reader.onload = (e) => {
                 try {
                     const jsonData = JSON.parse(e.target.result);
+
+                    // Get the file name without extension
+                    const fileNameWithoutExtension =
+                        getFileNameWithoutExtension(file.name);
+
                     // Call the onUpload callback with the uploaded JSON data
-                    onUpload(jsonData, file.name);
+                    onUpload(jsonData, fileNameWithoutExtension);
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
                 }
             };
             reader.readAsText(file);
         }
+    };
+
+    const getFileNameWithoutExtension = (fileName) => {
+        return fileName.slice(0, fileName.lastIndexOf('.'));
     };
 
     return (

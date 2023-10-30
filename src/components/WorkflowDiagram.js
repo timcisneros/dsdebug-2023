@@ -629,24 +629,27 @@ const WorkflowDiagram = () => {
         console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
     }, []);
 
-    const handleEdgesDelete = useCallback((edges) => {
-        // Create a Set to store the IDs of the edges to be deleted
-        const edgesToDelete = new Set(edges.map((edge) => edge.id));
+    const handleEdgesDelete = useCallback(
+        (edges) => {
+            // Create a Set to store the IDs of the edges to be deleted
+            const edgesToDelete = new Set(edges.map((edge) => edge.id));
 
-        // Filter out the edges that are not in the edgesToDelete set
-        const updatedEdges = data.cells.filter(
-            (cell) =>
-                cell.type !== 'springcm.Link' || !edgesToDelete.has(cell.id)
-        );
+            // Filter out the edges that are not in the edgesToDelete set
+            const updatedEdges = data.cells.filter(
+                (cell) =>
+                    cell.type !== 'springcm.Link' || !edgesToDelete.has(cell.id)
+            );
 
-        // Update the data with the updated edges
-        setData((prevData) => ({
-            ...prevData,
-            cells: updatedEdges,
-        }));
+            // Update the data with the updated edges
+            setData((prevData) => ({
+                ...prevData,
+                cells: updatedEdges,
+            }));
 
-        console.log('dsdebug-log', '- Link(s) Deleted:', edges);
-    }, []);
+            console.log('dsdebug-log', '- Link(s) Deleted:', edges);
+        },
+        [data]
+    );
 
     const onConnect = useCallback((params) => {
         const { source, target, type } = params;

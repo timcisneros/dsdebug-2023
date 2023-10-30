@@ -5,8 +5,45 @@ import {
     FormControl,
     FormLabel,
     Checkbox,
+    Select,
+    Box,
 } from '@chakra-ui/react';
 import { useNode } from '../../contexts/NodeContext';
+
+const startActivityFilterKeys = {
+    width: true,
+    height: true,
+    id: true,
+    style: true,
+    data: {
+        workflowName: true,
+        definedVariables: true,
+        size: true,
+        content: true,
+        angle: true,
+        activityName: true,
+        group: true,
+        icon: true,
+        z: true,
+        attrs: true,
+        '*': {
+            type: true,
+            '*': {
+                '*': {
+                    type: true,
+                    '*': {
+                        type: true,
+                    },
+                },
+            },
+        },
+    },
+    position: true,
+    type: true,
+    selectable: true,
+    selected: true,
+    positionAbsolute: true,
+};
 
 const filterKeys = {
     width: true,
@@ -15,9 +52,6 @@ const filterKeys = {
     style: true,
     data: {
         icon: true,
-        name: {
-            type: true,
-        },
         color: true,
         attrs: true,
         size: true,
@@ -26,33 +60,43 @@ const filterKeys = {
         activityName: true,
         group: true,
         z: true,
-        name: {
-            type: true,
-        },
-        stepDescription: {
-            type: true,
-        },
-        notifyOnException: {
-            type: true,
-        },
-        variableUpdates: true,
-        status: {
-            type: true,
-            value: {
-                returnType: true,
-            },
-        },
+        // variableUpdates: true,
         errorState: true,
-        activityDisplayName: {
+        // definedVariables: true,
+        // workflowName: true,
+        '*': {
             type: true,
-        },
-        definedVariables: true,
-        workflowName: true,
-        sendNotification: {
-            type: true,
-        },
-        trackActivity: {
-            type: true,
+            '*': {
+                type: true,
+                returnType: true,
+                additionalCode: true,
+                '*': {
+                    type: true,
+                    '*': {
+                        type: true,
+                        '*': {
+                            type: true,
+                            returnType: true,
+                            additionalCode: true,
+                            '*': {
+                                type: true,
+                                '*': {
+                                    // For metadata (attributes) steps
+                                    setName: true,
+                                    groupName: true,
+                                    '*': {
+                                        type: true,
+                                        '*': {
+                                            returnType: true,
+                                            additionalCode: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         },
     },
     position: true,
@@ -76,6 +120,60 @@ const displayNameMapping = {
         displayName: 'Track Activity',
         type: 'Bool',
     },
+    'data.notifyOnException.value': {
+        displayName: 'Notify On Exception?',
+        type: 'Bool',
+    },
+    'data.action.value': {
+        displayName: 'Action',
+        type: 'Choice',
+        choices: [
+            { displayName: 'Move', value: 'move' },
+            { displayName: 'Copy', value: 'copy' },
+        ],
+    },
+    'data.documents.value.*.value.value': {
+        displayName: 'Document(s)',
+    },
+    'data.variableUpdates.value.*.variableToConfigure.value.value': {
+        displayName: 'Variable',
+    },
+    'data.variableUpdates.value.*.variableValue.value': {
+        displayName: 'Value',
+    },
+    'data.variableUpdates.value.*.variableValue.value.value': {
+        displayName: 'Variable',
+    },
+    'data.variableUpdates.value.*.variableValue.value.code': {
+        displayName: 'Value',
+    },
+    'data.newDocumentName.value.code': {
+        displayName: 'New Document Name',
+    },
+    'data.fieldValue.value.code': {
+        displayName: 'Value',
+    },
+    'data.status.value': {
+        displayName: 'Status',
+    },
+    'data.sourceDocument.value.*.value.value': {
+        displayName: 'Source Document',
+    },
+    'data.targetFolder.value.*.value.value': {
+        displayName: 'Target Folder',
+    },
+    'data.metadata.value.*.metadataToConfigure.value.*.value.name': {
+        displayName: 'Metadata',
+    },
+    'data.metadata.value.*.metadataToConfigure.value.*.value.setName': {
+        displayName: 'Value',
+    },
+    'data.metadata.value.*.variableValue.value.value': {
+        displayName: 'Value',
+    },
+    'data.notifiers.value.*.value.value': {
+        displayName: 'Notifications',
+    },
     // Add other mappings as needed
 };
 
@@ -83,17 +181,27 @@ const DeepFieldExplorer = ({ data }) => {
     const { handleUpdateNode } = useNode();
     const [fields, setFields] = useState([]);
     const [editedNode, setEditedNode] = useState(data);
+    const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
 
     const isFiltered = (key, currentPath) => {
-        let obj = filterKeys;
+        const usingFilter =
+            data.data.activityName === 'StartActivity'
+                ? startActivityFilterKeys
+                : filterKeys;
+
+        let obj = usingFilter;
         for (let part of currentPath) {
             if (obj[part]) {
                 obj = obj[part];
+            } else if (obj['*']) {
+                // Check if wildcard exists at this level, if it does it will filter any property for all keys at this level
+                obj = obj['*'];
             } else {
                 obj = null;
                 break;
             }
         }
+
         return obj && (obj[key] === true || obj === true);
     };
 
@@ -102,7 +210,7 @@ const DeepFieldExplorer = ({ data }) => {
             let deepestFields = [];
 
             for (const key in obj) {
-                if (isFiltered(key, currentPath)) {
+                if (!displayHiddenFields && isFiltered(key, currentPath)) {
                     continue;
                 }
 
@@ -121,10 +229,31 @@ const DeepFieldExplorer = ({ data }) => {
 
         const deepestFields = findDeepestFields(data);
         setFields(deepestFields);
-    }, [data]);
+    }, [data, displayHiddenFields]);
 
     const getDisplayName = (path) => {
-        return displayNameMapping[path]?.displayName || path;
+        for (const key in displayNameMapping) {
+            if (matchPathWithWildcard(key, path)) {
+                return displayNameMapping[key].displayName;
+            }
+        }
+        return path; // default if no matching displayName is found
+    };
+
+    const matchPathWithWildcard = (pattern, path) => {
+        const patternParts = pattern.split('.');
+        const pathParts = path.split('.');
+
+        if (patternParts.length !== pathParts.length) {
+            return false;
+        }
+
+        for (let i = 0; i < patternParts.length; i++) {
+            if (patternParts[i] !== '*' && patternParts[i] !== pathParts[i]) {
+                return false;
+            }
+        }
+        return true;
     };
 
     useEffect(() => {
@@ -153,39 +282,69 @@ const DeepFieldExplorer = ({ data }) => {
     };
 
     return (
-        <VStack spacing={4} px={4} pb={4}>
-            {fields.map((field) => {
-                const fieldType = displayNameMapping[field.path]?.type;
-                const inputValue = getNestedValue(editedNode, field.path);
-                return (
-                    <FormControl key={field.path}>
-                        <FormLabel>{getDisplayName(field.path)}</FormLabel>
-                        {fieldType === 'Bool' ? (
-                            <Checkbox
-                                isChecked={inputValue}
-                                onChange={(e) =>
-                                    handleInputChange(
-                                        field.path,
-                                        e.target.checked
-                                    )
-                                }
-                            />
-                        ) : (
-                            <Input
-                                onChange={(e) =>
-                                    handleInputChange(
-                                        field.path,
-                                        e.target.value
-                                    )
-                                }
-                                value={inputValue}
-                                size="md"
-                            />
-                        )}
-                    </FormControl>
-                );
-            })}
-        </VStack>
+        <Box px={4} pb={4}>
+            <Checkbox
+                isChecked={displayHiddenFields}
+                onChange={(e) => setDisplayHiddenFields(!displayHiddenFields)}
+                pb={4}
+            >
+                Hidden Fields
+            </Checkbox>
+            <VStack spacing={4}>
+                {fields.map((field) => {
+                    const fieldType = displayNameMapping[field.path]?.type;
+                    const inputValue = getNestedValue(editedNode, field.path);
+                    return (
+                        <FormControl key={field.path}>
+                            <FormLabel>{getDisplayName(field.path)}</FormLabel>
+                            {fieldType === 'Bool' ? (
+                                <Checkbox
+                                    isChecked={inputValue}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            field.path,
+                                            e.target.checked
+                                        )
+                                    }
+                                />
+                            ) : fieldType === 'Choice' ? (
+                                <Select
+                                    value={inputValue}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            field.path,
+                                            e.target.value
+                                        )
+                                    }
+                                >
+                                    {displayNameMapping[field.path].choices.map(
+                                        (choice) => (
+                                            <option
+                                                key={choice.value}
+                                                value={choice.value}
+                                            >
+                                                {choice.displayName}
+                                            </option>
+                                        )
+                                    )}
+                                </Select>
+                            ) : (
+                                <Input
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            field.path,
+                                            e.target.value
+                                        )
+                                    }
+                                    value={inputValue}
+                                    size="md"
+                                />
+                            )}
+                        </FormControl>
+                    );
+                })}
+            </VStack>
+        </Box>
     );
 };
 
