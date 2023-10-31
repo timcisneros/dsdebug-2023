@@ -359,11 +359,8 @@ const WorkflowDiagram = () => {
                     event.dataTransfer.getData('application/json')
                 );
 
-                console.log('dsdebug-log', nodeData);
-
-                const zoomLevel = reactFlowInstance.getZoom();
-
-                console.log('dsdebug-log', zoomLevel);
+                // const zoomLevel = reactFlowInstance.getZoom();
+                // console.log('dsdebug-log', zoomLevel);
 
                 const position = reactFlowInstance.project({
                     x: event.clientX - reactFlowBounds.left,
@@ -409,8 +406,6 @@ const WorkflowDiagram = () => {
                         typeof nodeData.stepData === 'object')
                 ) {
                     setNewNodesAdded(true);
-
-                    console.log('dsdebug-log', nodeData);
 
                     // Get the drop position
                     const dropPosition = reactFlowInstance.project({
@@ -519,10 +514,10 @@ const WorkflowDiagram = () => {
         [reactFlowInstance]
     );
 
-    const memoizedDefinedVariables = useMemo(
-        () => definedVariables,
-        [definedVariables]
-    );
+    // const memoizedDefinedVariables = useMemo(
+    //     () => definedVariables,
+    //     [definedVariables]
+    // );
 
     const sidePanelComponent = useMemo(
         () => (
