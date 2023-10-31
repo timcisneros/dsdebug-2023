@@ -313,39 +313,51 @@ const WorkflowDiagram = () => {
 
     // Watch for changes in the templateDefinedVariables state
     useEffect(() => {
-        if (templateDefinedVariables !== null) {
-            // Existing definedVariables
-            const existingDefinedVariables =
-                startActivity.definedVariables?.value?.slice();
+        try {
+            if (templateDefinedVariables !== null) {
+                // Existing definedVariables
+                const existingDefinedVariables =
+                    startActivity.definedVariables?.value?.slice();
 
-            // Merge the variables
-            const mergedVars = mergeDefinedVariables(
-                existingDefinedVariables,
-                templateDefinedVariables
-            );
+                // Merge the variables
+                const mergedVars = mergeDefinedVariables(
+                    existingDefinedVariables,
+                    templateDefinedVariables
+                );
 
-            // // Update the definedVariables state with the merged variables
-            // setDefinedVariables(mergedVars);
+                // // Update the definedVariables state with the merged variables
+                // setDefinedVariables(mergedVars);
 
-            // Find the index of the StartActivity node in data.cells
-            const startActivityIndex = data.cells.findIndex(
-                (cell) => cell.activityName === 'StartActivity'
-            );
+                // Find the index of the StartActivity node in data.cells
+                const startActivityIndex = data.cells.findIndex(
+                    (cell) => cell.activityName === 'StartActivity'
+                );
 
-            // Update the definedVariables of the StartActivity node in data.cells
-            if (startActivityIndex !== -1) {
-                const updatedDataCells = [...data.cells];
-                updatedDataCells[startActivityIndex].definedVariables.value =
-                    mergedVars;
+                // Update the definedVariables of the StartActivity node in data.cells
+                if (startActivityIndex !== -1) {
+                    const updatedDataCells = [...data.cells];
+                    updatedDataCells[
+                        startActivityIndex
+                    ].definedVariables.value = mergedVars;
 
-                // Update the data with the updated cells
-                setData((prevData) => ({
-                    ...prevData,
-                    cells: updatedDataCells,
-                }));
+                    // Update the data with the updated cells
+                    setData((prevData) => ({
+                        ...prevData,
+                        cells: updatedDataCells,
+                    }));
 
-                console.log('dsdebug-log', '- Variables Merged:', mergedVars);
+                    console.log(
+                        'dsdebug-log',
+                        '- Variables Merged:',
+                        mergedVars
+                    );
+                }
             }
+        } catch (error) {
+            console.warn(
+                'dsdebug-log',
+                "Warning - Start activity is missing, if you accidentally deleted it use the command 'start'"
+            );
         }
     }, [templateDefinedVariables]);
 
@@ -432,7 +444,7 @@ const WorkflowDiagram = () => {
                     );
 
                     setTemplateDefinedVariables(
-                        templateStartActivity.definedVariables.value
+                        templateStartActivity?.definedVariables.value
                     );
 
                     templateData.forEach((step) => {
