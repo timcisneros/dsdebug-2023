@@ -372,12 +372,27 @@ const ConsoleContainer = ({
             return;
         }
 
+        const linkId = generateId();
+
         // Create a new edge to connect the source and target nodes
         const newEdge = {
-            id: generateId(),
             type: 'springcm.Link', // Replace with the actual edge type
-            source: { id: sourceId, port: 'out' }, // Replace 'out' with the actual output port of the source node
-            target: { id: targetId, port: 'in' }, // Replace 'in' with the actual input port of the target node
+            source: { id: sourceId, port: 'e' },
+            target: { id: targetId, port: 'w' },
+            router: {
+                name: 'manhattan',
+                args: { excludeTypes: ['springcm.Group', 'springcm.Lane'] },
+            },
+            id: linkId,
+            z: 1000004,
+            name: {
+                type: 'String',
+                value: `link-${linkId}`,
+            },
+            vertices: [],
+            description: { type: 'String', value: '' },
+            output: { type: 'String', value: '' },
+            attrs: {},
         };
 
         setData((prevData) => ({
@@ -521,8 +536,6 @@ const ConsoleContainer = ({
 
             // Merge the temporary array into the main temporaryStepNames array
             temporaryStepNames.push(...tempStepNames);
-
-            console.log('Existing Step Names:', temporaryStepNames);
         }
     };
 
