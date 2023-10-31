@@ -16,7 +16,8 @@ const startActivityFilterKeys = {
     id: true,
     style: true,
     data: {
-        workflowName: true,
+        name: true,
+        workflowName: false,
         definedVariables: true,
         size: true,
         content: true,
@@ -111,6 +112,10 @@ const displayNameMapping = {
     'data.stepDescription.value': {
         displayName: 'Step Description',
         type: 'String',
+        placeholder: 'Enter a description for this step',
+    },
+    'data.workflowName.value': {
+        displayName: 'Workflow Name',
     },
     'data.sendNotification.value': {
         displayName: 'Send Notification',
@@ -120,6 +125,50 @@ const displayNameMapping = {
         displayName: 'Track Activity',
         type: 'Bool',
     },
+    'data.documents.value': {
+        displayName: 'Document(s)',
+        placeholder: 'Select the document(s) to add to the list',
+    },
+    'data.users.value': {
+        displayName: 'User(s)',
+        placeholder: 'Select the watchlist user(s)',
+    },
+    'data.whatId.value': {
+        displayName: 'Salesforce Object Id',
+        placeholder: 'Enter the salesforce object id',
+    },
+    'data.subject.value': {
+        displayName: 'Activity History Subject',
+        placeholder: 'Enter a subject for the activity',
+    },
+    'data.description.value': {
+        displayName: 'Activity History Description',
+        placeholder: 'Enter a description for the activity',
+    },
+    'data.ownerId.value': {
+        displayName: 'Salesforce Object Owner Id',
+        placeholder: 'Enter the salesforce object owner id',
+    },
+    'data.contactId.value': {
+        displayName: 'Salesforce Object Contact Id',
+        placeholder: 'Enter the salesforce object contact id',
+    },
+    'data.dueDate.value': {
+        displayName: 'Task Due Date',
+        placeholder: 'Enter a due date for the task',
+    },
+    'data.targetDocument.value': {
+        displayName: 'Document',
+        placeholder: 'Enter the salesforce object id',
+    },
+    'data.textSourceType.value': {
+        displayName: 'Select Text Source',
+    },
+    'data.sourceText.value': {
+        displayName: 'Text',
+        placeholder: 'Enter the text to append',
+    },
+
     'data.notifyOnException.value': {
         displayName: 'Notify On Exception?',
         type: 'Bool',
@@ -155,6 +204,15 @@ const displayNameMapping = {
     },
     'data.status.value': {
         displayName: 'Status',
+        type: 'Choice',
+        choices: [
+            { displayName: '', value: '' },
+            { displayName: 'In Progress', value: 'move' },
+            { displayName: 'Not Started', value: 'copy' },
+            { displayName: 'Completed', value: 'move' },
+            { displayName: 'Waiting on someone else', value: 'copy' },
+            { displayName: 'Deferred', value: 'move' },
+        ],
     },
     'data.sourceDocument.value.*.value.value': {
         displayName: 'Source Document',
@@ -214,12 +272,27 @@ const DeepFieldExplorer = ({ data }) => {
                     continue;
                 }
 
+                const newPath = currentPath.concat(key);
+
                 if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    // Special handling for the "type" and "value" structure
+                    if (
+                        obj[key].hasOwnProperty('type') &&
+                        obj[key].hasOwnProperty('value')
+                    ) {
+                        deepestFields.push({
+                            path: newPath.join('.') + '.value',
+                            value: obj[key].value,
+                        });
+                        // We've added the ".value", so continue to next key
+                        continue;
+                    }
+                    // If not a special "type" & "value" structure, continue exploring deeper fields
                     deepestFields = deepestFields.concat(
-                        findDeepestFields(obj[key], currentPath.concat(key))
+                        findDeepestFields(obj[key], newPath)
                     );
                 } else {
-                    const path = [...currentPath, key].join('.');
+                    const path = newPath.join('.');
                     deepestFields.push({ path, value: obj[key] });
                 }
             }
@@ -330,6 +403,10 @@ const DeepFieldExplorer = ({ data }) => {
                                 </Select>
                             ) : (
                                 <Input
+                                    placeholder={
+                                        displayNameMapping[field.path]
+                                            ?.placeholder || ''
+                                    }
                                     onChange={(e) =>
                                         handleInputChange(
                                             field.path,

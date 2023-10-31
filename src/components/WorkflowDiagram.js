@@ -237,7 +237,7 @@ const WorkflowDiagram = () => {
         setData((prevData) => ({
             ...prevData,
             cells: prevData.cells.map((cell) =>
-                cell.id === draggedNode.id
+                cell.id === draggedNode?.id
                     ? {
                           ...cell,
                           position: draggedNode.position,
