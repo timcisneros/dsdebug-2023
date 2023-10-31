@@ -375,7 +375,9 @@ const DeepFieldExplorer = ({ data }) => {
                     const inputValue = getNestedValue(editedNode, field.path);
                     return (
                         <FormControl
-                            isRequired={displayNameMapping[field.path].required}
+                            isRequired={
+                                displayNameMapping[field.path]?.required
+                            }
                             key={field.path}
                         >
                             <FormLabel>{getDisplayName(field.path)}</FormLabel>
