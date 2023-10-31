@@ -108,7 +108,11 @@ const filterKeys = {
 };
 
 const displayNameMapping = {
-    'data.name.value': { displayName: 'Step Name', type: 'String' },
+    'data.name.value': {
+        displayName: 'Step Name',
+        type: 'String',
+        required: true,
+    },
     'data.stepDescription.value': {
         displayName: 'Step Description',
         type: 'String',
@@ -128,6 +132,7 @@ const displayNameMapping = {
     'data.documents.value': {
         displayName: 'Document(s)',
         placeholder: 'Select the document(s) to add to the list',
+        required: true,
     },
     'data.users.value': {
         displayName: 'User(s)',
@@ -136,6 +141,7 @@ const displayNameMapping = {
     'data.whatId.value': {
         displayName: 'Salesforce Object Id',
         placeholder: 'Enter the salesforce object id',
+        required: true,
     },
     'data.subject.value': {
         displayName: 'Activity History Subject',
@@ -368,7 +374,10 @@ const DeepFieldExplorer = ({ data }) => {
                     const fieldType = displayNameMapping[field.path]?.type;
                     const inputValue = getNestedValue(editedNode, field.path);
                     return (
-                        <FormControl key={field.path}>
+                        <FormControl
+                            isRequired={displayNameMapping[field.path].required}
+                            key={field.path}
+                        >
                             <FormLabel>{getDisplayName(field.path)}</FormLabel>
                             {fieldType === 'Bool' ? (
                                 <Checkbox
