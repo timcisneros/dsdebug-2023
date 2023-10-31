@@ -356,7 +356,7 @@ const WorkflowDiagram = () => {
         } catch (error) {
             console.warn(
                 'dsdebug-log',
-                "Warning - Start activity is missing, if you accidentally deleted it use the command 'start'"
+                "Warning - Start activity is missing and variables could not be merged, if you accidentally deleted the start step use the command 'start' to replace it"
             );
         }
     }, [templateDefinedVariables]);
