@@ -444,7 +444,7 @@ const WorkflowDiagram = () => {
                     );
 
                     setTemplateDefinedVariables(
-                        templateStartActivity?.definedVariables.value
+                        templateStartActivity.definedVariables.value
                     );
 
                     templateData.forEach((step) => {
