@@ -7,6 +7,8 @@ import {
     Checkbox,
     Select,
     Box,
+    HStack,
+    Radio,
 } from '@chakra-ui/react';
 import { useNode } from '../../contexts/NodeContext';
 
@@ -174,6 +176,28 @@ const displayNameMapping = {
         displayName: 'Text',
         placeholder: 'Enter the text to append',
     },
+    'data.activityDisplayName.value': {
+        displayName: 'Display Name',
+    },
+    'data.stageName.value': {
+        displayName: 'Stage Name',
+    },
+    'data.checkoutDocuments.value': {
+        displayName: 'Checkout the document?',
+        type: 'Bool',
+    },
+    'data.compareVersion.value': {
+        displayName: 'Compare this document with another version',
+        type: 'Bool',
+    },
+    'data.assigneeType.value': {
+        displayName: 'Assign to a user or task group',
+        type: 'Radio',
+        choices: [
+            { displayName: 'Test', value: 'user' },
+            { displayName: 'Test2', value: 'group' },
+        ],
+    },
 
     'data.notifyOnException.value': {
         displayName: 'Notify On Exception?',
@@ -320,6 +344,7 @@ const DeepFieldExplorer = ({ data }) => {
     };
 
     const matchPathWithWildcard = (pattern, path) => {
+        console.log('dsdebug-log', path);
         const patternParts = pattern.split('.');
         const pathParts = path.split('.');
 
@@ -412,6 +437,28 @@ const DeepFieldExplorer = ({ data }) => {
                                         )
                                     )}
                                 </Select>
+                            ) : fieldType === 'Radio' ? (
+                                <HStack>
+                                    {displayNameMapping[field.path].choices.map(
+                                        (choice) => (
+                                            <Radio
+                                                key={choice.value}
+                                                value={choice.value}
+                                                isChecked={
+                                                    inputValue === choice.value
+                                                }
+                                                onChange={(e) =>
+                                                    handleInputChange(
+                                                        field.path,
+                                                        e.target.value
+                                                    )
+                                                }
+                                            >
+                                                {choice.displayName}
+                                            </Radio>
+                                        )
+                                    )}
+                                </HStack>
                             ) : (
                                 <Input
                                     placeholder={
