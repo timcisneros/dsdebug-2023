@@ -344,7 +344,6 @@ const DeepFieldExplorer = ({ data }) => {
     };
 
     const matchPathWithWildcard = (pattern, path) => {
-        console.log('dsdebug-log', path);
         const patternParts = pattern.split('.');
         const pathParts = path.split('.');
 
