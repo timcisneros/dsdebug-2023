@@ -1,6 +1,11 @@
 // DefaultCustomEdge.js
 import React from 'react';
-import { BaseEdge, EdgeLabelRenderer, getStraightPath } from 'reactflow';
+import {
+    BaseEdge,
+    EdgeLabelRenderer,
+    getSmoothStepPath,
+    getStraightPath,
+} from 'reactflow';
 
 const DefaultCustomEdge = ({
     sourceX,
@@ -14,7 +19,7 @@ const DefaultCustomEdge = ({
     label,
 }) => {
     const edgeColor = '#f0f0f0'; // Customize the color here, or pass it as a prop to the component
-    const [edgePath, labelX, labelY] = getStraightPath({
+    const [edgePath, labelX, labelY] = getSmoothStepPath({
         sourceX,
         sourceY,
         sourcePosition,

@@ -36,6 +36,7 @@ import ConsoleContainer from './ConsoleContainer';
 import 'react-resizable/css/styles.css';
 import Panel from './NodeSettingsPanel/Panel';
 import DeepFieldExplorer from './NodeSettingsPanel/DeepFieldExplorer';
+import ConnectionLine from './EdgeTypes/ConnectionLine';
 
 const proOptions = { hideAttribution: true };
 
@@ -99,6 +100,7 @@ const WorkflowDiagram = () => {
         'id',
         'type',
         'position',
+        'selected',
         // ... any other properties you don't want in `data`
     ];
 
@@ -213,9 +215,11 @@ const WorkflowDiagram = () => {
                         addItemLabel(item.output, item.source.id) ||
                         item.output?.value,
                     type: 'defaultCustomEdge',
-                    animated: true,
+                    animated: false,
                     markerEnd: {
                         type: MarkerType.ArrowClosed,
+                        width: 20,
+                        height: 20,
                     },
                 }));
             setEdges(updatedEdges);
@@ -791,6 +795,7 @@ const WorkflowDiagram = () => {
                                     style={{ width: '100%', height: '100%' }}
                                     snapToGrid
                                     snapGrid={snapGrid}
+                                    connectionLineComponent={ConnectionLine}
                                 >
                                     <Background variant="cross" gap={25} />
                                     <Controls>

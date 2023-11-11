@@ -2,7 +2,7 @@ import { Handle, Position } from 'reactflow';
 import { ReactSVG } from 'react-svg';
 
 const StepNode = ({ data, selected }) => {
-    const { id, name, size, attrs, icon } = data;
+    const { id, name, size, attrs, icon, errorState } = data;
     const svgPath = `step-images/${icon.path}`;
 
     // Default name value if it's not available
@@ -25,7 +25,9 @@ const StepNode = ({ data, selected }) => {
                     width: size?.width || 100,
                     height: size?.height || 100,
                     borderRadius: 3,
-                    border: '2px solid #757575',
+                    border: errorState
+                        ? '2px solid #ff4f19'
+                        : '2px solid #757575',
                     color: '#000',
                     fontSize: attrs?.['.descriptiontext']?.['font-size'] || 11,
                     lineHeight: 1.5,

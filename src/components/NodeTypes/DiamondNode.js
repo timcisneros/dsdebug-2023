@@ -2,7 +2,7 @@ import { Handle, Position } from 'reactflow';
 import { ReactSVG } from 'react-svg';
 
 const DiamondNode = ({ data, selected }) => {
-    const { id, name, size, attrs, icon } = data;
+    const { id, name, size, attrs, icon, errorState } = data;
     const svgPath = `step-images/${icon.path}`;
 
     // Default name value if it's not available
@@ -22,7 +22,9 @@ const DiamondNode = ({ data, selected }) => {
                     width: 93,
                     height: 93,
                     background: selected ? '#FDFF6C' : attrs?.svg?.fill,
-                    border: '2px solid #757575',
+                    border: errorState
+                        ? '2px solid #ff4f19'
+                        : '2px solid #757575',
                     color: '##000',
                     fontSize: attrs?.['.descriptiontext']?.['font-size'] || 11,
                     borderRadius: 3,
