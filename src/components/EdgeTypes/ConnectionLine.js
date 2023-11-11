@@ -1,6 +1,6 @@
 import { Position, getSmoothStepPath } from 'reactflow';
 
-export default ({ fromX, fromY, toX, toY }) => {
+const ConnectionLine = ({ fromX, fromY, toX, toY }) => {
     const [path] = getSmoothStepPath({
         sourceX: fromX,
         sourceY: fromY,
@@ -31,3 +31,5 @@ export default ({ fromX, fromY, toX, toY }) => {
         </g>
     );
 };
+
+export default ConnectionLine;
