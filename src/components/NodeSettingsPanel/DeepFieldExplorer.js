@@ -7,9 +7,9 @@ import {
     Checkbox,
     Select,
     Box,
-    HStack,
     Radio,
     FormErrorMessage,
+    Textarea,
 } from '@chakra-ui/react';
 import { useNode } from '../../contexts/NodeContext';
 
@@ -347,18 +347,21 @@ const displayNameMapping = {
             path: 'data.activityDisplayName.value',
             config: {
                 displayName: 'Display Name',
+                type: 'String',
             },
         },
         {
             path: 'data.stageName.value',
             config: {
                 displayName: 'Stage Name',
+                type: 'String',
             },
         },
         {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
+                type: 'String',
                 required: true,
             },
         },
@@ -379,7 +382,7 @@ const displayNameMapping = {
         {
             path: 'data.assigneeType.value',
             config: {
-                displayName: 'Assign to a user or task group',
+                displayName: 'Assign to a user or task group?',
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
@@ -388,9 +391,683 @@ const displayNameMapping = {
             },
         },
         {
+            path: 'data.assignedUsers.value',
+            config: {
+                displayName: 'Assignee(s)',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.assignedUsersInOrder.value',
+            config: {
+                displayName: 'Assign tasks in order?',
+                type: 'Bool',
+            },
+        },
+        {
             path: 'data.instructions.value',
             config: {
                 displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.approveText.value',
+            config: {
+                displayName: 'Approve Button Text',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.rejectText.value',
+            config: {
+                displayName: 'Reject Button Text',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: '1' },
+                    { displayName: 'Comments are optional', value: '2' },
+                    { displayName: "Don't show the comment field", value: '3' },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+    ],
+    CancelElectronicSignatureActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                required: true,
+            },
+        },
+    ],
+    CheckInDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.checkedOutDocument.value',
+            config: {
+                displayName: 'Checked Out Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.revisionDocument.value',
+            config: {
+                displayName: 'Document to Check In',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.users.value',
+            config: {
+                displayName: 'Check in user',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    CheckOutDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Checkout Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.users.value',
+            config: {
+                displayName: 'Checkout User',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    CheckOutDocumentCancelActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document checkout cancellation',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.users.value',
+            config: {
+                displayName: 'Cancellation user',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    MergePdfDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documentName.value',
+            config: {
+                displayName: 'Document Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetFolder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.outputType.value',
+            config: {
+                displayName: 'Output combined documents as...',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'PDF', value: 'Pdf' },
+                    { displayName: 'Word (.docx)', value: 'Word' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.deleteOriginals.value',
+            config: {
+                displayName:
+                    'Delete the original documents after combining them.',
+                type: 'Bool',
+            },
+        },
+    ],
+    CompareDocumentVersionsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.revisedDocumentProperty.value.*.value.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sourceDocumentCompareProperty.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 1 },
+                    { displayName: 'First Version', value: 0 },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.resultDocumentTypeProperty.value',
+            config: {
+                displayName: 'Save new document as',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'New Version', value: 'New Version' },
+                    { displayName: 'New Document', value: 'New Document' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.resultDocumentNameProperty.value',
+            config: {
+                displayName: 'New Document Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.resultDocumentFolderProperty.value',
+            config: {
+                displayName: 'Folder Destination',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    CompareDocumentsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.originalDocumentProperty.value',
+            config: {
+                displayName: 'Original Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.revisedDocumentProperty.value',
+            config: {
+                displayName: 'Revised Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.resultDocumentTypeProperty.value',
+            config: {
+                displayName: 'Save new document as',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'New Version', value: 'Version' },
+                    { displayName: 'New Document', value: 'Document' },
+                ],
+                required: true,
+            },
+        },
+    ],
+    CompareTrackedContentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sourceDocumentCompareProperty.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 1 },
+                    { displayName: 'First Version', value: 0 },
+                ],
+                required: true,
+            },
+        },
+    ],
+    ConvertJsonToXmlActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.conversionType.value',
+            config: {
+                displayName: 'Conversion Type',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'JSON to XML', value: 'jsonToXml' },
+                    { displayName: 'XML to JSON', value: 'xmlToJson' },
+                ],
+            },
+        },
+    ],
+    CopyMoveDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.action.value',
+            config: {
+                displayName: 'Select an action',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Move', value: 'move' },
+                    { displayName: 'Make a Copy', value: 'copy' },
+                ],
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetFolder.value',
+            config: {
+                displayName: 'Destination Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    CopyFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.action.value',
+            config: {
+                displayName: 'Select an action',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Move', value: 'move' },
+                    { displayName: 'Make a Copy', value: 'copy' },
+                ],
+            },
+        },
+        {
+            path: 'data.sourceFolder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.parentFolder.value',
+            config: {
+                displayName: 'Destination Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.newFolderName.value',
+            config: {
+                displayName: 'Folder name',
+                type: 'String',
+            },
+        },
+    ],
+    CreateFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.newFolder.value',
+            config: {
+                displayName: 'New Folder Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.description.value',
+            config: {
+                displayName: 'New Folder Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.parentFolder.value',
+            config: {
+                displayName: 'Parent Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.returnExisting.value',
+            config: {
+                displayName: 'Use the folder if it already exists',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.inheritLimitedAttributeGroups.value',
+            config: {
+                displayName: "Inherit the parent folder's attribute groups",
+                type: 'Bool',
+            },
+        },
+    ],
+    CreateLinkActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.parentFolder.value',
+            config: {
+                displayName: 'Folder Destination',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.linkName.value',
+            config: {
+                displayName: 'Link Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.linkURL.value',
+            config: {
+                displayName: 'Link URL',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.linkDescription.value',
+            config: {
+                displayName: 'Link Description',
+                type: 'String',
+            },
+        },
+    ],
+    InsertSalesforceActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.salesForceObjectType.value',
+            config: {
+                displayName: 'Salesforce Object Type',
+                type: 'String',
             },
         },
     ],
@@ -1005,7 +1682,7 @@ const DeepFieldExplorer = ({ data }) => {
                                     ))}
                                 </Select>
                             ) : fieldType === 'Radio' ? (
-                                <HStack>
+                                <VStack align="start">
                                     {config.choices.map((choice) => (
                                         <Radio
                                             key={choice.value}
@@ -1023,7 +1700,19 @@ const DeepFieldExplorer = ({ data }) => {
                                             {choice.displayName}
                                         </Radio>
                                     ))}
-                                </HStack>
+                                </VStack>
+                            ) : fieldType === 'Textarea' ? (
+                                <Textarea
+                                    placeholder={config?.placeholder || ''}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            field.path,
+                                            e.target.value
+                                        )
+                                    }
+                                    value={inputValue}
+                                    size="md"
+                                />
                             ) : (
                                 <Input
                                     placeholder={config?.placeholder || ''}
