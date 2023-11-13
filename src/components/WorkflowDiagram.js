@@ -383,6 +383,9 @@ const WorkflowDiagram = () => {
                     y: event.clientY - reactFlowBounds.top,
                 });
 
+                position.x -= 50;
+                position.y -= 50;
+
                 const existingStepNames = data.cells.map(
                     (node) => node.name.value
                 );
@@ -792,10 +795,14 @@ const WorkflowDiagram = () => {
                                     fitView
                                     elevateEdgesOnSelect
                                     nodesFocusable
-                                    style={{ width: '100%', height: '100%' }}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                    }}
                                     snapToGrid
                                     snapGrid={snapGrid}
                                     connectionLineComponent={ConnectionLine}
+                                    nodeOrigin={[0, 0]}
                                 >
                                     <Background variant="cross" gap={25} />
                                     <Controls>

@@ -1071,6 +1071,438 @@ const displayNameMapping = {
             },
         },
     ],
+    FindOrCreateSalesForceFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sfdcAccountId.value',
+            config: {
+                displayName: 'Salesforce Account Id',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sfdcAccountName.value',
+            config: {
+                displayName: 'Salesforce Account Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sfdcObjectId.value',
+            config: {
+                displayName: 'Salesforce Object Id',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sfdcObjectName.value',
+            config: {
+                displayName: 'Salesforce Object Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sfdcObjectType.value',
+            config: {
+                displayName: 'Salesforce Object Type',
+                type: 'String',
+            },
+        },
+    ],
+    UpdateXMLVariableFromCSVActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Upload CSV',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.delimiter.value',
+            config: {
+                displayName: 'Delimiter',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.selectConfigurationDocument.value',
+            config: {
+                displayName: 'Select a Configuration Document?',
+                type: 'Bool',
+            },
+        },
+    ],
+    DeleteDocumentReminderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                required: true,
+            },
+        },
+        {
+            path: 'data.reminderName.value',
+            config: {
+                displayName: 'Reminder Name',
+                required: true,
+            },
+        },
+        {
+            path: 'data.reminderDate.value',
+            config: {
+                displayName: 'Reminder Date',
+                required: true,
+            },
+        },
+        {
+            path: 'data.reminderTime.value',
+            config: {
+                displayName: 'Reminder Hour',
+                required: true,
+            },
+        },
+    ],
+    SendEmailActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.from.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.bcclink.value',
+            config: {
+                displayName: 'BCC',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.cclink.value',
+            config: {
+                displayName: 'CC',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.to.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.subject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.body.value',
+            config: {
+                displayName: 'Body',
+                type: 'Textarea',
+                required: true,
+            },
+        },
+    ],
+    EmailDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.format.value',
+            config: {
+                displayName: 'Format',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Native', value: 'native' },
+                    { displayName: 'PDF', value: 'pdf' },
+                    {
+                        displayName: 'PDF (if possible) or Native',
+                        value: 'pdfornative',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.fromDisplayName.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.fromDisplayName.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.bcclink.value',
+            config: {
+                displayName: 'BCC',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.cclink.value',
+            config: {
+                displayName: 'CC',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.to.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.replyTo.value',
+            config: {
+                displayName: 'Reply To',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.subject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.note.value',
+            config: {
+                displayName: 'Body',
+                type: 'Textarea',
+                required: true,
+            },
+        },
+        {
+            path: 'data.includeSignature.value',
+            config: {
+                displayName: 'Include Signature to Email?',
+                type: 'Bool',
+                required: true,
+            },
+        },
+    ],
+    EvaluateDocumentText: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.query.value',
+            config: {
+                displayName: 'Search Text',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.exactMatch.value',
+            config: {
+                displayName: 'Exact Match?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.timeout.value',
+            config: {
+                displayName: 'Time Out',
+                type: 'String',
+            },
+        },
+    ],
+    EvaluateXPathActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.xPath.value',
+            config: {
+                displayName: 'XPath',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    ExcelEtlActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.configurationType.value',
+            config: {
+                displayName: null,
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Configuration Document',
+                        value: 'document',
+                    },
+                    {
+                        displayName: 'Configuration Variable',
+                        value: 'variable',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.etlConfigDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
     default: [
         // {
         //     path: 'data.name.value',
@@ -1646,12 +2078,14 @@ const DeepFieldExplorer = ({ data }) => {
                             key={field.path}
                             isInvalid={isError}
                         >
-                            <FormLabel>
-                                {getDisplayName(
-                                    field.path,
-                                    currentActivityName
-                                )}
-                            </FormLabel>
+                            {field.config.displayName !== null && (
+                                <FormLabel>
+                                    {getDisplayName(
+                                        field.path,
+                                        currentActivityName
+                                    )}
+                                </FormLabel>
+                            )}
                             {fieldType === 'Bool' ? (
                                 <Checkbox
                                     isChecked={inputValue}
