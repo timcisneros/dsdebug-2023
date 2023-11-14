@@ -1620,6 +1620,984 @@ const displayNameMapping = {
             },
         },
     ],
+    GetDocumentAttachmentsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.resultLimit.value',
+            config: {
+                displayName: 'Number of documents to be returned',
+                type: 'String',
+            },
+        },
+    ],
+    FindDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    FindDocumentsByFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.includeSubfolders.value',
+            config: {
+                displayName: 'Include documents from Subfolders?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.resultLimit.value',
+            config: {
+                displayName: 'Number of documents to be returned',
+                type: 'String',
+            },
+        },
+    ],
+    FindDocumentsByMetadataActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Ignored Document(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.resultLimit.value',
+            config: {
+                displayName: 'Number of documents to be returned',
+                type: 'String',
+            },
+        },
+    ],
+    FindEOSParentFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.entityType.value',
+            config: {
+                displayName: 'Select a document or a folder?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Select a document', value: 'document' },
+                    { displayName: 'Select a folder', value: 'folder' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.document.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectType.value',
+            config: {
+                displayName: 'EOS Object Type',
+                type: 'String',
+            },
+        },
+    ],
+    FindFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    FindUserActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.searchField.value',
+            config: {
+                displayName: 'Field',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.searchValue.value',
+            config: {
+                displayName: 'Value',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    FindOrCreateEOSFolderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folderId.value',
+            config: {
+                displayName: 'Folder Id',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectType.value',
+            config: {
+                displayName: 'Type',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.folderName.value',
+            config: {
+                displayName: 'Folder Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.path.value',
+            config: {
+                displayName: 'Folder Path',
+                type: 'String',
+            },
+        },
+    ],
+    EndActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+    ],
+    ForLoopActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.loopMax.value',
+            config: {
+                displayName: 'Number of loops',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    XPathForEachLoopActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.execution.value',
+            config: {
+                displayName: 'Execution Method',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Serial', value: 'serial' },
+                    { displayName: 'Parallel', value: 'parallel' },
+                ],
+            },
+        },
+    ],
+    GetNextAutoNumberValueActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.autoNumberName.value',
+            config: {
+                displayName: 'Name',
+                type: 'String',
+            },
+        },
+    ],
+    GetPathActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.entityType.value',
+            config: {
+                displayName: 'Select a document or a folder?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Select a document', value: 'document' },
+                    { displayName: 'Select a folder', value: 'folder' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.document.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    GetTrackedContentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    GroupBoxActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Group Name',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    HttpClientActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.requestContent.value',
+            config: {
+                displayName: 'Content',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.contentEncoding.value',
+            config: {
+                displayName: 'Encoding',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'ASCII', value: 'us-ascii' },
+                    { displayName: 'UTF-7', value: '1' },
+                    { displayName: 'UTF-8', value: '2' },
+                    { displayName: 'UTF-16', value: '3' },
+                    { displayName: 'UTF-16 Big Endian', value: '4' },
+                    { displayName: 'UTF-32 Little Endian', value: '5' },
+                ],
+            },
+        },
+        {
+            path: 'data.protocolVersion.value',
+            config: {
+                displayName: 'Protocol Version',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.method.value',
+            config: {
+                displayName: 'Method',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.url.value',
+            config: {
+                displayName: 'Endpoint URL',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.responseEncoding.value',
+            config: {
+                displayName: 'Encoding',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Auto', value: 'Auto' },
+                    { displayName: 'ASCII', value: 'us-ascii' },
+                    { displayName: 'UTF-7', value: '1' },
+                    { displayName: 'UTF-8', value: '2' },
+                    { displayName: 'UTF-16', value: '3' },
+                    { displayName: 'UTF-16 Big Endian', value: '4' },
+                    { displayName: 'UTF-32 Little Endian', value: '5' },
+                ],
+            },
+        },
+    ],
+    WebServiceActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.retryOnFailure.value',
+            config: {
+                displayName: 'Retry on Failure',
+                type: 'Bool',
+            },
+        },
+    ],
+    LaneActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Lane Name',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    LogActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.message.value',
+            config: {
+                displayName: 'Message',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    MergeTrackedContentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.resultDocumentTypeProperty.value',
+            config: {
+                displayName: 'Save new document as',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'New Version', value: 'Version' },
+                    { displayName: 'New Document', value: 'Document' },
+                ],
+                required: true,
+            },
+        },
+    ],
+    NextLoopActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+    ],
+    PoolActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Pool Name',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    RemoveWatchedDocumentsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.users.value',
+            config: {
+                displayName: 'User(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.unsubscribeAll.value',
+            config: {
+                displayName: 'Remove from all watchlists',
+                type: 'Bool',
+            },
+        },
+    ],
+    RenameDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document to Rename',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.newDocumentName.value',
+            config: {
+                displayName: 'New Document Name',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    ResourceVariableActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.to.value',
+            config: {
+                displayName: 'User',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.expandGroups.value',
+            config: {
+                displayName: 'Expand Groups',
+                type: 'Bool',
+                required: true,
+            },
+        },
+    ],
+    ReviewAndSendForExternalReviewActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    RuleActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+    ],
+    SalesforceEtlActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.objectType.value',
+            config: {
+                displayName: 'Salesforce Object Type',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectId.value',
+            config: {
+                displayName: 'Salesforce Object Id',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.configurationType.value',
+            config: {
+                displayName: null,
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Configuration Document',
+                        value: 'document',
+                    },
+                    {
+                        displayName: 'Configuration Variable',
+                        value: 'variable',
+                    },
+                    {
+                        displayName: 'Configuration Document Generation Form',
+                        value: 'generation',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.configDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    ScheduleDocumentReminderActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.reminderName.value',
+            config: {
+                displayName: 'Reminder Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.reminderDate.value',
+            config: {
+                displayName: 'Reminder Date',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.reminderTime.value',
+            config: {
+                displayName: 'Reminder Hour',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sender.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.recipients.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.subject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.body.value',
+            config: {
+                displayName: 'Body',
+                type: 'Textarea',
+            },
+        },
+    ],
+    UpdateWorkflowOutputActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.outputProperty.value',
+            config: {
+                displayName: 'Workflow Output',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    SetWorkflowScopeNameActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.scopeName.value',
+            config: {
+                displayName: 'Process Name',
+                type: 'String',
+            },
+        },
+    ],
     default: [
         // {
         //     path: 'data.name.value',
