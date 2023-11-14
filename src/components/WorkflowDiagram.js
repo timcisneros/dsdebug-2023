@@ -802,7 +802,6 @@ const WorkflowDiagram = () => {
                                     snapToGrid
                                     snapGrid={snapGrid}
                                     connectionLineComponent={ConnectionLine}
-                                    nodeOrigin={[0, 0]}
                                 >
                                     <Background variant="cross" gap={25} />
                                     <Controls>

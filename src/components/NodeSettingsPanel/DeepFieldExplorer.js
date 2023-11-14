@@ -1503,6 +1503,123 @@ const displayNameMapping = {
             },
         },
     ],
+    ExtractPdfFieldsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    FaxDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.note.value',
+            config: {
+                displayName: 'Note',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.to.value',
+            config: {
+                displayName: 'Fax Recipients',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.toFaxNumber.value',
+            config: {
+                displayName: 'Fax Number(s)',
+                type: 'String',
+            },
+        },
+    ],
+    FaxDocumentAndWaitActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.note.value',
+            config: {
+                displayName: 'Note',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.to.value',
+            config: {
+                displayName: 'Fax Recipients',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.toFaxNumber.value',
+            config: {
+                displayName: 'Fax Number(s)',
+                type: 'String',
+            },
+        },
+    ],
     default: [
         // {
         //     path: 'data.name.value',
