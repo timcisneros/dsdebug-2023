@@ -4155,14 +4155,15 @@ const DeepFieldExplorer = ({ data }) => {
                             key={field.path}
                             isInvalid={isError}
                         >
-                            {field.config.displayName !== null && (
-                                <FormLabel>
-                                    {getDisplayName(
-                                        field.path,
-                                        currentActivityName
-                                    )}
-                                </FormLabel>
-                            )}
+                            {field.config.displayName !== null &&
+                                field.config.type !== 'Bool' && (
+                                    <FormLabel>
+                                        {getDisplayName(
+                                            field.path,
+                                            currentActivityName
+                                        )}
+                                    </FormLabel>
+                                )}
                             {fieldType === 'Bool' ? (
                                 <Checkbox
                                     isChecked={inputValue}
@@ -4172,7 +4173,12 @@ const DeepFieldExplorer = ({ data }) => {
                                             e.target.checked
                                         )
                                     }
-                                />
+                                >
+                                    {getDisplayName(
+                                        field.path,
+                                        currentActivityName
+                                    )}
+                                </Checkbox>
                             ) : fieldType === 'Choice' ? (
                                 <Select
                                     value={inputValue}
