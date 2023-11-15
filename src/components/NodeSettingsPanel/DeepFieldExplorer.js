@@ -4029,6 +4029,30 @@ const DeepFieldExplorer = ({ data }) => {
         // Change the value
         obj[pathParts[pathParts.length - 1]] = newValue;
 
+        // Perform validation check
+        const allFilled = fields.every((field) => {
+            try {
+                if (field.config.required) {
+                    const fieldValue =
+                        field.path === path
+                            ? newValue
+                            : getNestedValue(updatedNode, field.path);
+                    return fieldValue.trim() !== '';
+                }
+                return true;
+            } catch (error) {
+                // console.error('dsdebug-log', `Error - ${error.message}`);
+            }
+        });
+
+        const errorState = !allFilled;
+
+        // Update the errorState based on form validity
+        updatedNode.data.errorState = errorState;
+        updatedNode.data.attrs.rect['data-error-state'] = errorState.toString();
+        updatedNode.data.attrs['.step-container']['data-error-state'] =
+            errorState;
+
         // Update the editedNode state
         setEditedNode(updatedNode);
 
