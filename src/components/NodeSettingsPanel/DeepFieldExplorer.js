@@ -2598,6 +2598,894 @@ const displayNameMapping = {
             },
         },
     ],
+    SplitDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetFolder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.splitMethod.value',
+            config: {
+                displayName: 'Select the split method',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Split via Page(s)', value: 'pages' },
+                    { displayName: 'Split via XML', value: 'xml' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.deleteOriginalDocument.value',
+            config: {
+                displayName: 'Delete source document?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.newFileName.value',
+            config: {
+                displayName: 'New File Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.pageRanges.value',
+            config: {
+                displayName: 'Page(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    SimpleDelayActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+    ],
+    UpdateDocumentKeywordActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.keywords.value',
+            config: {
+                displayName: 'Document Keywords',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    UpdateDocumentMetadataActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    UpdateFolderDescriptionActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Folder(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.description.value',
+            config: {
+                displayName: 'Folder Description',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    UpdateFolderMetadataActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.propagateToChildren.value',
+            config: {
+                displayName: 'Update children',
+                type: 'Bool',
+            },
+        },
+    ],
+    UpdateStatusActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.status.value',
+            config: {
+                displayName: 'Information',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    UpdateParentVariableActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+    ],
+    UpdateSalesForceActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.salesForceObjectType.value',
+            config: {
+                displayName: 'Object Type',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.salesForceFindField.value',
+            config: {
+                displayName: 'Search Field',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.salesForceFindValue.value',
+            config: {
+                displayName: 'Search Value',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.SalesForceUpdateField.value',
+            config: {
+                displayName: 'Update Field',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.SalesForceUpdateValue.value',
+            config: {
+                displayName: 'Update Value',
+                type: 'String',
+            },
+        },
+    ],
+    UpdateSecurityActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Folder(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.users.value',
+            config: {
+                displayName: 'User(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.recalculate.value',
+            config: {
+                displayName: 'Wait for the update to complete?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.security.value',
+            config: {
+                displayName: 'Security',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Inherit from Parent Folder', value: '1' },
+                    { displayName: 'No Access', value: '2' },
+                    { displayName: 'View', value: '3' },
+                    { displayName: 'View & Create', value: '4' },
+                    { displayName: 'View & Edit', value: '5' },
+                    { displayName: 'View, Edit & Delete', value: '6' },
+                    {
+                        displayName: 'View, Edit, Delete & Set Access',
+                        value: '7',
+                    },
+                    { displayName: 'Security Variable', value: '8' },
+                ],
+                required: true,
+            },
+        },
+    ],
+    UpdateVariableFromCSVActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Upload CSV',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.fieldId.value',
+            config: {
+                displayName: 'Field Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.fieldValue.value',
+            config: {
+                displayName: 'Search Field Value',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    UpdateVariableFromXMLActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Upload XML',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.xpath.value',
+            config: {
+                displayName: 'XPath',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    UpdateVariableActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notifyOnException.value',
+            config: {
+                displayName: 'Notify on error',
+                type: 'Bool',
+            },
+        },
+    ],
+    WaitForExternalReviewActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    WaitForSignal: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+    ],
+    WaitForSignatureActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sender.value',
+            config: {
+                displayName: 'Sender',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.document.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.signatureAuditEventsText.value',
+            config: {
+                displayName: 'Signature Audit Events',
+                type: 'String',
+            },
+        },
+    ],
+    WatermarkDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetFolder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.documentName.value',
+            config: {
+                displayName: 'Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.watermarkPages.value',
+            config: {
+                displayName: 'Page(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.watermarkPosition.value',
+            config: {
+                displayName: 'Watermark Position',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.watermarkType.value',
+            config: {
+                displayName: 'Watermark Type',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Text', value: 'text' },
+                    { displayName: 'Image', value: 'image' },
+                ],
+            },
+        },
+        {
+            path: 'data.watermarkAlign.value',
+            config: {
+                displayName: 'Alignment',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Left', value: 'left' },
+                    { displayName: 'Center', value: 'center' },
+                    { displayName: 'Right', value: 'right' },
+                ],
+            },
+        },
+        {
+            path: 'data.watermarkOpacity.value',
+            config: {
+                displayName: 'Opacity',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.watermarkPadding.value',
+            config: {
+                displayName: 'Padding',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.watermarkRotation.value',
+            config: {
+                displayName: 'Rotation',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.resizeDirection.value',
+            config: {
+                displayName: 'Resize to accommodate',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'None', value: 'None' },
+                    { displayName: 'Horizontal', value: 'Horizontal' },
+                    { displayName: 'Vertical', value: 'Vertical' },
+                ],
+            },
+        },
+        {
+            path: 'data.watermarkText.value',
+            config: {
+                displayName: 'Watermark Text',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.watermarkTextColor.value',
+            config: {
+                displayName: 'Text Color',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Black', value: 'black' },
+                    { displayName: 'Blue', value: 'blue' },
+                    { displayName: 'Green', value: 'green' },
+                    { displayName: 'Aqua', value: 'aqua' },
+                    { displayName: 'Red', value: 'red' },
+                    { displayName: 'Purple', value: 'purple' },
+                    { displayName: 'Yellow', value: 'yellow' },
+                    { displayName: 'White', value: 'white' },
+                    { displayName: 'Gray', value: 'gray' },
+                ],
+            },
+        },
+        {
+            path: 'data.watermarkTextFont.value',
+            config: {
+                displayName: 'Text Font',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Times Roman', value: 'Times-Roman' },
+                    {
+                        displayName: 'Times Roman Italic',
+                        value: 'Times-Roman-Italic',
+                    },
+                    {
+                        displayName: 'Times Roman Bold',
+                        value: 'Times-Roman-Bold',
+                    },
+                    {
+                        displayName: 'Times Roman Bold & Italic',
+                        value: 'Times-BoldItalic',
+                    },
+                    { displayName: 'Helvetica', value: 'Helvetica' },
+                    {
+                        displayName: 'Helvetica Oblique',
+                        value: 'Helvetica-Oblique',
+                    },
+                    { displayName: 'Hevetica Bold', value: 'Helvetica-Bold' },
+                    {
+                        displayName: 'Helvetica Bold & Oblique',
+                        value: 'Helvetica-BoldOblique',
+                    },
+                    { displayName: 'Courier', value: 'Courier' },
+                    {
+                        displayName: 'Courier Oblique',
+                        value: 'Courier-Oblique',
+                    },
+                    { displayName: 'Courier Bold', value: 'Courier-Bold' },
+                    {
+                        displayName: 'Courier Bold & Oblique',
+                        value: 'Courier-BoldOblique',
+                    },
+                    { displayName: 'Symbol', value: 'Symbol' },
+                ],
+            },
+        },
+        {
+            path: 'data.watermarkTextFontSize.value',
+            config: {
+                displayName: 'Text Font Size',
+                type: 'String',
+            },
+        },
+    ],
+    WorkflowActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.waitForChildWorkflow.value',
+            config: {
+                displayName: 'Wait for the sub-workflow',
+                type: 'Bool',
+            },
+        },
+    ],
+    WriteTextDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.textSourceType.value',
+            config: {
+                displayName: 'Select Text Source',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Text', value: 'text' },
+                    { displayName: 'Variable', value: 'variable' },
+                ],
+            },
+        },
+        {
+            path: 'data.sourceText.value',
+            config: {
+                displayName: 'Text',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetDocumentName.value',
+            config: {
+                displayName: 'Document Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetFolder.value',
+            config: {
+                displayName: 'Folder Destination',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    XmlMergeDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documentName.value',
+            config: {
+                displayName: 'Document Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.selectTemplate.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.targetFolder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.waitForPdf.value',
+            config: {
+                displayName: 'Wait for the PDF version to be created?',
+                type: 'Bool',
+            },
+        },
+    ],
     default: [
         // {
         //     path: 'data.name.value',
