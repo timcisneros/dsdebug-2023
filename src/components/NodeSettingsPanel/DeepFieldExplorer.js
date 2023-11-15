@@ -4111,7 +4111,9 @@ const DeepFieldExplorer = ({ data }) => {
         const errorState = !allFilled;
 
         // Update the errorState based on form validity
-        updatedNode.data.errorState = errorState;
+        if (updatedNode.data.errorState) {
+            updatedNode.data.errorState = errorState;
+        }
         if (updatedNode.data.attrs.rect) {
             updatedNode.data.attrs.rect['data-error-state'] =
                 errorState.toString();
