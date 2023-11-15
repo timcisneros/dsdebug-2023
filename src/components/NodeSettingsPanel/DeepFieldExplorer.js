@@ -582,6 +582,69 @@ const displayNameMapping = {
             },
         },
     ],
+    ChoiceActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.compareVersion.value',
+            config: {
+                displayName: 'Compare this document with another version',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+    ],
     CheckOutDocumentCancelActivity: [
         {
             path: 'data.name.value',
@@ -4049,7 +4112,10 @@ const DeepFieldExplorer = ({ data }) => {
 
         // Update the errorState based on form validity
         updatedNode.data.errorState = errorState;
-        updatedNode.data.attrs.rect['data-error-state'] = errorState.toString();
+        if (updatedNode.data.attrs.rect) {
+            updatedNode.data.attrs.rect['data-error-state'] =
+                errorState.toString();
+        }
         if (updatedNode.data.attrs['.step-container']) {
             updatedNode.data.attrs['.step-container']['data-error-state'] =
                 errorState;
