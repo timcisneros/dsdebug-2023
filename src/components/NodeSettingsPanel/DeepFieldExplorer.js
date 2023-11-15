@@ -4016,13 +4016,6 @@ const DeepFieldExplorer = ({ data }) => {
     }, [data]);
 
     const handleInputChange = (path, newValue) => {
-        console.log(
-            'dsdebug-log',
-            'handleChange - Path:',
-            path,
-            'Value:',
-            newValue
-        );
         let updatedNode = JSON.parse(JSON.stringify(editedNode)); // Deep clone editedNode
 
         const pathParts = path.split('.');
