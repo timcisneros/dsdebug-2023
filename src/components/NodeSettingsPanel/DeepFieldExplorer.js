@@ -4016,6 +4016,13 @@ const DeepFieldExplorer = ({ data }) => {
     }, [data]);
 
     const handleInputChange = (path, newValue) => {
+        console.log(
+            'dsdebug-log',
+            'handleChange - Path:',
+            path,
+            'Value:',
+            newValue
+        );
         let updatedNode = JSON.parse(JSON.stringify(editedNode)); // Deep clone editedNode
 
         const pathParts = path.split('.');
@@ -4050,8 +4057,10 @@ const DeepFieldExplorer = ({ data }) => {
         // Update the errorState based on form validity
         updatedNode.data.errorState = errorState;
         updatedNode.data.attrs.rect['data-error-state'] = errorState.toString();
-        updatedNode.data.attrs['.step-container']['data-error-state'] =
-            errorState;
+        if (updatedNode.data.attrs['.step-container']) {
+            updatedNode.data.attrs['.step-container']['data-error-state'] =
+                errorState;
+        }
 
         // Update the editedNode state
         setEditedNode(updatedNode);
