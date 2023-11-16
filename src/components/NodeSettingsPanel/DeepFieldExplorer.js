@@ -4168,21 +4168,28 @@ const DeepFieldExplorer = ({ data }) => {
         const errorState = !allFilled;
 
         // Update the errorState based on form validity
-        if (Object.hasOwn(updatedNode.data, 'errorState')) {
-            updatedNode.data.errorState = errorState;
-        }
-        if (Object.hasOwn(updatedNode.data.attrs.rect, 'data-error-state')) {
-            updatedNode.data.attrs.rect['data-error-state'] =
-                errorState.toString();
-        }
         if (
-            Object.hasOwn(
-                updatedNode.data.attrs['.step-container'],
-                'data-error-state'
-            )
+            updatedNode.type === 'StepNode' ||
+            updatedNode.type === 'DiamondNode'
         ) {
-            updatedNode.data.attrs['.step-container']['data-error-state'] =
-                errorState;
+            if (Object.hasOwn(updatedNode.data, 'errorState')) {
+                updatedNode.data.errorState = errorState;
+            }
+            if (
+                Object.hasOwn(updatedNode.data.attrs.rect, 'data-error-state')
+            ) {
+                updatedNode.data.attrs.rect['data-error-state'] =
+                    errorState.toString();
+            }
+            if (
+                Object.hasOwn(
+                    updatedNode.data.attrs['.step-container'],
+                    'data-error-state'
+                )
+            ) {
+                updatedNode.data.attrs['.step-container']['data-error-state'] =
+                    errorState;
+            }
         }
 
         // Update the editedNode state
