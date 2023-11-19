@@ -393,12 +393,14 @@ const displayNameMapping = {
                     { displayName: 'Assign to a user', value: 'user' },
                     { displayName: 'Assign to a task group', value: 'group' },
                 ],
+                required: true,
             },
         },
         {
-            path: 'data.assignedUsers.value',
+            path: 'data.assignedUsers.value.*.value.value',
             config: {
                 displayName: 'Assignee(s)',
+                type: 'String',
                 required: true,
             },
         },
@@ -454,9 +456,12 @@ const displayNameMapping = {
                 displayName: 'Comments',
                 type: 'Choice',
                 choices: [
-                    { displayName: 'Comments are required', value: '1' },
-                    { displayName: 'Comments are optional', value: '2' },
-                    { displayName: "Don't show the comment field", value: '3' },
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
                 ],
             },
         },
@@ -537,6 +542,31 @@ const displayNameMapping = {
                 displayName: 'Use business days only',
                 type: 'Bool',
                 boolValues: ['Business Hour', ''],
+            },
+        },
+        {
+            path: 'data.requiredApprovalCount.value',
+            config: {
+                displayName: "What should trigger an 'approved' output?",
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'If any of the respondents approve',
+                        value: 1,
+                    },
+                    {
+                        displayName: 'If all of the respondents approve',
+                        value: 100,
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
             },
         },
     ],
@@ -683,6 +713,18 @@ const displayNameMapping = {
             },
         },
         {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
             path: 'data.requiredCompletion.value',
             config: {
                 displayName: 'Who needs to respond?',
@@ -698,6 +740,423 @@ const displayNameMapping = {
             config: {
                 displayName: 'Instructions',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    ChooseDocumentsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Reference Document',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.inputdocuments.value',
+            config: {
+                displayName: 'Suggested Document(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Default Folder',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.resultlimit.value',
+            config: {
+                displayName: 'Number of documents allowed for selection',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.allowedchoices.value',
+            config: {
+                displayName: 'Documents for Successful Completion',
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Any number of documents',
+                        value: 'ZeroOrMore',
+                    },
+                    { displayName: 'Only one document', value: '2' },
+                    { displayName: 'At least one document', value: '3' },
+                ],
+            },
+        },
+        {
+            path: 'data.enableActionRejectedButton.value',
+            config: {
+                displayName: 'Enable ActionRejected button',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.compareVersion.value',
+            config: {
+                displayName: 'Compare reference document with another version',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    ChooseUsersActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who should complete this step?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Reference Document',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.limittogroups.value',
+            config: {
+                displayName: 'User Group',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.allowedchoices.value',
+            config: {
+                displayName: 'Documents for Successful Completion',
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Any number of users',
+                        value: 'ZeroOrMore',
+                    },
+                    { displayName: 'Only one user', value: '2' },
+                    { displayName: 'At least one user', value: '3' },
+                ],
+            },
+        },
+        {
+            path: 'data.enableActionRejectedButton.value',
+            config: {
+                displayName: 'Enable ActionRejected button',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.compareVersion.value',
+            config: {
+                displayName: 'Compare reference document with another version',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
             },
         },
     ],
@@ -1280,6 +1739,296 @@ const displayNameMapping = {
             config: {
                 displayName: 'Select a Configuration Document?',
                 type: 'Bool',
+            },
+        },
+    ],
+    CreateDocumentActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.configurationName.value',
+            config: {
+                displayName: 'Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.configTemplateName.value',
+            config: {
+                displayName: 'Document Template Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sourceType.value',
+            config: {
+                displayName: 'Source',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Salesforce', value: 'Salesforce' },
+                    { displayName: 'SpringCM', value: 'SpringCM' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.trackingDocuments.value',
+            config: {
+                displayName: 'Tracking Document(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectType.value',
+            config: {
+                displayName: 'Salesforce Object Type',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectId.value',
+            config: {
+                displayName: 'Salesforce Object ID',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectName.value',
+            config: {
+                displayName: 'Salesforce Folder Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sfPath.value',
+            config: {
+                displayName: 'Salesforce Folder Path',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    DataReconciliationActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.trackedNames.value',
+            config: {
+                displayName: 'Tracked Names',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.recipients.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+    ],
+    DecisionActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
             },
         },
     ],
