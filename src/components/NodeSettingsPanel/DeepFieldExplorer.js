@@ -2025,6 +2025,13 @@ const displayNameMapping = {
             },
         },
         {
+            path: 'data.decisions.value.decisions.*.output.value.name',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
             path: 'data.stepDescription.value',
             config: {
                 displayName: 'Step Description',
@@ -2074,6 +2081,331 @@ const displayNameMapping = {
             config: {
                 displayName: 'Reminder Hour',
                 required: true,
+            },
+        },
+    ],
+    DocLauncherActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.docLauncherConfigName.value',
+            config: {
+                displayName: 'Document Generation Configuration Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.configTemplateName.value',
+            config: {
+                displayName: 'Document Generation Configuration Template Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.objectId.value',
+            config: {
+                displayName: 'Salesforce Object Id',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.entityType.value',
+            config: {
+                displayName: 'Select Input Variable',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Update Value(s)', value: 'variable' },
+                    { displayName: 'Variable', value: 'xml' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.updateValues.value.*.inputName',
+            config: {
+                displayName: 'Target Identifier',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.updateValues.value.*.inputValue',
+            config: {
+                displayName: 'Value',
+                type: 'String',
+            },
+        },
+    ],
+    EditDocumentsActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.compareVersion.value',
+            config: {
+                displayName: 'Compare this document with another version',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+    ],
+    EditFormActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.formdocument.value',
+            config: {
+                displayName: 'Form Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Reference Document(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
             },
         },
     ],
@@ -2488,6 +2820,132 @@ const displayNameMapping = {
             },
         },
     ],
+    FillFormActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.formId.value',
+            config: {
+                displayName: 'Form',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Reference Document(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+    ],
     GetDocumentAttachmentsActivity: [
         {
             path: 'data.name.value',
@@ -2839,6 +3297,251 @@ const displayNameMapping = {
                     { displayName: 'Serial', value: 'serial' },
                     { displayName: 'Parallel', value: 'parallel' },
                 ],
+            },
+        },
+    ],
+    FullPageEditFormActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+    ],
+    FullPageFillFormActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.formId.value',
+            config: {
+                displayName: 'Form',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Reference Document(s)',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
             },
         },
     ],
@@ -3248,6 +3951,141 @@ const displayNameMapping = {
             },
         },
     ],
+    DataReviewActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.documentAttributes.value',
+            config: {
+                displayName: 'Data to be reviewed',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+    ],
     ReviewAndSendForExternalReviewActivity: [
         {
             path: 'data.name.value',
@@ -3255,6 +4093,527 @@ const displayNameMapping = {
                 displayName: 'Step Name',
                 type: 'String',
                 required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.recipient.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.emailSubject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.emailMessage.value',
+            config: {
+                displayName: 'Body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.hideDueDateFromEmail.value',
+            config: {
+                displayName: 'Hide due date from recipient',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.sendOutNotifications.value',
+            config: {
+                displayName: 'Send out Notifications?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.emailAppearance.value',
+            config: {
+                displayName: 'Email Appearance',
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Use branded HTML email template',
+                        value: 0,
+                    },
+                    { displayName: 'Use standard text email', value: 1 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.expirationDays.value',
+            config: {
+                displayName: 'Expiration Days',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.rejectText.value',
+            config: {
+                displayName: 'Reject Button Text',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.suppressSenderEmails.value',
+            config: {
+                displayName: 'Supress emails to sender on completion?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+    ],
+    ReviewAndSendForSignatureActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sender.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.esignatureRecipients.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.signatureSubject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.message.value',
+            config: {
+                displayName: 'Message',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.useDSTemplates.value',
+            config: {
+                displayName: null,
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Documents',
+                        value: 'document',
+                    },
+                    {
+                        displayName: 'Documents and Templates',
+                        value: 'esignatureDocuments',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.esignatureDocuments.value',
+            config: {
+                displayName: 'DS Templates',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.esignatureTemplates.value',
+            config: {
+                displayName: 'Envelope Template',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.expirationDays.value',
+            config: {
+                displayName: 'Expiration Days',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.password.value',
+            config: {
+                displayName: 'Signer Password',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.rejectText.value',
+            config: {
+                displayName: 'Reject Button Text',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.signaturesOrdered.value',
+            config: {
+                displayName: 'Signatures Ordered?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.writtenRequired.value',
+            config: {
+                displayName: 'Written Signature Required?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
+            },
+        },
+    ],
+    RoutingActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.activityDisplayName.value',
+            config: {
+                displayName: 'Display Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.compareVersion.value',
+            config: {
+                displayName: 'Compare this document with another version',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.assigneeType.value',
+            config: {
+                displayName: 'Assign to a user or task group?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Assign to a user', value: 'user' },
+                    { displayName: 'Assign to a task group', value: 'group' },
+                ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.requiredCompletion.value',
+            config: {
+                displayName: 'Who needs to respond?',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Any one assignee', value: 1 },
+                    { displayName: 'All of the assignees', value: 100 },
+                ],
+            },
+        },
+        {
+            path: 'data.instructions.value',
+            config: {
+                displayName: 'Instructions',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.addCustomAction.value',
+            config: {
+                displayName: 'Add a custom action',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.allowComment.value',
+            config: {
+                displayName: 'Comments',
+                type: 'Choice',
+                choices: [
+                    { displayName: 'Comments are required', value: 'Required' },
+                    { displayName: 'Comments are optional', value: 'Yes' },
+                    {
+                        displayName: "Don't show the comment field",
+                        value: 'No',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.waitForNextStep.value',
+            config: {
+                displayName: 'Link to next step',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.notificationFromAddress.value',
+            config: {
+                displayName: 'Email sender',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationSubject.value',
+            config: {
+                displayName: 'Email subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.notificationBody.value',
+            config: {
+                displayName: 'Email body',
+                type: 'Textarea',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
             },
         },
     ],
@@ -3414,6 +4773,694 @@ const displayNameMapping = {
             config: {
                 displayName: 'Body',
                 type: 'Textarea',
+            },
+        },
+    ],
+    SearchActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.withAllWords.value',
+            config: {
+                displayName: 'With All Words',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.withAnyWords.value',
+            config: {
+                displayName: 'With Any Words',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.withoutWords.value',
+            config: {
+                displayName: 'Without Words',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.withPhrase.value',
+            config: {
+                displayName: 'With Exact Phrase',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.title.value',
+            config: {
+                displayName: 'Title',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.searchContent.value',
+            config: {
+                displayName: 'Content',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.description.value',
+            config: {
+                displayName: 'Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.attribute.value',
+            config: {
+                displayName: 'Attribute',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.searchType.value',
+            config: {
+                displayName: 'Search Type',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Documents', value: 'Documents' },
+                    { displayName: 'Folders', value: 'Folders' },
+                    {
+                        displayName: 'Documents and Folders',
+                        value: 'Documents and Folders',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.folders.value',
+            config: {
+                displayName: 'Folder',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.includeSubFolders.value',
+            config: {
+                displayName: 'Include Subfolders',
+                type: 'Bool',
+            },
+        },
+    ],
+    SendForExternalReviewNewActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.sender.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.recipient.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.subject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.notes.value',
+            config: {
+                displayName: 'Body',
+                type: 'Textarea',
+                required: true,
+            },
+        },
+        {
+            path: 'data.hideDueDateFromEmail.value',
+            config: {
+                displayName: 'Hide due date from recipient',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.addMySignatureToThisEmail.value',
+            config: {
+                displayName: 'Add signature to email?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.sendOutNotifications.value',
+            config: {
+                displayName: 'Send out Notifications?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.emailAppearance.value',
+            config: {
+                displayName: 'Email Appearance',
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Use branded HTML email template',
+                        value: 0,
+                    },
+                    {
+                        displayName: 'Use standard text email',
+                        value: 1,
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.expirationDays.value',
+            config: {
+                displayName: 'Expiration Days',
+                type: 'String',
+            },
+        },
+        // EDIT LATER, Languages may not be correct
+        {
+            path: 'data.dateFormat.value',
+            config: {
+                displayName: 'Date Format',
+                type: 'Choice',
+                choices: [
+                    { value: '', displayName: '' },
+                    { value: 'en-US', displayName: 'English (United States)' },
+                    { value: 'af-ZA', displayName: 'Afrikaans (South Africa)' },
+                    { value: 'sq-AL', displayName: 'Albanian (Albania)' },
+                    { value: 'gsw-FR', displayName: 'Alsatian (France)' },
+                    { value: 'am-ET', displayName: 'Amharic (Ethiopia)' },
+                    { value: 'ar-DZ', displayName: 'Arabic (Algeria)' },
+                    { value: 'ar-BH', displayName: 'Arabic (Bahrain)' },
+                    { value: 'ar-EG', displayName: 'Arabic (Egypt)' },
+                    { value: 'ar-IQ', displayName: 'Arabic (Iraq)' },
+                    { value: 'ar-JO', displayName: 'Arabic (Jordan)' },
+                    { value: 'ar-KW', displayName: 'Arabic (Kuwait)' },
+                    { value: 'ar-LB', displayName: 'Arabic (Lebanon)' },
+                    { value: 'ar-LY', displayName: 'Arabic (Libya)' },
+                    { value: 'ar-MA', displayName: 'Arabic (Morocco)' },
+                    { value: 'ar-OM', displayName: 'Arabic (Oman)' },
+                    { value: 'ar-QA', displayName: 'Arabic (Qatar)' },
+                    { value: 'ar-SA', displayName: 'Arabic (Saudi Arabia)' },
+                    { value: 'ar-SY', displayName: 'Arabic (Syria)' },
+                    { value: 'ar-TN', displayName: 'Arabic (Tunisia)' },
+                    { value: 'ar-AE', displayName: 'Arabic (U.A.E.)' },
+                    { value: 'ar-YE', displayName: 'Arabic (Yemen)' },
+                    { value: 'hy-AM', displayName: 'Armenian (Armenia)' },
+                    { value: 'as-IN', displayName: 'Assamese (India)' },
+                    {
+                        value: 'az-Cyrl-AZ',
+                        displayName: 'Azerbaijani (Cyrillic, Azerbaijan)',
+                    },
+                    {
+                        value: 'az-Latn-AZ',
+                        displayName: 'Azerbaijani (Latin, Azerbaijan)',
+                    },
+                    { value: 'bn-BD', displayName: 'Bangla (Bangladesh)' },
+                    { value: 'bn-IN', displayName: 'Bangla (India)' },
+                    { value: 'ba-RU', displayName: 'Bashkir (Russia)' },
+                    { value: 'eu-ES', displayName: 'Basque (Basque)' },
+                    { value: 'be-BY', displayName: 'Belarusian (Belarus)' },
+                    {
+                        value: 'bs-Cyrl-BA',
+                        displayName:
+                            'Bosnian (Cyrillic, Bosnia and Herzegovina)',
+                    },
+                    {
+                        value: 'bs-Latn-BA',
+                        displayName: 'Bosnian (Latin, Bosnia and Herzegovina)',
+                    },
+                    { value: 'br-FR', displayName: 'Breton (France)' },
+                    { value: 'bg-BG', displayName: 'Bulgarian (Bulgaria)' },
+                    { value: 'my-MM', displayName: 'Burmese (Myanmar)' },
+                    { value: 'ca-ES', displayName: 'Catalan (Catalan)' },
+                    {
+                        value: 'tzm-Tfng-MA',
+                        displayName:
+                            'Central Atlas Tamazight (Tifinagh, Morocco)',
+                    },
+                    {
+                        value: 'ku-Arab-IQ',
+                        displayName: 'Central Kurdish (Iraq)',
+                    },
+                    {
+                        value: 'chr-Cher-US',
+                        displayName: 'Cherokee (Cherokee)',
+                    },
+                    {
+                        value: 'zh-CN',
+                        displayName: 'Chinese (Simplified, PRC)',
+                    },
+                    {
+                        value: 'zh-SG',
+                        displayName: 'Chinese (Simplified, Singapore)',
+                    },
+                    {
+                        value: 'zh-HK',
+                        displayName: 'Chinese (Traditional, Hong Kong S.A.R.)',
+                    },
+                    {
+                        value: 'zh-MO',
+                        displayName: 'Chinese (Traditional, Macao S.A.R.)',
+                    },
+                    {
+                        value: 'zh-TW',
+                        displayName: 'Chinese (Traditional, Taiwan)',
+                    },
+                    { value: 'co-FR', displayName: 'Corsican (France)' },
+                    { value: 'hr-HR', displayName: 'Croatian (Croatia)' },
+                    { value: 'cs-CZ', displayName: 'Czech (Czech Republic)' },
+                    { value: 'da-DK', displayName: 'Danish (Denmark)' },
+                    { value: 'prs-AF', displayName: 'Dari (Afghanistan)' },
+                    { value: 'dv-MV', displayName: 'Divehi (Maldives)' },
+                    { value: 'nl-BE', displayName: 'Dutch (Belgium)' },
+                    { value: 'nl-NL', displayName: 'Dutch (Netherlands)' },
+                    { value: 'en-AU', displayName: 'English (Australia)' },
+                    { value: 'en-BZ', displayName: 'English (Belize)' },
+                    { value: 'en-CA', displayName: 'English (Canada)' },
+                    { value: 'en-IN', displayName: 'English (India)' },
+                    { value: 'en-IE', displayName: 'English (Ireland)' },
+                    { value: 'en-JM', displayName: 'English (Jamaica)' },
+                    { value: 'en-MY', displayName: 'English (Malaysia)' },
+                    { value: 'en-NZ', displayName: 'English (New Zealand)' },
+                    { value: 'en-PH', displayName: 'English (Philippines)' },
+                    { value: 'en-SG', displayName: 'English (Singapore)' },
+                    { value: 'en-ZA', displayName: 'English (South Africa)' },
+                    {
+                        value: 'en-TT',
+                        displayName: 'English (Trinidad and Tobago)',
+                    },
+                    { value: 'en-GB', displayName: 'English (United Kingdom)' },
+                    { value: 'en-ZW', displayName: 'English (Zimbabwe)' },
+                    { value: 'et-EE', displayName: 'Estonian (Estonia)' },
+                    { value: 'fo-FO', displayName: 'Faroese (Faroe Islands)' },
+                    { value: 'fil-PH', displayName: 'Filipino (Philippines)' },
+                    { value: 'fi-FI', displayName: 'Finnish (Finland)' },
+                    { value: 'fr-BE', displayName: 'French (Belgium)' },
+                    { value: 'fr-CA', displayName: 'French (Canada)' },
+                    { value: 'fr-FR', displayName: 'French (France)' },
+                    { value: 'fr-LU', displayName: 'French (Luxembourg)' },
+                    { value: 'fr-MC', displayName: 'French (Monaco)' },
+                    { value: 'fr-CH', displayName: 'French (Switzerland)' },
+                    { value: 'fy-NL', displayName: 'Frisian (Netherlands)' },
+                    { value: 'gl-ES', displayName: 'Galician (Galician)' },
+                    { value: 'ka-GE', displayName: 'Georgian (Georgia)' },
+                    { value: 'de-AT', displayName: 'German (Austria)' },
+                    { value: 'de-DE', displayName: 'German (Germany)' },
+                    { value: 'de-LI', displayName: 'German (Liechtenstein)' },
+                    { value: 'de-LU', displayName: 'German (Luxembourg)' },
+                    { value: 'de-CH', displayName: 'German (Switzerland)' },
+                    { value: 'el-GR', displayName: 'Greek (Greece)' },
+                    { value: 'kl-GL', displayName: 'Greenlandic (Greenland)' },
+                    { value: 'gu-IN', displayName: 'Gujarati (India)' },
+                    {
+                        value: 'ha-Latn-NG',
+                        displayName: 'Hausa (Latin, Nigeria)',
+                    },
+                    { value: 'he-IL', displayName: 'Hebrew (Israel)' },
+                    { value: 'hi-IN', displayName: 'Hindi (India)' },
+                    { value: 'hu-HU', displayName: 'Hungarian (Hungary)' },
+                    { value: 'is-IS', displayName: 'Icelandic (Iceland)' },
+                    { value: 'ig-NG', displayName: 'Igbo (Nigeria)' },
+                    { value: 'id-ID', displayName: 'Indonesian (Indonesia)' },
+                    {
+                        value: 'iu-Cans-CA',
+                        displayName: 'Inuktitut (Syllabics, Canada)',
+                    },
+                    {
+                        value: 'iu-Latn-CA',
+                        displayName: 'Inuktitut (Latin, Canada)',
+                    },
+                    { value: 'ga-IE', displayName: 'Irish (Ireland)' },
+                    { value: 'it-IT', displayName: 'Italian (Italy)' },
+                    { value: 'it-CH', displayName: 'Italian (Switzerland)' },
+                    { value: 'ja-JP', displayName: 'Japanese (Japan)' },
+                    { value: 'sw-KE', displayName: 'Kiswahili (Kenya)' },
+                    { value: 'rw-RW', displayName: 'Kinyarwanda (Rwanda)' },
+                    { value: 'kok-IN', displayName: 'Konkani (India)' },
+                    { value: 'ko-KR', displayName: 'Korean (Korea)' },
+                    { value: 'ky-KG', displayName: 'Kyrgyz (Kyrgyzstan)' },
+                    { value: 'lo-LA', displayName: 'Lao (Laos)' },
+                    { value: 'lv-LV', displayName: 'Latvian (Latvia)' },
+                    { value: 'lt-LT', displayName: 'Lithuanian (Lithuania)' },
+                    { value: 'dsb-DE', displayName: 'Lower Sorbian (Germany)' },
+                    {
+                        value: 'lb-LU',
+                        displayName: 'Luxembourgish (Luxembourg)',
+                    },
+                    {
+                        value: 'mk-MK',
+                        displayName: 'Macedonian (North Macedonia)',
+                    },
+                    { value: 'sq-MK', displayName: 'Macedonian (Albania)' },
+                    { value: 'mi-NZ', displayName: 'Maori (New Zealand)' },
+                    { value: 'arn-CL', displayName: 'Mapudungun (Chile)' },
+                    { value: 'mr-IN', displayName: 'Marathi (India)' },
+                    { value: 'mr-IN', displayName: 'Marathi (India)' },
+                    { value: 'moh-CA', displayName: 'Mohawk (Canada)' },
+                    {
+                        value: 'mn-Cyrl-MN',
+                        displayName: 'Mongolian (Cyrillic, Mongolia)',
+                    },
+                    {
+                        value: 'mn-Mong-CN',
+                        displayName: 'Mongolian (Traditional Mongolian, China)',
+                    },
+                    { value: 'ne-NP', displayName: 'Nepali (Nepal)' },
+                    { value: 'se-FI', displayName: 'Northern Sami (Finland)' },
+                    { value: 'se-NO', displayName: 'Northern Sami (Norway)' },
+                    { value: 'se-SE', displayName: 'Northern Sami (Sweden)' },
+                    {
+                        value: 'nb-NO',
+                        displayName: 'Norwegian Bokmål (Norway)',
+                    },
+                    {
+                        value: 'nn-NO',
+                        displayName: 'Norwegian Nynorsk (Norway)',
+                    },
+                    { value: 'oc-FR', displayName: 'Occitan (France)' },
+                    { value: 'or-IN', displayName: 'Odia (India)' },
+                    { value: 'ps-AF', displayName: 'Pashto (Afghanistan)' },
+                    { value: 'fa-IR', displayName: 'Persian (Iran)' },
+                    { value: 'pl-PL', displayName: 'Polish (Poland)' },
+                    { value: 'pt-BR', displayName: 'Portuguese (Brazil)' },
+                    { value: 'pt-PT', displayName: 'Portuguese (Portugal)' },
+                    {
+                        value: 'pa-Arab-PK',
+                        displayName: 'Punjabi (Arabic, Pakistan)',
+                    },
+                    {
+                        value: 'pa-IN',
+                        displayName: 'Punjabi (Gurmukhi, India)',
+                    },
+                    { value: 'quz-BO', displayName: 'Quechua (Bolivia)' },
+                    { value: 'quz-EC', displayName: 'Quechua (Ecuador)' },
+                    { value: 'quz-PE', displayName: 'Quechua (Peru)' },
+                    { value: 'ro-RO', displayName: 'Romanian (Romania)' },
+                    { value: 'rm-CH', displayName: 'Romansh (Switzerland)' },
+                    { value: 'ru-RU', displayName: 'Russian (Russia)' },
+                    { value: 'smn-FI', displayName: 'Sami (Inari, Finland)' },
+                    { value: 'smj-NO', displayName: 'Sami (Lule, Norway)' },
+                    { value: 'smj-SE', displayName: 'Sami (Lule, Sweden)' },
+                    { value: 'se-NO', displayName: 'Sami (Northern, Norway)' },
+                    { value: 'se-SE', displayName: 'Sami (Northern, Sweden)' },
+                    { value: 'sms-FI', displayName: 'Sami (Skolt, Finland)' },
+                    { value: 'sma-NO', displayName: 'Sami (Southern, Norway)' },
+                    { value: 'sma-SE', displayName: 'Sami (Southern, Sweden)' },
+                    { value: 'sa-IN', displayName: 'Sanskrit (India)' },
+                    {
+                        value: 'sr-Cyrl-BA',
+                        displayName:
+                            'Serbian (Cyrillic, Bosnia and Herzegovina)',
+                    },
+                    {
+                        value: 'sr-Cyrl-ME',
+                        displayName: 'Serbian (Cyrillic, Montenegro)',
+                    },
+                    {
+                        value: 'sr-Cyrl-RS',
+                        displayName: 'Serbian (Cyrillic, Serbia)',
+                    },
+                    {
+                        value: 'sr-Latn-BA',
+                        displayName: 'Serbian (Latin, Bosnia and Herzegovina)',
+                    },
+                    {
+                        value: 'sr-Latn-ME',
+                        displayName: 'Serbian (Latin, Montenegro)',
+                    },
+                    {
+                        value: 'sr-Latn-RS',
+                        displayName: 'Serbian (Latin, Serbia)',
+                    },
+                    {
+                        value: 'nso-ZA',
+                        displayName: 'Sesotho sa Leboa (South Africa)',
+                    },
+                    { value: 'tn-ZA', displayName: 'Setswana (South Africa)' },
+                    { value: 'si-LK', displayName: 'Sinhala (Sri Lanka)' },
+                    { value: 'sk-SK', displayName: 'Slovak (Slovakia)' },
+                    { value: 'sl-SI', displayName: 'Slovenian (Slovenia)' },
+                    { value: 'es-AR', displayName: 'Spanish (Argentina)' },
+                    { value: 'es-BO', displayName: 'Spanish (Bolivia)' },
+                    { value: 'es-CL', displayName: 'Spanish (Chile)' },
+                    { value: 'es-CO', displayName: 'Spanish (Colombia)' },
+                    { value: 'es-CR', displayName: 'Spanish (Costa Rica)' },
+                    {
+                        value: 'es-DO',
+                        displayName: 'Spanish (Dominican Republic)',
+                    },
+                    { value: 'es-EC', displayName: 'Spanish (Ecuador)' },
+                    { value: 'es-SV', displayName: 'Spanish (El Salvador)' },
+                    {
+                        value: 'es-GQ',
+                        displayName: 'Spanish (Equatorial Guinea)',
+                    },
+                    { value: 'es-GT', displayName: 'Spanish (Guatemala)' },
+                    { value: 'es-HN', displayName: 'Spanish (Honduras)' },
+                    { value: 'es-MX', displayName: 'Spanish (Mexico)' },
+                    { value: 'es-NI', displayName: 'Spanish (Nicaragua)' },
+                    { value: 'es-PA', displayName: 'Spanish (Panama)' },
+                    { value: 'es-PY', displayName: 'Spanish (Paraguay)' },
+                    { value: 'es-PE', displayName: 'Spanish (Peru)' },
+                    { value: 'es-PR', displayName: 'Spanish (Puerto Rico)' },
+                    { value: 'es-ES', displayName: 'Spanish (Spain)' },
+                    { value: 'es-US', displayName: 'Spanish (United States)' },
+                    { value: 'es-UY', displayName: 'Spanish (Uruguay)' },
+                    { value: 'es-VE', displayName: 'Spanish (Venezuela)' },
+                    { value: 'sv-FI', displayName: 'Swedish (Finland)' },
+                    { value: 'sv-SE', displayName: 'Swedish (Sweden)' },
+                    { value: 'syr-SY', displayName: 'Syriac (Syria)' },
+                    {
+                        value: 'tg-Cyrl-TJ',
+                        displayName: 'Tajik (Cyrillic, Tajikistan)',
+                    },
+                    {
+                        value: 'tzm-Latn-DZ',
+                        displayName: 'Tamazight (Latin, Algeria)',
+                    },
+                    { value: 'ta-IN', displayName: 'Tamil (India)' },
+                    { value: 'tt-RU', displayName: 'Tatar (Russia)' },
+                    { value: 'te-IN', displayName: 'Telugu (India)' },
+                    { value: 'th-TH', displayName: 'Thai (Thailand)' },
+                    { value: 'bo-CN', displayName: 'Tibetan (China)' },
+                    { value: 'tr-TR', displayName: 'Turkish (Turkey)' },
+                    { value: 'tk-TM', displayName: 'Turkmen (Turkmenistan)' },
+                    { value: 'ug-CN', displayName: 'Uighur (China)' },
+                    { value: 'uk-UA', displayName: 'Ukrainian (Ukraine)' },
+                    { value: 'wen-DE', displayName: 'Upper Sorbian (Germany)' },
+                    { value: 'ur-IN', displayName: 'Urdu (India)' },
+                    { value: 'ur-PK', displayName: 'Urdu (Pakistan)' },
+                    {
+                        value: 'uz-Cyrl-UZ',
+                        displayName: 'Uzbek (Cyrillic, Uzbekistan)',
+                    },
+                    {
+                        value: 'uz-Latn-UZ',
+                        displayName: 'Uzbek (Latin, Uzbekistan)',
+                    },
+                    { value: 'vi-VN', displayName: 'Vietnamese (Vietnam)' },
+                    { value: 'cy-GB', displayName: 'Welsh (United Kingdom)' },
+                    { value: 'wo-SN', displayName: 'Wolof (Senegal)' },
+                    { value: 'xh-ZA', displayName: 'Xhosa (South Africa)' },
+                    { value: 'sah-RU', displayName: 'Yakut (Russia)' },
+                    { value: 'ii-CN', displayName: 'Yi (China)' },
+                    { value: 'yo-NG', displayName: 'Yoruba (Nigeria)' },
+                    { value: 'dje-NE', displayName: 'Zarma (Niger)' },
+                    { value: 'zu-ZA', displayName: 'Zulu (South Africa)' },
+                ],
+            },
+        },
+        {
+            path: 'data.suppressSenderEmails.value',
+            config: {
+                displayName: 'Supress emails to sender on completion?',
+                type: 'Bool',
+            },
+        },
+    ],
+    SendForSignatureActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.stageName.value',
+            config: {
+                displayName: 'Stage Name',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.sender.value',
+            config: {
+                displayName: 'From',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.esignatureRecipients.value',
+            config: {
+                displayName: 'To',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.signatureSubject.value',
+            config: {
+                displayName: 'Subject',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.message.value',
+            config: {
+                displayName: 'Message',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.useDSTemplates.value',
+            config: {
+                displayName: null,
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Documents',
+                        value: 'document',
+                    },
+                    {
+                        displayName: 'Documents and Templates',
+                        value: 'esignatureDocuments',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.document.value',
+            config: {
+                displayName: 'Document',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.esignatureTemplates.value',
+            config: {
+                displayName: 'Envelope Template',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.expirationDays.value',
+            config: {
+                displayName: 'Expiration Days',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.password.value',
+            config: {
+                displayName: 'Signer Password',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.signaturesOrdered.value',
+            config: {
+                displayName: 'Signatures Ordered?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.writtenRequired.value',
+            config: {
+                displayName: 'Written Signature Required?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.senderSignsToo.value',
+            config: {
+                displayName: 'Sender signature required?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.signatureAuditEventsText.value',
+            config: {
+                displayName: 'Signature Audit Events',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.timeoutWarningFromStepExecution.value',
+            config: {
+                displayName: 'Send reminder after execution?',
+                type: 'Bool',
             },
         },
     ],
