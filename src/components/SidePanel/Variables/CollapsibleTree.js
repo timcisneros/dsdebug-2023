@@ -414,7 +414,7 @@ const CollapsibleTree = ({
                                         overflow="hidden"
                                         textOverflow="ellipsis"
                                     >
-                                        {definedVariable.value.name}
+                                        {definedVariable.value.displayName}
                                     </Box>
                                 )}
                             </AccordionButton>

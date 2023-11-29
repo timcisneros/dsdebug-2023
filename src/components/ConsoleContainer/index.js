@@ -711,6 +711,27 @@ const ConsoleContainer = ({
             return;
         }
 
+        let parsedValue;
+        // Parse newValue based on its type
+        if (typeof newValue === 'string') {
+            // Check for numeric strings
+            if (!isNaN(newValue) && /^\d+$/.test(newValue)) {
+                parsedValue = parseFloat(newValue);
+            } else if (newValue.toLowerCase() === 'true') {
+                // Check for 'true' string
+                parsedValue = true;
+            } else if (newValue.toLowerCase() === 'false') {
+                // Check for 'false' string
+                parsedValue = false;
+            } else {
+                // If it's a string that is neither a number nor a boolean, keep it as a string
+                parsedValue = newValue;
+            }
+        } else {
+            // If newValue is not a string (e.g., a number, boolean, etc.), use it as is
+            parsedValue = newValue;
+        }
+
         // Find the item based on the provided ID
         const itemToUpdate = data.cells.find(
             (item) => item.id === resolvedItemId
@@ -730,14 +751,52 @@ const ConsoleContainer = ({
 
             for (let i = 0; i < path.length - 1; i++) {
                 const key = path[i];
-                if (!nestedItem.hasOwnProperty(key)) {
-                    console.log(
-                        'dsdebug-log',
-                        `Property '${key}' not found in item with id '${resolvedItemId}'.`
-                    );
-                    return;
+
+                // Check if the key includes an array index
+                if (key.includes('[') && key.includes(']')) {
+                    // Extract the index and the actual key
+                    const match = key.match(/([^\[\]]+)\[(\d+)\]/);
+                    if (match) {
+                        const arrayKey = match[1];
+                        const index = parseInt(match[2]);
+
+                        if (
+                            !nestedItem.hasOwnProperty(arrayKey) ||
+                            !(nestedItem[arrayKey] instanceof Array)
+                        ) {
+                            console.log(
+                                'dsdebug-log',
+                                `Property '${arrayKey}' not found or not an array in item with id '${resolvedItemId}'.`
+                            );
+                            return;
+                        }
+
+                        if (index >= nestedItem[arrayKey].length) {
+                            console.log(
+                                'dsdebug-log',
+                                `Index ${index} out of bounds for array '${arrayKey}' in item with id '${resolvedItemId}'.`
+                            );
+                            return;
+                        }
+
+                        nestedItem = nestedItem[arrayKey][index];
+                    } else {
+                        console.log(
+                            'dsdebug-log',
+                            `Invalid array syntax in '${key}' for item with id '${resolvedItemId}'.`
+                        );
+                        return;
+                    }
+                } else {
+                    if (!nestedItem.hasOwnProperty(key)) {
+                        console.log(
+                            'dsdebug-log',
+                            `Property '${key}' not found in item with id '${resolvedItemId}'.`
+                        );
+                        return;
+                    }
+                    nestedItem = nestedItem[key];
                 }
-                nestedItem = nestedItem[key];
             }
 
             const lastKey = path[path.length - 1];
@@ -754,7 +813,7 @@ const ConsoleContainer = ({
 
         // Check if the propertyToUpdate exists in the item
         if (propertyToUpdate.indexOf('.') !== -1) {
-            updateNestedProperty(itemToUpdate, propertyToUpdate, newValue);
+            updateNestedProperty(itemToUpdate, propertyToUpdate, parsedValue);
         } else if (!itemToUpdate.hasOwnProperty(propertyToUpdate)) {
             console.log(
                 'dsdebug-log',
@@ -762,7 +821,7 @@ const ConsoleContainer = ({
             );
             return;
         } else {
-            itemToUpdate[propertyToUpdate] = newValue;
+            itemToUpdate[propertyToUpdate] = parsedValue;
         }
 
         setData((prevData) => ({
