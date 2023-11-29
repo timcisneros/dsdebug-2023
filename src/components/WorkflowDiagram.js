@@ -21,7 +21,6 @@ import CircleNode from './NodeTypes/CircleNode';
 import DiamondNode from './NodeTypes/DiamondNode';
 import { Box, Flex, useToast, IconButton, Grid, Input } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import NodeSettingsPanel from '../../UNUSED';
 import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import DefaultCustomEdge from './EdgeTypes/DefaultCustomEdge';
 import { useNode } from '../contexts/NodeContext';
@@ -34,7 +33,6 @@ import { stepDataMapping } from './SidePanel/Steps/StepData';
 import { templateDataMapping } from './SidePanel/Steps/templateData';
 import ConsoleContainer from './ConsoleContainer';
 import 'react-resizable/css/styles.css';
-import Panel from '../../UNUSED/Panel';
 import DeepFieldExplorer from './NodeSettingsPanel';
 import ConnectionLine from './EdgeTypes/ConnectionLine';
 
