@@ -702,6 +702,8 @@ const ConsoleContainer = ({
 
     const handleUpdateCommand = (itemId, propertyToUpdate, newValue) => {
         const resolvedItemId = resolveAlias(itemId);
+        let updateSuccessful = false; // Flag to track if update is successful
+
         // If no propertyToUpdate is provided, return early
         if (!propertyToUpdate) {
             console.log(
@@ -809,6 +811,7 @@ const ConsoleContainer = ({
             }
 
             nestedItem[lastKey] = value;
+            updateSuccessful = true;
         };
 
         // Check if the propertyToUpdate exists in the item
@@ -824,13 +827,19 @@ const ConsoleContainer = ({
             itemToUpdate[propertyToUpdate] = parsedValue;
         }
 
-        setData((prevData) => ({
-            cells: prevData.cells.map((item) =>
-                item.id === resolvedItemId ? itemToUpdate : item
-            ),
-        }));
+        // Only update data and log success if update was successful
+        if (updateSuccessful) {
+            setData((prevData) => ({
+                cells: prevData.cells.map((item) =>
+                    item.id === resolvedItemId ? itemToUpdate : item
+                ),
+            }));
 
-        console.log('dsdebug-log', `Item with id '${resolvedItemId}' updated.`);
+            console.log(
+                'dsdebug-log',
+                `Item with id '${resolvedItemId}' updated.`
+            );
+        }
     };
 
     const handleMoveCommand = (id, x, y) => {
