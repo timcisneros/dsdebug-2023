@@ -1,121 +1,4 @@
-import { useState, useEffect, memo } from 'react';
-import {
-    Input,
-    VStack,
-    FormControl,
-    FormLabel,
-    Checkbox,
-    Select,
-    Box,
-    Radio,
-    FormErrorMessage,
-    Textarea,
-    Text,
-    Flex,
-} from '@chakra-ui/react';
-import { useNode } from '../../contexts/NodeContext';
-import CustomCheckbox from './CustomInputs/CustomCheckbox';
-import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
-import 'react-json-view-lite/dist/index.css';
-
-const startActivityFilterKeys = {
-    width: true,
-    height: true,
-    id: true,
-    style: true,
-    data: {
-        name: true,
-        workflowName: false,
-        definedVariables: true,
-        size: true,
-        content: true,
-        angle: true,
-        activityName: true,
-        group: true,
-        icon: true,
-        z: true,
-        attrs: true,
-        '*': {
-            type: true,
-            '*': {
-                '*': {
-                    type: true,
-                    '*': {
-                        type: true,
-                    },
-                },
-            },
-        },
-    },
-    position: true,
-    type: true,
-    selectable: true,
-    selected: true,
-    positionAbsolute: true,
-};
-
-const filterKeys = {
-    width: true,
-    height: true,
-    id: true,
-    style: true,
-    data: {
-        icon: true,
-        color: true,
-        attrs: true,
-        size: true,
-        content: true,
-        angle: true,
-        activityName: true,
-        group: true,
-        z: true,
-        // variableUpdates: true,
-        errorState: true,
-        // definedVariables: true,
-        // workflowName: true,
-        '*': {
-            type: true,
-            '*': {
-                type: true,
-                returnType: true,
-                additionalCode: true,
-                '*': {
-                    type: true,
-                    '*': {
-                        type: true,
-                        '*': {
-                            type: true,
-                            returnType: true,
-                            additionalCode: true,
-                            '*': {
-                                type: true,
-                                '*': {
-                                    // For metadata (attributes) steps
-                                    setName: true,
-                                    groupName: true,
-                                    '*': {
-                                        type: true,
-                                        '*': {
-                                            returnType: true,
-                                            additionalCode: true,
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-    position: true,
-    type: true,
-    selectable: true,
-    selected: true,
-    positionAbsolute: true,
-};
-
-const displayNameMapping = {
+export const displayNameMapping = {
     StartActivity: [
         {
             path: 'data.workflowName.value',
@@ -160,7 +43,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -168,7 +51,7 @@ const displayNameMapping = {
             path: 'data.users.value',
             config: {
                 displayName: 'User(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -309,7 +192,7 @@ const displayNameMapping = {
             path: 'data.targetDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -366,7 +249,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -476,7 +359,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -590,6 +473,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -614,7 +498,7 @@ const displayNameMapping = {
             path: 'data.checkedOutDocument.value',
             config: {
                 displayName: 'Checked Out Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -622,7 +506,7 @@ const displayNameMapping = {
             path: 'data.revisionDocument.value',
             config: {
                 displayName: 'Document to Check In',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -630,7 +514,7 @@ const displayNameMapping = {
             path: 'data.users.value',
             config: {
                 displayName: 'Check in user',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -655,7 +539,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Checkout Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -663,7 +547,40 @@ const displayNameMapping = {
             path: 'data.users.value',
             config: {
                 displayName: 'Checkout User',
+                type: 'Variable',
+                required: true,
+            },
+        },
+    ],
+    CheckOutDocumentCancelActivity: [
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
                 type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.documents.value',
+            config: {
+                displayName: 'Document checkout cancellation',
+                type: 'Variable',
+                required: true,
+            },
+        },
+        {
+            path: 'data.users.value',
+            config: {
+                displayName: 'Cancellation user',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -702,7 +619,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -775,7 +692,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -872,21 +789,21 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Reference Document',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.inputdocuments.value',
             config: {
                 displayName: 'Suggested Document(s)',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.folders.value',
             config: {
                 displayName: 'Default Folder',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -958,7 +875,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -1063,14 +980,14 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Reference Document',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.limittogroups.value',
             config: {
                 displayName: 'User Group',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -1135,7 +1052,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -1157,39 +1074,6 @@ const displayNameMapping = {
             config: {
                 displayName: 'Send reminder after execution?',
                 type: 'Bool',
-            },
-        },
-    ],
-    CheckOutDocumentCancelActivity: [
-        {
-            path: 'data.name.value',
-            config: {
-                displayName: 'Step Name',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.stepDescription.value',
-            config: {
-                displayName: 'Step Description',
-                type: 'String',
-            },
-        },
-        {
-            path: 'data.documents.value',
-            config: {
-                displayName: 'Document checkout cancellation',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.users.value',
-            config: {
-                displayName: 'Cancellation user',
-                type: 'String',
-                required: true,
             },
         },
     ],
@@ -1221,7 +1105,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1229,7 +1113,7 @@ const displayNameMapping = {
             path: 'data.targetFolder.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1274,7 +1158,7 @@ const displayNameMapping = {
             path: 'data.revisedDocumentProperty.value.*.value.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1313,7 +1197,7 @@ const displayNameMapping = {
             path: 'data.resultDocumentFolderProperty.value',
             config: {
                 displayName: 'Folder Destination',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1338,7 +1222,7 @@ const displayNameMapping = {
             path: 'data.originalDocumentProperty.value',
             config: {
                 displayName: 'Original Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1346,7 +1230,7 @@ const displayNameMapping = {
             path: 'data.revisedDocumentProperty.value',
             config: {
                 displayName: 'Revised Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1383,7 +1267,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1459,7 +1343,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1467,7 +1351,7 @@ const displayNameMapping = {
             path: 'data.targetFolder.value',
             config: {
                 displayName: 'Destination Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1503,7 +1387,7 @@ const displayNameMapping = {
             path: 'data.sourceFolder.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1511,7 +1395,7 @@ const displayNameMapping = {
             path: 'data.parentFolder.value',
             config: {
                 displayName: 'Destination Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1558,7 +1442,7 @@ const displayNameMapping = {
             path: 'data.parentFolder.value',
             config: {
                 displayName: 'Parent Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1597,7 +1481,7 @@ const displayNameMapping = {
             path: 'data.parentFolder.value',
             config: {
                 displayName: 'Folder Destination',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1723,7 +1607,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Upload CSV',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1831,10 +1715,42 @@ const displayNameMapping = {
             },
         },
         {
+            path: 'data.objectType.value',
+            config: {
+                displayName: 'Salesforce Object Type',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectId.value',
+            config: {
+                displayName: 'Salesforce Object ID',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.objectName.value',
+            config: {
+                displayName: 'Salesforce Folder Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
             path: 'data.trackingDocuments.value',
             config: {
                 displayName: 'Tracking Document(s)',
+                type: 'Variable',
+            },
+        },
+        {
+            path: 'data.sfPath.value',
+            config: {
+                displayName: 'Salesforce Folder Path',
                 type: 'String',
+                required: true,
             },
         },
         {
@@ -1848,7 +1764,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -1876,38 +1792,6 @@ const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.objectType.value',
-            config: {
-                displayName: 'Salesforce Object Type',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.objectId.value',
-            config: {
-                displayName: 'Salesforce Object ID',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.objectName.value',
-            config: {
-                displayName: 'Salesforce Folder Name',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.sfPath.value',
-            config: {
-                displayName: 'Salesforce Folder Path',
                 type: 'String',
                 required: true,
             },
@@ -1947,7 +1831,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -1982,7 +1866,7 @@ const displayNameMapping = {
             path: 'data.recipients.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2059,6 +1943,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2183,7 +2068,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2265,7 +2150,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2324,7 +2209,7 @@ const displayNameMapping = {
             path: 'data.formdocument.value',
             config: {
                 displayName: 'Form Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2355,7 +2240,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2383,7 +2268,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Reference Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2429,7 +2314,7 @@ const displayNameMapping = {
             path: 'data.from.value',
             config: {
                 displayName: 'From',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2437,21 +2322,21 @@ const displayNameMapping = {
             path: 'data.bcclink.value',
             config: {
                 displayName: 'BCC',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.cclink.value',
             config: {
                 displayName: 'CC',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.to.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2492,7 +2377,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2515,15 +2400,7 @@ const displayNameMapping = {
             path: 'data.fromDisplayName.value',
             config: {
                 displayName: 'From',
-                type: 'String',
-                required: true,
-            },
-        },
-        {
-            path: 'data.fromDisplayName.value',
-            config: {
-                displayName: 'From',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2531,21 +2408,21 @@ const displayNameMapping = {
             path: 'data.bcclink.value',
             config: {
                 displayName: 'BCC',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.cclink.value',
             config: {
                 displayName: 'CC',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.to.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2553,7 +2430,7 @@ const displayNameMapping = {
             path: 'data.replyTo.value',
             config: {
                 displayName: 'Reply To',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2601,7 +2478,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2673,7 +2550,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2698,7 +2575,7 @@ const displayNameMapping = {
             path: 'data.etlConfigDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2723,7 +2600,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2748,7 +2625,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2763,7 +2640,7 @@ const displayNameMapping = {
             path: 'data.to.value',
             config: {
                 displayName: 'Fax Recipients',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2794,7 +2671,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2809,7 +2686,7 @@ const displayNameMapping = {
             path: 'data.to.value',
             config: {
                 displayName: 'Fax Recipients',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2854,7 +2731,7 @@ const displayNameMapping = {
             path: 'data.formId.value',
             config: {
                 displayName: 'Form',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2893,7 +2770,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2921,7 +2798,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Reference Document(s)',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -2966,7 +2843,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -2998,7 +2875,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3023,7 +2900,7 @@ const displayNameMapping = {
             path: 'data.folder.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3062,14 +2939,14 @@ const displayNameMapping = {
             path: 'data.folders.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.documents.value',
             config: {
                 displayName: 'Ignored Document(s)',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -3112,7 +2989,7 @@ const displayNameMapping = {
             path: 'data.document.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3144,7 +3021,7 @@ const displayNameMapping = {
             path: 'data.folders.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3169,7 +3046,14 @@ const displayNameMapping = {
             path: 'data.searchField.value',
             config: {
                 displayName: 'Field',
-                type: 'String',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'UID', value: 'uid' },
+                    { displayName: 'Salesforce UID', value: 'salesforce uid' },
+                    { displayName: 'Login Name', value: 'login name' },
+                    { displayName: 'Email', value: 'email' },
+                ],
                 required: true,
             },
         },
@@ -3334,7 +3218,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3373,7 +3257,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -3453,7 +3337,7 @@ const displayNameMapping = {
             path: 'data.formId.value',
             config: {
                 displayName: 'Form',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3492,7 +3376,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -3520,7 +3404,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Reference Document(s)',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -3601,7 +3485,7 @@ const displayNameMapping = {
             path: 'data.document.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3626,7 +3510,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3801,7 +3685,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3865,7 +3749,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3873,7 +3757,7 @@ const displayNameMapping = {
             path: 'data.users.value',
             config: {
                 displayName: 'User(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3905,7 +3789,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document to Rename',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3938,7 +3822,7 @@ const displayNameMapping = {
             path: 'data.to.value',
             config: {
                 displayName: 'User',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3985,7 +3869,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -3993,7 +3877,7 @@ const displayNameMapping = {
             path: 'data.documentAttributes.value',
             config: {
                 displayName: 'Data to be reviewed',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4061,7 +3945,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4120,7 +4004,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4148,7 +4032,7 @@ const displayNameMapping = {
             path: 'data.recipient.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4247,7 +4131,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4306,7 +4190,7 @@ const displayNameMapping = {
             path: 'data.sender.value',
             config: {
                 displayName: 'From',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4314,7 +4198,7 @@ const displayNameMapping = {
             path: 'data.esignatureRecipients.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4451,7 +4335,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4510,7 +4394,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4592,7 +4476,7 @@ const displayNameMapping = {
             path: 'data.notificationFromAddress.value',
             config: {
                 displayName: 'Email sender',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4691,7 +4575,7 @@ const displayNameMapping = {
             path: 'data.configDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4716,7 +4600,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4748,7 +4632,7 @@ const displayNameMapping = {
             path: 'data.sender.value',
             config: {
                 displayName: 'From',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4756,7 +4640,7 @@ const displayNameMapping = {
             path: 'data.recipients.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4868,7 +4752,7 @@ const displayNameMapping = {
             path: 'data.folders.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
@@ -4906,7 +4790,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4914,7 +4798,7 @@ const displayNameMapping = {
             path: 'data.sender.value',
             config: {
                 displayName: 'From',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -4922,7 +4806,7 @@ const displayNameMapping = {
             path: 'data.recipient.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5356,7 +5240,7 @@ const displayNameMapping = {
             path: 'data.sender.value',
             config: {
                 displayName: 'From',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5364,7 +5248,7 @@ const displayNameMapping = {
             path: 'data.esignatureRecipients.value',
             config: {
                 displayName: 'To',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5403,7 +5287,7 @@ const displayNameMapping = {
             path: 'data.document.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5533,7 +5417,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5541,7 +5425,7 @@ const displayNameMapping = {
             path: 'data.targetFolder.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5617,7 +5501,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5650,7 +5534,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5675,7 +5559,7 @@ const displayNameMapping = {
             path: 'data.folders.value',
             config: {
                 displayName: 'Folder(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5708,7 +5592,7 @@ const displayNameMapping = {
             path: 'data.folders.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5837,21 +5721,21 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document(s)',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.folders.value',
             config: {
                 displayName: 'Folder(s)',
-                type: 'String',
+                type: 'Variable',
             },
         },
         {
             path: 'data.users.value',
             config: {
                 displayName: 'User(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5905,7 +5789,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Upload CSV',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -5946,7 +5830,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Upload XML',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6010,7 +5894,7 @@ const displayNameMapping = {
             path: 'data.documents.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6066,7 +5950,7 @@ const displayNameMapping = {
             path: 'data.sender.value',
             config: {
                 displayName: 'Sender',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6074,7 +5958,7 @@ const displayNameMapping = {
             path: 'data.document.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6106,7 +5990,7 @@ const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6114,7 +5998,7 @@ const displayNameMapping = {
             path: 'data.targetFolder.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6348,7 +6232,7 @@ const displayNameMapping = {
             path: 'data.targetFolder.value',
             config: {
                 displayName: 'Folder Destination',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6381,7 +6265,7 @@ const displayNameMapping = {
             path: 'data.selectTemplate.value',
             config: {
                 displayName: 'Document',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6389,7 +6273,7 @@ const displayNameMapping = {
             path: 'data.targetFolder.value',
             config: {
                 displayName: 'Folder',
-                type: 'String',
+                type: 'Variable',
                 required: true,
             },
         },
@@ -6402,757 +6286,22 @@ const displayNameMapping = {
         },
     ],
     default: [
-        // {
-        //     path: 'data.name.value',
-        //     config: {
-        //         displayName: 'Step Name',
-        //         type: 'String',
-        //         required: true,
-        //     },
-        // },
-        // {
-        //     path: 'data.stepDescription.value',
-        //     config: {
-        //         displayName: 'Step Description',
-        //         type: 'String',
-        //         placeholder: 'Enter a description for this step',
-        //     },
-        // },
-        // {
-        //     path: 'data.workflowName.value',
-        //     config: {
-        //         displayName: 'Workflow Name',
-        //     },
-        // },
-        // {
-        //     path: 'data.sendNotification.value',
-        //     config: {
-        //         displayName: 'Send Notification',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.trackActivity.value',
-        //     config: {
-        //         displayName: 'Track Activity',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.documents.value',
-        //     config: {
-        //         displayName: 'Document(s)',
-        //         placeholder: 'Select the document(s) to add to the list',
-        //         required: true,
-        //     },
-        // },
-        // {
-        //     path: 'data.users.value',
-        //     config: {
-        //         displayName: 'User(s)',
-        //         placeholder: 'Select the watchlist user(s)',
-        //     },
-        // },
-        // {
-        //     path: 'data.whatId.value',
-        //     config: {
-        //         displayName: 'Salesforce Object Id',
-        //         placeholder: 'Enter the salesforce object id',
-        //         required: true,
-        //     },
-        // },
-        // {
-        //     path: 'data.subject.value',
-        //     config: {
-        //         displayName: 'Activity History Subject',
-        //         placeholder: 'Enter a subject for the activity',
-        //     },
-        // },
-        // {
-        //     path: 'data.description.value',
-        //     config: {
-        //         displayName: 'Activity History Description',
-        //         placeholder: 'Enter a description for the activity',
-        //     },
-        // },
-        // {
-        //     path: 'data.ownerId.value',
-        //     config: {
-        //         displayName: 'Salesforce Object Owner Id',
-        //         placeholder: 'Enter the salesforce object owner id',
-        //     },
-        // },
-        // {
-        //     path: 'data.contactId.value',
-        //     config: {
-        //         displayName: 'Salesforce Object Contact Id',
-        //         placeholder: 'Enter the salesforce object contact id',
-        //     },
-        // },
-        // {
-        //     path: 'data.dueDate.value',
-        //     config: {
-        //         displayName: 'Task Due Date',
-        //         placeholder: 'Enter a due date for the task',
-        //     },
-        // },
-        // {
-        //     path: 'data.targetDocument.value',
-        //     config: {
-        //         displayName: 'Document',
-        //         placeholder: 'Enter the salesforce object id',
-        //     },
-        // },
-        // {
-        //     path: 'data.textSourceType.value',
-        //     config: {
-        //         displayName: 'Select Text Source',
-        //         type: 'Radio',
-        //         choices: [
-        //             { displayName: 'Text', value: 'text' },
-        //             { displayName: 'Variable', value: 'variable' },
-        //         ],
-        //     },
-        // },
-        // {
-        //     path: 'data.sourceText.value',
-        //     config: {
-        //         displayName: 'Text',
-        //         placeholder: 'Enter the text to append',
-        //     },
-        // },
-        // {
-        //     path: 'data.activityDisplayName.value',
-        //     config: {
-        //         displayName: 'Display Name',
-        //     },
-        // },
-        // {
-        //     path: 'data.stageName.value',
-        //     config: {
-        //         displayName: 'Stage Name',
-        //     },
-        // },
-        // {
-        //     path: 'data.checkoutDocuments.value',
-        //     config: {
-        //         displayName: 'Checkout the document?',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.compareVersion.value',
-        //     config: {
-        //         displayName: 'Compare this document with another version',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.assigneeType.value',
-        //     config: {
-        //         displayName: 'Assign to a user or task group',
-        //         type: 'Radio',
-        //         choices: [
-        //             { displayName: 'Assign to a user', value: 'user' },
-        //             { displayName: 'Assign to a task group', value: 'group' },
-        //         ],
-        //     },
-        // },
-        // {
-        //     path: 'data.outputXml.value.value',
-        //     config: {
-        //         displayName: 'Output',
-        //     },
-        // },
-        // {
-        //     // Temporary until I figure out how to nest it into the value array
-        //     'data.outputXml.value': {
-        //         displayName: 'Output',
-        //     },
-        // },
-        // {
-        //     path: 'data.instructions.value',
-        //     config: {
-        //         displayName: 'Instructions',
-        //     },
-        // },
-        // {
-        //     path: 'data.limittogroups.value',
-        //     config: {
-        //         displayName: 'User group',
-        //     },
-        // },
-        // {
-        //     path: 'data.allowedchoices.value',
-        //     config: {
-        //         displayName: 'How many users can be selected?',
-        //         type: 'Radio',
-        //         choices: [
-        //             { displayName: 'Any number of users', value: 'ZeroOrMore' },
-        //             { displayName: 'Only one user', value: '2' },
-        //             { displayName: 'At least one user', value: '3' },
-        //         ],
-        //     },
-        // },
-        // {
-        //     path: 'data.enableActionRejectedButton.value',
-        //     config: {
-        //         displayName: 'Enable ActionRejected button',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.addCustomAction.value',
-        //     config: {
-        //         displayName: 'Add a custom action',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.allowComment.value',
-        //     config: {
-        //         displayName: 'Comments',
-        //         type: 'Choice',
-        //         choices: [
-        //             { displayName: 'Comments are required', value: '1' },
-        //             { displayName: 'Comments are optional', value: 'Yes' },
-        //             { displayName: "Don't show the comment field", value: '2' },
-        //         ],
-        //     },
-        // },
-        // {
-        //     path: 'data.waitForNextStep.value',
-        //     config: {
-        //         displayName: 'Link to next step',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.notifyOnException.value',
-        //     config: {
-        //         displayName: 'Notify On Exception?',
-        //         type: 'Bool',
-        //     },
-        // },
-        // {
-        //     path: 'data.action.value',
-        //     config: {
-        //         displayName: 'Action',
-        //         type: 'Choice',
-        //         choices: [
-        //             { displayName: 'Move', value: 'move' },
-        //             { displayName: 'Copy', value: 'copy' },
-        //         ],
-        //     },
-        // },
-        // {
-        //     path: 'data.documents.value.*.value.value',
-        //     config: {
-        //         displayName: 'Document(s)',
-        //     },
-        // },
-        // {
-        //     path: 'data.targetDocument.value.*.value.value',
-        //     config: {
-        //         displayName: 'Document',
-        //     },
-        // },
-        // {
-        //     path: 'data.variableUpdates.value.*.variableToConfigure.value.value',
-        //     config: {
-        //         displayName: 'Variable',
-        //     },
-        // },
-        // {
-        //     path: 'data.variableUpdates.value.*.variableValue.value',
-        //     config: {
-        //         displayName: 'Value',
-        //     },
-        // },
-        // {
-        //     path: 'data.variableUpdates.value.*.variableValue.value.value',
-        //     config: {
-        //         displayName: 'Variable',
-        //     },
-        // },
-        // {
-        //     path: 'data.variableUpdates.value.*.variableValue.value.code',
-        //     config: {
-        //         displayName: 'Value',
-        //     },
-        // },
-        // {
-        //     path: 'data.newDocumentName.value.code',
-        //     config: {
-        //         displayName: 'New Document Name',
-        //     },
-        // },
-        // {
-        //     path: 'data.fieldValue.value.code',
-        //     config: {
-        //         displayName: 'Value',
-        //     },
-        // },
-        // {
-        //     path: 'data.status.value',
-        //     config: {
-        //         displayName: 'Status',
-        //         type: 'Choice',
-        //         choices: [
-        //             { displayName: '', value: '' },
-        //             { displayName: 'In Progress', value: 'move1' },
-        //             { displayName: 'Not Started', value: 'copy1' },
-        //             { displayName: 'Completed', value: 'move2' },
-        //             { displayName: 'Waiting on someone else', value: 'copy2' },
-        //             { displayName: 'Deferred', value: 'move3' },
-        //         ],
-        //     },
-        // },
-        // {
-        //     path: 'data.sourceDocument.value.*.value.value',
-        //     config: {
-        //         displayName: 'Source Document',
-        //     },
-        // },
-        // {
-        //     path: 'data.targetFolder.value.*.value.value',
-        //     config: {
-        //         displayName: 'Target Folder',
-        //     },
-        // },
-        // {
-        //     path: 'data.metadata.value.*.metadataToConfigure.value.*.value.name',
-        //     config: {
-        //         displayName: 'Metadata',
-        //     },
-        // },
-        // {
-        //     path: 'data.metadata.value.*.metadataToConfigure.value.*.value.setName',
-        //     config: {
-        //         displayName: 'Value',
-        //     },
-        // },
-        // {
-        //     path: 'data.metadata.value.*.variableValue.value.value',
-        //     config: {
-        //         displayName: 'Value',
-        //     },
-        // },
-        // {
-        //     path: 'data.notifiers.value.*.value.value',
-        //     config: {
-        //         displayName: 'Notifications',
-        //     },
-        // },
+        {
+            path: 'data.name.value',
+            config: {
+                displayName: 'Step Name',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
+            path: 'data.stepDescription.value',
+            config: {
+                displayName: 'Step Description',
+                type: 'String',
+                placeholder: 'Enter a description for this step',
+            },
+        },
     ],
     // Add other mappings as needed
 };
-
-const DeepFieldExplorer = ({ data }) => {
-    const { handleUpdateNode } = useNode();
-    const [fields, setFields] = useState([]);
-    const [editedNode, setEditedNode] = useState(data);
-    const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
-    const [displayJson, setDisplayJson] = useState(false);
-
-    const isFiltered = (key, currentPath) => {
-        const usingFilter =
-            data.data.activityName === 'StartActivity'
-                ? startActivityFilterKeys
-                : filterKeys;
-
-        let obj = usingFilter;
-        for (let part of currentPath) {
-            if (obj[part]) {
-                obj = obj[part];
-            } else if (obj['*']) {
-                // Check if wildcard exists at this level, if it does it will filter any property for all keys at this level
-                obj = obj['*'];
-            } else {
-                obj = null;
-                break;
-            }
-        }
-
-        return obj && (obj[key] === true || obj === true);
-    };
-
-    // useEffect(() => {
-    //     const findDeepestFields = (obj, currentPath = []) => {
-    //         let deepestFields = [];
-
-    //         for (const key in obj) {
-    //             if (!displayHiddenFields && isFiltered(key, currentPath)) {
-    //                 continue;
-    //             }
-
-    //             const newPath = currentPath.concat(key);
-
-    //             if (typeof obj[key] === 'object' && obj[key] !== null) {
-    //                 // Special handling for the "type" and "value" structure
-    //                 if (
-    //                     1 === 2
-    //                     // obj[key].hasOwnProperty('type') &&
-    //                     // obj[key].hasOwnProperty('value')
-    //                 ) {
-    //                     deepestFields.push({
-    //                         path: newPath.join('.') + '.value',
-    //                         value: obj[key].value,
-    //                     });
-    //                     // We've added the ".value", so continue to next key
-    //                     continue;
-    //                 }
-    //                 // If not a special "type" & "value" structure, continue exploring deeper fields
-    //                 deepestFields = deepestFields.concat(
-    //                     findDeepestFields(obj[key], newPath)
-    //                 );
-    //             } else {
-    //                 const path = newPath.join('.');
-    //                 deepestFields.push({ path, value: obj[key] });
-    //             }
-    //         }
-
-    //         return deepestFields;
-    //     };
-
-    //     const deepestFields = findDeepestFields(data);
-    //     setFields(deepestFields);
-    // }, [data, displayHiddenFields]);
-
-    const findDeepestFields = (obj, currentPath = []) => {
-        let deepestFields = [];
-
-        for (const key in obj) {
-            if (!displayHiddenFields && isFiltered(key, currentPath)) {
-                continue;
-            }
-
-            const newPath = currentPath.concat(key);
-
-            if (typeof obj[key] === 'object' && obj[key] !== null) {
-                // Check if the object has a "type" but no "value"
-                // if (
-                //     obj[key].hasOwnProperty('type') &&
-                //     !obj[key].hasOwnProperty('value')
-                // ) {
-                //     // Assign an empty array to the "value" key
-                //     obj[key].value = [];
-                //     deepestFields.push({
-                //         path: newPath.join('.') + '.value',
-                //         value: [], // Assign an empty array as the default value
-                //     });
-                // }
-                // Check if the object has a "value" key that is an empty array
-                if (
-                    obj[key].hasOwnProperty('value') &&
-                    Array.isArray(obj[key].value) &&
-                    obj[key].value.length === 0
-                ) {
-                    // Add a blank string value for the "value" key
-                    deepestFields.push({
-                        path: newPath.join('.') + '.value',
-                        value: '', // Set a blank string as the default value
-                    });
-                } else {
-                    // Continue exploring deeper fields
-                    deepestFields = deepestFields.concat(
-                        findDeepestFields(obj[key], newPath)
-                    );
-                }
-            } else {
-                const path = newPath.join('.');
-                deepestFields.push({ path, value: obj[key] });
-            }
-        }
-
-        return deepestFields;
-    };
-
-    useEffect(() => {
-        const currentActivityName = data.data.activityName || 'default';
-        const activityFieldsConfig =
-            displayNameMapping[currentActivityName] ||
-            displayNameMapping['default'];
-
-        let deepestFields = findDeepestFields(data);
-
-        // Apply activity-specific configurations to deepestFields
-        const fieldsForActivity = deepestFields.map((field) => {
-            try {
-                const fieldConfig = activityFieldsConfig.find((config) =>
-                    matchPathWithWildcard(config.path, field.path)
-                );
-                return {
-                    ...field,
-                    config: fieldConfig ? fieldConfig.config : {},
-                };
-            } catch (err) {
-                console.log('dsdebug-log', err.message);
-            }
-        });
-
-        setFields(fieldsForActivity);
-    }, [data, displayHiddenFields]);
-
-    const getDisplayName = (path, activityName) => {
-        const activityFieldsConfig =
-            displayNameMapping[activityName] || displayNameMapping['default'];
-
-        const fieldConfig = activityFieldsConfig.find((config) =>
-            matchPathWithWildcard(config.path, path)
-        );
-        return fieldConfig &&
-            fieldConfig.config &&
-            fieldConfig.config.displayName
-            ? fieldConfig.config.displayName
-            : path;
-    };
-
-    const matchPathWithWildcard = (pattern, path) => {
-        // Check if pattern is undefined
-        if (!pattern) return false;
-
-        const patternParts = pattern.split('.');
-        const pathParts = path.split('.');
-
-        if (patternParts.length !== pathParts.length) {
-            return false;
-        }
-
-        for (let i = 0; i < patternParts.length; i++) {
-            if (patternParts[i] !== '*' && patternParts[i] !== pathParts[i]) {
-                return false;
-            }
-        }
-        return true;
-    };
-
-    useEffect(() => {
-        setEditedNode(data); // Whenever the data prop changes, set it to editedNode
-    }, [data]);
-
-    const handleInputChange = (path, newValue) => {
-        let updatedNode = JSON.parse(JSON.stringify(editedNode)); // Deep clone editedNode
-
-        const pathParts = path.split('.');
-        let obj = updatedNode;
-
-        // Traverse to the parent object of the value we want to change
-        for (let i = 0; i < pathParts.length - 1; i++) {
-            obj = obj[pathParts[i]];
-        }
-
-        // Change the value
-        obj[pathParts[pathParts.length - 1]] = newValue;
-
-        // Perform validation check
-        const allFilled = fields.every((field) => {
-            try {
-                if (field.config.required) {
-                    const fieldValue =
-                        field.path === path
-                            ? newValue
-                            : getNestedValue(updatedNode, field.path);
-                    return fieldValue.trim() !== '';
-                }
-                return true;
-            } catch (error) {
-                // console.error('dsdebug-log', `Error - ${error.message}`);
-            }
-        });
-
-        const errorState = !allFilled;
-
-        // Update the errorState based on form validity
-        if (
-            updatedNode.type === 'StepNode' ||
-            updatedNode.type === 'DiamondNode'
-        ) {
-            if (Object.hasOwn(updatedNode.data, 'errorState')) {
-                updatedNode.data.errorState = errorState;
-            }
-            if (
-                Object.hasOwn(updatedNode.data.attrs.rect, 'data-error-state')
-            ) {
-                updatedNode.data.attrs.rect['data-error-state'] =
-                    errorState.toString();
-            }
-            if (
-                Object.hasOwn(
-                    updatedNode.data.attrs['.step-container'],
-                    'data-error-state'
-                )
-            ) {
-                updatedNode.data.attrs['.step-container']['data-error-state'] =
-                    errorState;
-            }
-        }
-
-        // Update the editedNode state
-        setEditedNode(updatedNode);
-
-        // Update the node immediately without waiting for a save action
-        handleUpdateNode(updatedNode);
-    };
-
-    return (
-        <Box marginTop="-3rem">
-            <Flex direction="column" bg="#FAFAFA" p={4}>
-                <Text pb={4} fontWeight="bold">
-                    Dev Tools
-                </Text>
-                <Checkbox
-                    isChecked={displayHiddenFields}
-                    onChange={(e) =>
-                        setDisplayHiddenFields(!displayHiddenFields)
-                    }
-                    pb={4}
-                >
-                    Hidden Fields
-                </Checkbox>
-                <Checkbox
-                    isChecked={displayJson}
-                    onChange={(e) => setDisplayJson(!displayJson)}
-                >
-                    Json
-                </Checkbox>
-            </Flex>
-            <Box px={4} py={4}>
-                <VStack spacing={4}>
-                    {fields.map((field) => {
-                        const { config, value } = field;
-                        const fieldType = config.type;
-                        const inputValue = getNestedValue(
-                            editedNode,
-                            field.path
-                        );
-                        const currentActivityName =
-                            data.data.activityName || 'default';
-
-                        const isError = config.required && inputValue === '';
-
-                        return (
-                            <FormControl
-                                isRequired={config.required}
-                                key={field.path}
-                                isInvalid={isError}
-                            >
-                                {field.config.displayName !== null &&
-                                    field.config.type !== 'Bool' && (
-                                        <FormLabel>
-                                            {getDisplayName(
-                                                field.path,
-                                                currentActivityName
-                                            )}
-                                        </FormLabel>
-                                    )}
-                                {fieldType === 'Bool' ? (
-                                    <CustomCheckbox
-                                        editedNode={editedNode}
-                                        handleInputChange={handleInputChange}
-                                        getNestedValue={getNestedValue}
-                                        field={field}
-                                        getDisplayName={getDisplayName}
-                                        currentActivityName={
-                                            currentActivityName
-                                        }
-                                        inputValue={inputValue}
-                                    />
-                                ) : fieldType === 'Choice' ? (
-                                    <Select
-                                        value={inputValue}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                field.path,
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        {config.choices.map((choice) => (
-                                            <option
-                                                key={choice.value}
-                                                value={choice.value}
-                                            >
-                                                {choice.displayName}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                ) : fieldType === 'Radio' ? (
-                                    <VStack align="start">
-                                        {config.choices.map((choice) => (
-                                            <Radio
-                                                key={choice.value}
-                                                value={choice.value}
-                                                isChecked={
-                                                    inputValue === choice.value
-                                                }
-                                                onChange={(e) =>
-                                                    handleInputChange(
-                                                        field.path,
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-                                                {choice.displayName}
-                                            </Radio>
-                                        ))}
-                                    </VStack>
-                                ) : fieldType === 'Textarea' ? (
-                                    <Textarea
-                                        placeholder={config?.placeholder || ''}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                field.path,
-                                                e.target.value
-                                            )
-                                        }
-                                        value={inputValue}
-                                        size="md"
-                                    />
-                                ) : (
-                                    <Input
-                                        placeholder={config?.placeholder || ''}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                field.path,
-                                                e.target.value
-                                            )
-                                        }
-                                        value={inputValue}
-                                        size="md"
-                                    />
-                                )}
-                                {isError && (
-                                    <FormErrorMessage>
-                                        This field is required.
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-                        );
-                    })}
-                    {displayJson && (
-                        <JsonView
-                            data={{ id: data.id, ...data.data }}
-                            shouldExpandNode={allExpanded}
-                            style={defaultStyles}
-                        />
-                    )}
-                </VStack>
-            </Box>
-        </Box>
-    );
-};
-
-const getNestedValue = (obj, path) => {
-    const pathParts = path.split('.');
-    for (let part of pathParts) {
-        if (obj && obj.hasOwnProperty(part)) {
-            obj = obj[part];
-        } else {
-            return undefined;
-        }
-    }
-    return obj;
-};
-
-export default memo(DeepFieldExplorer);

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import WorkflowDiagram from '../src/components/WorkflowDiagram';
 import Header from '../src/components/Header';
+import Head from 'next/head';
 
 const myApp = {};
 
@@ -15,9 +16,14 @@ export default function Home() {
     }, []);
 
     return (
-        <div>
-            <Header />
-            <WorkflowDiagram />
-        </div>
+        <>
+            <Head>
+                <title>DSDebug</title>
+            </Head>
+            <div>
+                <Header />
+                <WorkflowDiagram />
+            </div>
+        </>
     );
 }

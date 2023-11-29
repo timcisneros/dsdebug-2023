@@ -150,6 +150,8 @@ const Header = () => {
                     setNewName(workflowName.value);
                     setIsEditing(true);
                 }}
+                width="100%"
+                maxWidth="85vw"
             >
                 {isEditing ? (
                     <div position="relative">
@@ -182,7 +184,13 @@ const Header = () => {
                         />
                     </div>
                 ) : (
-                    <Box>{workflowName?.value || 'Workflow'}</Box>
+                    <Box
+                        whiteSpace="nowrap"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                    >
+                        {workflowName?.value || 'Workflow'}
+                    </Box>
                 )}
             </Box>
 
