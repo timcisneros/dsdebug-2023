@@ -323,8 +323,6 @@ const DeepFieldExplorer = ({ data }) => {
         return true;
     });
 
-    console.log('dsdebug-log', activityFieldsConfig);
-
     const handleInputChange = (path, newValue) => {
         let updatedNode = JSON.parse(JSON.stringify(editedNode)); // Deep clone editedNode
 
@@ -516,19 +514,16 @@ const DeepFieldExplorer = ({ data }) => {
                                         size="md"
                                     />
                                 ) : fieldType === 'Variable' ? (
-                                    <>
-                                        {console.log('dsdebug-log', field)}
-                                        <TagInput
-                                            variableName={
-                                                inputValue?.[0]?.value?.value
-                                            }
-                                            editedNode={editedNode}
-                                            setEditedNode={setEditedNode}
-                                            path={field.path}
-                                            definedVariables={definedVariables}
-                                            handleUpdateNode={handleUpdateNode}
-                                        />
-                                    </>
+                                    <TagInput
+                                        variableName={
+                                            inputValue?.[0]?.value?.value
+                                        }
+                                        editedNode={editedNode}
+                                        setEditedNode={setEditedNode}
+                                        path={field.path}
+                                        definedVariables={definedVariables}
+                                        handleUpdateNode={handleUpdateNode}
+                                    />
                                 ) : (
                                     <Input
                                         placeholder={config?.placeholder || ''}
