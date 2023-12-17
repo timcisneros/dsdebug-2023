@@ -214,6 +214,14 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.outputXml.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+                required: true,
+            },
+        },
     ],
     ApproveDocumentsActivity: [
         {
@@ -445,11 +453,10 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.output.value',
             config: {
-                displayName: 'Assignee(s)',
-                type: 'String',
-                required: true,
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -642,6 +649,14 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
             path: 'data.requiredCompletion.value',
             config: {
                 displayName: 'Who needs to respond?',
@@ -717,11 +732,10 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.output.value',
             config: {
-                displayName: 'Assignee(s)',
-                type: 'String',
-                required: true,
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -764,6 +778,14 @@ export const displayNameMapping = {
                     { displayName: 'Assign to a user', value: 'user' },
                     { displayName: 'Assign to a task group', value: 'group' },
                 ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
                 required: true,
             },
         },
@@ -900,11 +922,10 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.output.value',
             config: {
-                displayName: 'Assignee(s)',
-                type: 'String',
-                required: true,
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1076,6 +1097,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     MergePdfDocumentActivity: [
         {
@@ -1135,6 +1163,13 @@ export const displayNameMapping = {
                 displayName:
                     'Delete the original documents after combining them.',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1201,6 +1236,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     CompareDocumentsActivity: [
         {
@@ -1246,6 +1288,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     CompareTrackedContentActivity: [
         {
@@ -1283,6 +1332,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     ConvertJsonToXmlActivity: [
         {
@@ -1309,6 +1365,20 @@ export const displayNameMapping = {
                     { displayName: 'JSON to XML', value: 'jsonToXml' },
                     { displayName: 'XML to JSON', value: 'xmlToJson' },
                 ],
+            },
+        },
+        {
+            path: 'data.jsonToXmlVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+            },
+        },
+        {
+            path: 'data.outputVariable.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1353,6 +1423,13 @@ export const displayNameMapping = {
                 displayName: 'Destination Folder',
                 type: 'Variable',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1404,6 +1481,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Folder name',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1460,6 +1544,20 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.limitedAttributeGroups.value',
+            config: {
+                displayName: 'Add Attribute Groups',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     CreateLinkActivity: [
         {
@@ -1508,6 +1606,13 @@ export const displayNameMapping = {
                 type: 'String',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     InsertSalesforceActivity: [
         {
@@ -1530,6 +1635,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Salesforce Object Type',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1586,6 +1698,13 @@ export const displayNameMapping = {
                 type: 'String',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     UpdateXMLVariableFromCSVActivity: [
         {
@@ -1623,6 +1742,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Select a Configuration Document?',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1789,11 +1915,10 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.output.value',
             config: {
-                displayName: 'Assignee(s)',
-                type: 'String',
-                required: true,
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1848,6 +1973,14 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
             path: 'data.trackedNames.value',
             config: {
                 displayName: 'Tracked Names',
@@ -1891,11 +2024,10 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.output.value',
             config: {
-                displayName: 'Assignee(s)',
-                type: 'String',
-                required: true,
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -1916,10 +2048,10 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.stepDescription.value',
+            path: 'data.output.value',
             config: {
-                displayName: 'Step Description',
-                type: 'String',
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -2031,6 +2163,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Value',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -2174,6 +2313,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     EditFormActivity: [
         {
@@ -2222,6 +2368,14 @@ export const displayNameMapping = {
                     { displayName: 'Assign to a user', value: 'user' },
                     { displayName: 'Assign to a task group', value: 'group' },
                 ],
+                required: true,
+            },
+        },
+        {
+            path: 'data.assignedUsers.value.*.value.value',
+            config: {
+                displayName: 'Assignee(s)',
+                type: 'String',
                 required: true,
             },
         },
@@ -2291,6 +2445,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Send reminder after execution?',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -2529,6 +2690,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     ExcelEtlActivity: [
         {
@@ -2579,6 +2747,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     ExtractPdfFieldsActivity: [
         {
@@ -2602,6 +2777,13 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -2822,6 +3004,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     GetDocumentAttachmentsActivity: [
         {
@@ -2854,6 +3043,13 @@ export const displayNameMapping = {
                 type: 'String',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     FindDocumentActivity: [
         {
@@ -2877,6 +3073,13 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -2918,6 +3121,13 @@ export const displayNameMapping = {
                 type: 'String',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     FindDocumentsByMetadataActivity: [
         {
@@ -2954,6 +3164,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Number of documents to be returned',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3000,6 +3217,13 @@ export const displayNameMapping = {
                 type: 'String',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     FindFolderActivity: [
         {
@@ -3023,6 +3247,13 @@ export const displayNameMapping = {
                 displayName: 'Folder',
                 type: 'Variable',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3063,6 +3294,13 @@ export const displayNameMapping = {
                 displayName: 'Value',
                 type: 'String',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3111,6 +3349,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Folder Path',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3302,6 +3547,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     FullPageFillFormActivity: [
         {
@@ -3428,6 +3680,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     GetNextAutoNumberValueActivity: [
         {
@@ -3450,6 +3709,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Name',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3489,6 +3755,14 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+                required: true,
+            },
+        },
     ],
     GetTrackedContentActivity: [
         {
@@ -3510,6 +3784,14 @@ export const displayNameMapping = {
             path: 'data.sourceDocument.value',
             config: {
                 displayName: 'Document',
+                type: 'Variable',
+                required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
                 type: 'Variable',
                 required: true,
             },
@@ -3605,6 +3887,13 @@ export const displayNameMapping = {
                 ],
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     WebServiceActivity: [
         {
@@ -3627,6 +3916,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Retry on Failure',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3699,6 +3995,13 @@ export const displayNameMapping = {
                     { displayName: 'New Document', value: 'Document' },
                 ],
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -3834,6 +4137,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     DataReviewActivity: [
         {
@@ -3967,6 +4277,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Send reminder after execution?',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -4153,6 +4470,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Send reminder after execution?',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -4359,6 +4683,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     RoutingActivity: [
         {
@@ -4500,6 +4831,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     RuleActivity: [
         {
@@ -4577,6 +4915,13 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -4760,6 +5105,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Include Subfolders',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -5212,6 +5564,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     SendForSignatureActivity: [
         {
@@ -5347,6 +5706,13 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     UpdateWorkflowOutputActivity: [
         {
@@ -5461,6 +5827,13 @@ export const displayNameMapping = {
                 displayName: 'Page(s)',
                 type: 'String',
                 required: true,
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -5898,6 +6271,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     WaitForSignal: [
         {
@@ -5920,6 +6300,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Stage Name',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -5967,6 +6354,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Signature Audit Events',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
             },
         },
     ],
@@ -6032,53 +6426,6 @@ export const displayNameMapping = {
                 choices: [
                     { displayName: 'Text', value: 'text' },
                     { displayName: 'Image', value: 'image' },
-                ],
-            },
-        },
-        {
-            path: 'data.watermarkAlign.value',
-            config: {
-                displayName: 'Alignment',
-                type: 'Choice',
-                choices: [
-                    { displayName: '', value: '' },
-                    { displayName: 'Left', value: 'left' },
-                    { displayName: 'Center', value: 'center' },
-                    { displayName: 'Right', value: 'right' },
-                ],
-            },
-        },
-        {
-            path: 'data.watermarkOpacity.value',
-            config: {
-                displayName: 'Opacity',
-                type: 'String',
-            },
-        },
-        {
-            path: 'data.watermarkPadding.value',
-            config: {
-                displayName: 'Padding',
-                type: 'String',
-            },
-        },
-        {
-            path: 'data.watermarkRotation.value',
-            config: {
-                displayName: 'Rotation',
-                type: 'String',
-            },
-        },
-        {
-            path: 'data.resizeDirection.value',
-            config: {
-                displayName: 'Resize to accommodate',
-                type: 'Choice',
-                choices: [
-                    { displayName: '', value: '' },
-                    { displayName: 'None', value: 'None' },
-                    { displayName: 'Horizontal', value: 'Horizontal' },
-                    { displayName: 'Vertical', value: 'Vertical' },
                 ],
             },
         },
@@ -6160,6 +6507,60 @@ export const displayNameMapping = {
                 type: 'String',
             },
         },
+        {
+            path: 'data.watermarkAlign.value',
+            config: {
+                displayName: 'Alignment',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'Left', value: 'left' },
+                    { displayName: 'Center', value: 'center' },
+                    { displayName: 'Right', value: 'right' },
+                ],
+            },
+        },
+        {
+            path: 'data.watermarkOpacity.value',
+            config: {
+                displayName: 'Opacity',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.watermarkPadding.value',
+            config: {
+                displayName: 'Padding',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.watermarkRotation.value',
+            config: {
+                displayName: 'Rotation',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.resizeDirection.value',
+            config: {
+                displayName: 'Resize to accommodate',
+                type: 'Choice',
+                choices: [
+                    { displayName: '', value: '' },
+                    { displayName: 'None', value: 'None' },
+                    { displayName: 'Horizontal', value: 'Horizontal' },
+                    { displayName: 'Vertical', value: 'Vertical' },
+                ],
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     WorkflowActivity: [
         {
@@ -6236,6 +6637,13 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+            },
+        },
     ],
     XmlMergeDocumentActivity: [
         {
@@ -6282,6 +6690,14 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Wait for the PDF version to be created?',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.output.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+                required: true,
             },
         },
     ],

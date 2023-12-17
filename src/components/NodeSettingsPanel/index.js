@@ -315,15 +315,30 @@ const DeepFieldExplorer = ({ data }) => {
             if (obj && obj.hasOwnProperty(part)) {
                 obj = obj[part];
             } else {
-                return false;
+                // Return false if wanting to hide fields not already in the JSON data object
+                return field;
             }
         }
 
         return true;
     });
 
+    console.log('dsdebug-log', activityFieldsConfig);
+
     const handleInputChange = (path, newValue) => {
         let updatedNode = JSON.parse(JSON.stringify(editedNode)); // Deep clone editedNode
+
+        const setValueAtPath = (obj, path, value) => {
+            const pathParts = path.split('.');
+            for (let i = 0; i < pathParts.length - 1; i++) {
+                const part = pathParts[i];
+                if (!obj[part]) obj[part] = {}; // Create nested object if it doesn't exist
+                obj = obj[part];
+            }
+            obj[pathParts[pathParts.length - 1]] = value;
+        };
+
+        setValueAtPath(updatedNode, path, newValue);
 
         const pathParts = path.split('.');
         let obj = updatedNode;
@@ -428,8 +443,8 @@ const DeepFieldExplorer = ({ data }) => {
                                 key={field.path}
                                 isInvalid={isError}
                             >
-                                {field.config.displayName !== null &&
-                                    field.config.type !== 'Bool' && (
+                                {config.displayName !== null &&
+                                    config.type !== 'Bool' && (
                                         <FormLabel>
                                             {getDisplayName(
                                                 field.path,
@@ -501,16 +516,19 @@ const DeepFieldExplorer = ({ data }) => {
                                         size="md"
                                     />
                                 ) : fieldType === 'Variable' ? (
-                                    <TagInput
-                                        variableName={
-                                            inputValue?.[0]?.value.value
-                                        }
-                                        editedNode={editedNode}
-                                        setEditedNode={setEditedNode}
-                                        path={field.path}
-                                        definedVariables={definedVariables}
-                                        handleUpdateNode={handleUpdateNode}
-                                    />
+                                    <>
+                                        {console.log('dsdebug-log', field)}
+                                        <TagInput
+                                            variableName={
+                                                inputValue?.[0]?.value?.value
+                                            }
+                                            editedNode={editedNode}
+                                            setEditedNode={setEditedNode}
+                                            path={field.path}
+                                            definedVariables={definedVariables}
+                                            handleUpdateNode={handleUpdateNode}
+                                        />
+                                    </>
                                 ) : (
                                     <Input
                                         placeholder={config?.placeholder || ''}
