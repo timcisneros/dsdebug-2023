@@ -189,7 +189,7 @@ const Header = () => {
                         overflow="hidden"
                         textOverflow="ellipsis"
                     >
-                        {workflowName?.value || 'Workflow'}
+                        {workflowName?.value || '[Unnamed Workflow]'}
                     </Box>
                 )}
             </Box>
