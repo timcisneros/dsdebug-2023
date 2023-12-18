@@ -226,7 +226,7 @@ function TagInput({
                         ))}
                     </div>
 
-                    <Menu isLazy>
+                    <Menu isLazy gutter={5}>
                         {!tags.length && !searchTerm && (
                             <MenuButton
                                 as={IconButton}
@@ -236,17 +236,19 @@ function TagInput({
                                 position="absolute"
                                 right={0}
                                 top={0}
+                                borderLeftRadius="0"
                             />
                         )}
                         <MenuList
                             zIndex={1}
-                            mt={-1}
                             borderWidth={1}
                             borderColor="gray.200"
                             borderRadius="0 0 0"
                             bg="white"
                             position="relative"
                             p={0}
+                            maxH="20rem"
+                            overflowY="scroll"
                         >
                             {filteredVariables?.map((variable, index) => (
                                 <MenuItem
@@ -271,6 +273,8 @@ function TagInput({
                             position="absolute"
                             top="40px"
                             width="100%"
+                            maxH="20rem"
+                            overflowY="scroll"
                         >
                             {filteredVariables?.map((variable, index) => (
                                 <div key={index}>
