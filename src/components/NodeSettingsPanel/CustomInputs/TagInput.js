@@ -82,6 +82,7 @@ function TagInput({
             setInputDisabled(true);
             setSearchTerm('');
             setError('');
+            setSearchTerm('');
 
             const definedVariableType = definedVariables.find(
                 (definedVariable) =>
@@ -224,8 +225,9 @@ function TagInput({
                             </Tag>
                         ))}
                     </div>
-                    {!tags.length && !searchTerm && (
-                        <Menu>
+
+                    <Menu isLazy>
+                        {!tags.length && !searchTerm && (
                             <MenuButton
                                 as={IconButton}
                                 icon={<ChevronDownIcon />}
@@ -235,30 +237,29 @@ function TagInput({
                                 right={0}
                                 top={0}
                             />
-                            <MenuList
-                                zIndex={1}
-                                mt={-1}
-                                borderWidth={1}
-                                borderColor="gray.200"
-                                borderRadius="0 0 0"
-                                bg="white"
-                                position="relative"
-                                p={0}
-                            >
-                                {filteredVariables?.map((variable, index) => (
-                                    <MenuItem
-                                        p={2}
-                                        key={index}
-                                        onClick={() =>
-                                            handleListItemClick(index)
-                                        }
-                                    >
-                                        {variable.value.name}
-                                    </MenuItem>
-                                ))}
-                            </MenuList>
-                        </Menu>
-                    )}
+                        )}
+                        <MenuList
+                            zIndex={1}
+                            mt={-1}
+                            borderWidth={1}
+                            borderColor="gray.200"
+                            borderRadius="0 0 0"
+                            bg="white"
+                            position="relative"
+                            p={0}
+                        >
+                            {filteredVariables?.map((variable, index) => (
+                                <MenuItem
+                                    p={2}
+                                    key={index}
+                                    onClick={() => handleListItemClick(index)}
+                                >
+                                    {variable.value.name}
+                                </MenuItem>
+                            ))}
+                        </MenuList>
+                    </Menu>
+
                     {searchTerm && (
                         <List
                             zIndex={1}
