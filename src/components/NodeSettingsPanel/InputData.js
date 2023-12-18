@@ -163,11 +163,14 @@ export const displayNameMapping = {
                 type: 'Choice',
                 choices: [
                     { displayName: '', value: '' },
-                    { displayName: 'In Progress', value: '1' },
-                    { displayName: 'Not Started', value: '2' },
-                    { displayName: 'Completed', value: '3' },
-                    { displayName: 'Waiting on someone else', value: '4' },
-                    { displayName: 'Deferred', value: '5' },
+                    { displayName: 'In Progress', value: 'In Progress' },
+                    { displayName: 'Not Started', value: 'Not Started' },
+                    { displayName: 'Completed', value: 'Completed' },
+                    {
+                        displayName: 'Waiting on someone else',
+                        value: 'Waiting on someone else',
+                    },
+                    { displayName: 'Deferred', value: 'Deferred' },
                 ],
             },
         },
@@ -282,7 +285,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -643,7 +649,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -776,7 +785,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -966,7 +978,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -1789,7 +1804,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -1967,7 +1985,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -2225,7 +2246,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -2366,7 +2390,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -2924,7 +2951,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -3474,7 +3504,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -3600,7 +3633,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -4194,11 +4230,14 @@ export const displayNameMapping = {
         {
             path: 'data.assigneeType.value',
             config: {
-                displayName: 'Assign to a user or task group',
+                displayName: 'Assign to a user or task group?',
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -4332,7 +4371,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -4578,7 +4620,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
@@ -4743,7 +4788,10 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
-                    { displayName: 'Assign to a task group', value: 'group' },
+                    {
+                        displayName: 'Assign to a task group',
+                        value: 'workerpool',
+                    },
                 ],
                 required: true,
             },
