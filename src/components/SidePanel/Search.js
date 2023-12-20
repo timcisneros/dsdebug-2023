@@ -324,7 +324,7 @@ const Search = ({ definedVariables }) => {
                     top="40px"
                     width="100%"
                     maxH="20rem"
-                    overflowY="scroll"
+                    overflowY="auto"
                 >
                     {filteredVariables?.map((variable, index) => (
                         <div key={index}>

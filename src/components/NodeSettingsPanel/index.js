@@ -516,13 +516,15 @@ const DeepFieldExplorer = ({ data }) => {
                                 ) : fieldType === 'Variable' ? (
                                     <TagInput
                                         variableName={
-                                            inputValue?.[0]?.value?.value
+                                            inputValue?.[0]?.value?.value ||
+                                            inputValue?.value
                                         }
                                         editedNode={editedNode}
                                         setEditedNode={setEditedNode}
                                         path={field.path}
                                         definedVariables={definedVariables}
                                         handleUpdateNode={handleUpdateNode}
+                                        isArray={config.isArray}
                                     />
                                 ) : (
                                     <Input

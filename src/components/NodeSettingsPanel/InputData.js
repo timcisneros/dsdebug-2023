@@ -223,6 +223,7 @@ export const displayNameMapping = {
                 displayName: 'Output',
                 type: 'Variable',
                 required: true,
+                isArray: false,
             },
         },
     ],
@@ -442,6 +443,14 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
             path: 'data.requiredApprovalCount.value',
             config: {
                 displayName: "What should trigger an 'approved' output?",
@@ -456,13 +465,6 @@ export const displayNameMapping = {
                         value: 100,
                     },
                 ],
-            },
-        },
-        {
-            path: 'data.output.value',
-            config: {
-                displayName: 'Output',
-                type: 'Variable',
             },
         },
     ],
@@ -741,10 +743,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputComments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -857,8 +860,11 @@ export const displayNameMapping = {
                         displayName: 'Any number of documents',
                         value: 'ZeroOrMore',
                     },
-                    { displayName: 'Only one document', value: '2' },
-                    { displayName: 'At least one document', value: '3' },
+                    { displayName: 'Only one document', value: 'One' },
+                    {
+                        displayName: 'At least one document',
+                        value: 'OneOrMore',
+                    },
                 ],
             },
         },
@@ -934,10 +940,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1033,11 +1048,14 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     {
-                        displayName: 'Any number of users',
+                        displayName: 'Any number of documents',
                         value: 'ZeroOrMore',
                     },
-                    { displayName: 'Only one user', value: '2' },
-                    { displayName: 'At least one user', value: '3' },
+                    { displayName: 'Only one document', value: 'One' },
+                    {
+                        displayName: 'At least one document',
+                        value: 'OneOrMore',
+                    },
                 ],
             },
         },
@@ -1113,10 +1131,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputUsers.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Users)',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1181,10 +1208,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1252,10 +1280,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocumentsProperty.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1304,10 +1333,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocumentsProperty.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1348,10 +1378,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXml.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -1394,6 +1426,8 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -1441,10 +1475,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1499,10 +1534,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputFolders.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1567,10 +1603,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputFolders.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1622,10 +1659,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1653,10 +1691,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputIdVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1714,10 +1753,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputFolders.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -1760,10 +1800,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXml.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -1933,10 +1975,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -2045,10 +2089,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXML.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -2069,10 +2115,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDecision.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -2187,10 +2234,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXmlDocument.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputXmlVariable.value',
+            config: {
+                displayName: 'Output (Configuration)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -2338,10 +2394,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputComments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -2475,10 +2532,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -2710,6 +2776,15 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.inputXMLVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                isArray: false,
+            },
+        },
+        {
             path: 'data.xPath.value',
             config: {
                 displayName: 'XPath',
@@ -2718,10 +2793,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXmlVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -2775,10 +2852,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXml.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -2807,10 +2886,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.fieldXmlVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3035,10 +3116,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -3074,10 +3164,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3106,10 +3198,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3152,10 +3246,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3197,10 +3293,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3248,10 +3346,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXmlVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3280,10 +3380,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputFolders.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3327,10 +3429,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputActorVariableName.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3382,10 +3486,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputFolders.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3423,6 +3529,15 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.loopVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                isArray: false,
+            },
+        },
+        {
             path: 'data.loopMax.value',
             config: {
                 displayName: 'Number of loops',
@@ -3445,6 +3560,15 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Step Description',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.xmlIterator.value',
+            config: {
+                displayName: 'Iterator',
+                type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
         {
@@ -3581,10 +3705,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -3717,10 +3850,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -3748,10 +3890,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.valueVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -3792,11 +3936,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
                 required: true,
+                isArray: false,
             },
         },
     ],
@@ -3825,11 +3970,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXml.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
                 required: true,
+                isArray: false,
             },
         },
     ],
@@ -3924,10 +4070,29 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.responseVariable.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Response)',
                 type: 'Variable',
+                required: true,
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.responseStatusCodeVariable.value',
+            config: {
+                displayName: 'Output (Status Code)',
+                type: 'Variable',
+                required: true,
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.responseHeadersXmlVariable.value',
+            config: {
+                displayName: 'Output (Headers)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -3955,10 +4120,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -4034,10 +4200,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocumentsProperty.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -4174,10 +4341,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.setVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -4319,10 +4488,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputXML.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -4515,10 +4685,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputComments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -4729,10 +4900,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputComments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -4880,10 +5052,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputRoute.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Route)',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -4952,24 +5133,26 @@ export const displayNameMapping = {
                     },
                     {
                         displayName: 'Configuration Document Generation Form',
-                        value: 'generation',
+                        value: 'docLauncherForm',
                     },
                 ],
             },
         },
+        // Not a variable field
+        // {
+        //     path: 'data.configDocument.value',
+        //     config: {
+        //         displayName: 'Document Generation Form',
+        //         type: 'Variable',
+        //         required: true,
+        //     },
+        // },
         {
-            path: 'data.configDocument.value',
-            config: {
-                displayName: 'Document',
-                type: 'Variable',
-                required: true,
-            },
-        },
-        {
-            path: 'data.output.value',
+            path: 'data.outputXmlVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -5156,10 +5339,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputFolders.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Folder(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputDocuments.value',
+            config: {
+                displayName: 'Output (Document(s))',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -5613,10 +5805,27 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputComments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Comments)',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputDocuments.value',
+            config: {
+                displayName: 'Output (Document(s))',
+                type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.UpdatedDocuments.value',
+            config: {
+                displayName: 'Output (Updated Document(s))',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -5755,10 +5964,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.signatureAuditInfoXmlVariable.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Audit Info)',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -5856,13 +6066,6 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.deleteOriginalDocument.value',
-            config: {
-                displayName: 'Delete source document?',
-                type: 'Bool',
-            },
-        },
-        {
             path: 'data.newFileName.value',
             config: {
                 displayName: 'New File Name',
@@ -5878,10 +6081,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.deleteOriginalDocument.value',
+            config: {
+                displayName: 'Delete source document?',
+                type: 'Bool',
+            },
+        },
+        {
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                required: true,
+                isArray: false,
             },
         },
     ],
@@ -6263,6 +6475,15 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        {
+            path: 'data.outputXmlVariable.value',
+            config: {
+                displayName: 'Output',
+                type: 'Variable',
+                required: true,
+                isArray: false,
+            },
+        },
     ],
     UpdateVariableActivity: [
         {
@@ -6320,10 +6541,27 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Document(s))',
                 type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.UpdatedDocuments.value',
+            config: {
+                displayName: 'Output (Updated Document(s))',
+                type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.outputComments.value',
+            config: {
+                displayName: 'Output (Comments)',
+                type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -6351,10 +6589,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputVariable.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -6401,14 +6640,15 @@ export const displayNameMapping = {
             path: 'data.signatureAuditEventsText.value',
             config: {
                 displayName: 'Signature Audit Events',
-                type: 'String',
+                type: 'Textarea',
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.signatureAuditInfoXmlVariable.value',
             config: {
-                displayName: 'Output',
+                displayName: 'Output (Audit Info)',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -6603,10 +6843,11 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -6624,6 +6865,22 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Step Description',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.variables.value',
+            config: {
+                displayName: 'Variables',
+                type: 'Variable',
+                isArray: false,
+            },
+        },
+        {
+            path: 'data.parameterVariableName.value',
+            config: {
+                displayName: 'Kickoff Variable',
+                type: 'Variable',
+                isArray: false,
             },
         },
         {
@@ -6685,11 +6942,19 @@ export const displayNameMapping = {
                 required: true,
             },
         },
+        // {
+        //     path: 'data.selectConfigurationDocument.value',
+        //     config: {
+        //         displayName: 'Select a Configuration Document?',
+        //         type: 'Bool',
+        //     },
+        // },
         {
-            path: 'data.output.value',
+            path: 'data.outputXml.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
+                isArray: false,
             },
         },
     ],
@@ -6718,6 +6983,14 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.dataSource.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+            },
+        },
+        {
             path: 'data.selectTemplate.value',
             config: {
                 displayName: 'Document',
@@ -6741,11 +7014,12 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.output.value',
+            path: 'data.outputDocuments.value',
             config: {
                 displayName: 'Output',
                 type: 'Variable',
                 required: true,
+                isArray: false,
             },
         },
     ],

@@ -28,6 +28,7 @@ function TagInput({
     path,
     definedVariables,
     handleUpdateNode,
+    isArray,
 }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [tags, setTags] = useState([]);
@@ -59,13 +60,13 @@ function TagInput({
     const handleListItemClick = (index, type) => {
         setSelectedIndex(index);
         setSearchTerm(filteredVariables[index].value.name);
-        handleTagSubmit(null, filteredVariables[index].value.name);
+        handleTagSubmit(null, filteredVariables[index].value.name, isArray);
         if (type) {
             setSubmittedAfterSelect(true);
         }
     };
 
-    const handleTagSubmit = (event, passedSearchTerm) => {
+    const handleTagSubmit = (event, passedSearchTerm, isArray = true) => {
         let isTagValid;
         if (event) {
             event.preventDefault();
@@ -90,26 +91,36 @@ function TagInput({
             ).type;
 
             try {
-                const updatedNodeValue = [
-                    {
-                        type: 'Variable',
-                        value: {
-                            type: definedVariableType,
-                            value: passedSearchTerm,
-                        },
+                const updatedNodeValue = {
+                    type: 'Variable',
+                    value: {
+                        type: definedVariableType,
+                        value: passedSearchTerm,
                     },
-                ];
+                };
 
-                const updatedNode = (prevEditedNode) => ({
-                    ...prevEditedNode,
-                    data: {
-                        ...prevEditedNode.data,
-                        [updatedProperty]: {
-                            type: 'Document',
-                            value: updatedNodeValue,
+                let updatedNode;
+
+                if (isArray) {
+                    updatedNode = (prevEditedNode) => ({
+                        ...prevEditedNode,
+                        data: {
+                            ...prevEditedNode.data,
+                            [updatedProperty]: {
+                                type: 'Document',
+                                value: [updatedNodeValue],
+                            },
                         },
-                    },
-                });
+                    });
+                } else {
+                    updatedNode = (prevEditedNode) => ({
+                        ...prevEditedNode,
+                        data: {
+                            ...prevEditedNode.data,
+                            [updatedProperty]: updatedNodeValue,
+                        },
+                    });
+                }
 
                 setEditedNode(updatedNode);
                 handleUpdateNode(updatedNode);
@@ -248,7 +259,7 @@ function TagInput({
                             position="relative"
                             p={0}
                             maxH="20rem"
-                            overflowY="scroll"
+                            overflowY="auto"
                         >
                             {filteredVariables?.map((variable, index) => (
                                 <MenuItem
@@ -274,7 +285,7 @@ function TagInput({
                             top="40px"
                             width="100%"
                             maxH="20rem"
-                            overflowY="scroll"
+                            overflowY="auto"
                         >
                             {filteredVariables?.map((variable, index) => (
                                 <div key={index}>
