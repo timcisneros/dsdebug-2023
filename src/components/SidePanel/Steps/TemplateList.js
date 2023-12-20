@@ -122,6 +122,24 @@ const TemplateList = () => {
                         activityName="InternalApproval"
                     />
                 </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Start Another Process"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="StartAnotherProcess"
+                    />
+                </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Edit Document"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="EditDocument"
+                    />
+                </GridItem>
             </Grid>
             <Flex
                 flexDirection="column"
