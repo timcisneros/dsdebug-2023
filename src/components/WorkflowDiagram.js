@@ -168,10 +168,11 @@ const WorkflowDiagram = () => {
 
                     const decisions =
                         sourceNode?.data?.decisions?.value?.decisions || [];
-                    const timerOutput = sourceNode?.data?.timers?.value || [];
+                    const timerOutputs = sourceNode?.data?.timers?.value || [];
                     const elseOutput =
-                        sourceNode?.data?.decisions?.value?.elseOutput.value ||
+                        sourceNode?.data?.decisions?.value?.elseOutput?.value ||
                         [];
+                    const timeouts = sourceNode?.data?.timeout?.value || [];
 
                     const referenceKey = itemLabel?.value;
 
@@ -181,9 +182,14 @@ const WorkflowDiagram = () => {
                             decision.output?.value?.referenceKey ===
                             referenceKey
                     );
-                    const matchedTimer = timerOutput.find(
-                        (timer) =>
-                            timer.output?.value?.referenceKey === referenceKey
+                    const matchedTimer = timerOutputs.find(
+                        (timerOutput) =>
+                            timerOutput.output?.value?.referenceKey ===
+                            referenceKey
+                    );
+                    const matchedTimeout = timeouts.find(
+                        (timeout) =>
+                            timeout.output?.value?.referenceKey === referenceKey
                     );
 
                     const outputs = sourceNode?.data?.outputs?.value || [];
@@ -198,6 +204,8 @@ const WorkflowDiagram = () => {
                         return matchedDecision.output?.value?.name || '';
                     } else if (matchedTimer) {
                         return matchedTimer.output?.value?.name || '';
+                    } else if (matchedTimeout) {
+                        return matchedTimeout.output?.value?.name || '';
                     } else if (elseOutput) {
                         return elseOutput.name || '';
                     } else if (matchedOutput) {
