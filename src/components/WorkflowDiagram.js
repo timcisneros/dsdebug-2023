@@ -168,6 +168,11 @@ const WorkflowDiagram = () => {
 
                     const decisions =
                         sourceNode?.data?.decisions?.value?.decisions || [];
+                    const timerOutput = sourceNode?.data?.timers?.value || [];
+                    const elseOutput =
+                        sourceNode?.data?.decisions?.value?.elseOutput.value ||
+                        [];
+
                     const referenceKey = itemLabel?.value;
 
                     // Find the correct decision based on the referenceKey
@@ -175,6 +180,10 @@ const WorkflowDiagram = () => {
                         (decision) =>
                             decision.output?.value?.referenceKey ===
                             referenceKey
+                    );
+                    const matchedTimer = timerOutput.find(
+                        (timer) =>
+                            timer.output?.value?.referenceKey === referenceKey
                     );
 
                     const outputs = sourceNode?.data?.outputs?.value || [];
@@ -187,13 +196,17 @@ const WorkflowDiagram = () => {
                     // Return the label if the decision was found, otherwise check the elseOutput
                     if (matchedDecision) {
                         return matchedDecision.output?.value?.name || '';
+                    } else if (matchedTimer) {
+                        return matchedTimer.output?.value?.name || '';
+                    } else if (elseOutput) {
+                        return elseOutput.name || '';
                     } else if (matchedOutput) {
                         return matchedOutput.value.name || '';
                     } else {
-                        // Check elseOutput if referenceKey doesn't match any decision
-                        const elseOutput =
-                            sourceNode?.data?.decisions?.value?.elseOutput;
-                        return elseOutput?.value?.name || '';
+                        // // Check elseOutput if referenceKey doesn't match any decision
+                        // const elseOutput =
+                        //     sourceNode?.data?.decisions?.value?.elseOutput;
+                        // return elseOutput?.value?.name || '';
                     }
                 } else {
                     return (
