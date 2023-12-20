@@ -140,6 +140,33 @@ const TemplateList = () => {
                         activityName="EditDocument"
                     />
                 </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Negotiation"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="Negotiation"
+                    />
+                </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Routing"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="Routing"
+                    />
+                </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Signature"
+                        stepImage="basic-shape-ui.svg"
+                        stepImageColor="#757575"
+                        stepType="Template"
+                        activityName="Signature"
+                    />
+                </GridItem>
             </Grid>
             <Flex
                 flexDirection="column"

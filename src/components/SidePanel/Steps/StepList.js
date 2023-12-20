@@ -907,6 +907,15 @@ const StepList = () => {
                         activityName="XmlMergeDocumentActivity"
                     />
                 </GridItem>
+                <GridItem>
+                    <Step
+                        stepName="Edit CLM Agreement Attributes"
+                        stepImage="edit_clm_agreement_attributes.svg"
+                        stepImageColor="#6600BB"
+                        stepType="StepNode"
+                        activityName="EditClmAgreementAttributesActivity"
+                    />
+                </GridItem>
             </Grid>
         </Box>
     );

@@ -5500,6 +5500,74 @@ const xmlMergeDocumentActivity = {
     },
 };
 
+const editClmAgreementAttributesActivity = {
+    size: { width: 100, height: 100 },
+    content: '',
+    type: 'springcm.Step',
+    position: { x: 680, y: -318 },
+    angle: 0,
+    activityName: 'EditClmAgreementAttributesActivity',
+    group: 'engineActivities',
+    icon: {
+        path: 'edit_clm_agreement_attributes.svg#Dark',
+        color: '#6600BB',
+    },
+    id: '23746072-29a3-4e9c-8c90-113080bbf117',
+    z: 2000035,
+    name: {
+        type: 'String',
+        value: 'Edit CLM Agreement Attributes 1',
+    },
+    stepDescription: { type: 'String', value: '' },
+    documents: {
+        type: 'Document',
+        value: [
+            {
+                type: 'Variable',
+                value: { type: 'Xml', value: 'Params' },
+            },
+        ],
+    },
+    partyId: { type: 'String', value: '' },
+    documentType: { type: 'String', value: '' },
+    effectiveDate: { type: 'String', value: '' },
+    expirationDate: { type: 'String', value: '' },
+    totalContractValue: { type: 'String', value: '' },
+    requestorName: { type: 'String', value: '' },
+    parentDocument: { type: 'Document', value: [] },
+    isSigned: { type: 'Bool', value: true },
+    attrs: {
+        '.steptext': {
+            'ref-y': '.66',
+            'y-alignment': 'middle',
+            text: 'Edit CLM\nAgreement\nAttributes 1',
+            lineHeight: '1.4em',
+        },
+        '.description': {
+            opacity: 0,
+            ref: '.step-container',
+            'ref-x': 0.5,
+            'ref-dy': 0,
+        },
+        '.descriptionbox': {
+            width: 0,
+            height: 0,
+            rx: 0,
+            ry: 0,
+            x: 0,
+            y: 0,
+        },
+        '.descriptiontext': { text: '' },
+        use: {
+            'xlink:href':
+                '/atlassupport/scripts/jointjs/svg/edit_clm_agreement_attributes.svg#Dark',
+        },
+        svg: { color: '#6600BB', fill: '#fff' },
+        rect: { fill: '#6600BB' },
+        '.step-container': { 'data-error-state': false },
+    },
+};
+
 export const stepDataMapping = {
     AddWatchedDocumentsActivity: {
         type: addWatchedDocumentsActivity,
@@ -5944,5 +6012,8 @@ export const stepDataMapping = {
     XmlMergeDocumentActivity: {
         type: xmlMergeDocumentActivity,
         outputData: ['Success', 'Failure', 'Timed Out'],
+    },
+    EditClmAgreementAttributesActivity: {
+        type: editClmAgreementAttributesActivity,
     },
 };
