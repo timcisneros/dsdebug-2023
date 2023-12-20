@@ -517,7 +517,8 @@ const DeepFieldExplorer = ({ data }) => {
                                     <TagInput
                                         variableName={
                                             inputValue?.[0]?.value?.value ||
-                                            inputValue?.value
+                                            inputValue?.value ||
+                                            inputValue?.[0]?.value
                                         }
                                         editedNode={editedNode}
                                         setEditedNode={setEditedNode}
