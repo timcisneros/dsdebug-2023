@@ -272,11 +272,11 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         });
 
         setFields(fieldsForActivity);
-        console.log(
-            'dsdebug-log',
-            '-dev',
-            'useEffect triggered, selected node for settings changed'
-        );
+        // console.log(
+        //     'dsdebug-log',
+        //     '-dev',
+        //     'useEffect triggered, selected node for settings changed'
+        // );
     }, [selectedNode]);
 
     const getDisplayName = (path, activityName) => {

@@ -90,7 +90,7 @@ const WorkflowDiagram = () => {
     );
     const onEdgesChange = useCallback((changes) => {
         setEdges((eds) => {
-            console.log('dsdebug-log', '-dev', 'edges change');
+            // console.log('dsdebug-log', '-dev', 'edges change');
             // Ensure eds is always an array
             const currentEdges = Array.isArray(eds) ? eds : [];
             return applyEdgeChanges(changes, currentEdges);
