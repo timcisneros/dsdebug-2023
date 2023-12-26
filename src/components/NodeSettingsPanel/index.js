@@ -133,7 +133,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
 
     const isFiltered = (key, currentPath) => {
         const usingFilter =
-            selectedNode.data?.activityName === 'StartActivity'
+            editedNode.data?.activityName === 'StartActivity'
                 ? startActivityFilterKeys
                 : filterKeys;
 
@@ -152,6 +152,10 @@ const DeepFieldExplorer = ({ selectedNode }) => {
 
         return obj && (obj[key] === true || obj === true);
     };
+
+    useEffect(() => {
+        setEditedNode(selectedNode);
+    }, [selectedNode]);
 
     // useEffect(() => {
     //     const findDeepestFields = (obj, currentPath = []) => {
@@ -244,40 +248,40 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return deepestFields;
     };
 
-    useEffect(() => {
-        // Update editedNode whenever selectedNode changes
-        setEditedNode(selectedNode);
+    // useEffect(() => {
+    //     // Update editedNode whenever selectedNode changes
+    //     setEditedNode(selectedNode);
 
-        const currentActivityName =
-            selectedNode.data?.activityName || 'default';
-        const activityFieldsConfig =
-            displayNameMapping[currentActivityName] ||
-            displayNameMapping['default'];
+    //     const currentActivityName =
+    //         selectedNode.data?.activityName || 'default';
+    //     const activityFieldsConfig =
+    //         displayNameMapping[currentActivityName] ||
+    //         displayNameMapping['default'];
 
-        const deepestFields = findDeepestFields(selectedNode);
+    //     const deepestFields = findDeepestFields(selectedNode);
 
-        // Apply activity-specific configurations to deepestFields
-        const fieldsForActivity = deepestFields.map((field) => {
-            try {
-                const fieldConfig = activityFieldsConfig.find((config) =>
-                    matchPathWithWildcard(config.path, field.path)
-                );
-                return {
-                    ...field,
-                    config: fieldConfig ? fieldConfig.config : {},
-                };
-            } catch (err) {
-                console.log('dsdebug-log', err.message);
-            }
-        });
+    //     // Apply activity-specific configurations to deepestFields
+    //     const fieldsForActivity = deepestFields.map((field) => {
+    //         try {
+    //             const fieldConfig = activityFieldsConfig.find((config) =>
+    //                 matchPathWithWildcard(config.path, field.path)
+    //             );
+    //             return {
+    //                 ...field,
+    //                 config: fieldConfig ? fieldConfig.config : {},
+    //             };
+    //         } catch (err) {
+    //             console.log('dsdebug-log', err.message);
+    //         }
+    //     });
 
-        setFields(fieldsForActivity);
-        // console.log(
-        //     'dsdebug-log',
-        //     '-dev',
-        //     'useEffect triggered, selected node for settings changed'
-        // );
-    }, [selectedNode]);
+    //     setFields(fieldsForActivity);
+    //     // console.log(
+    //     //     'dsdebug-log',
+    //     //     '-dev',
+    //     //     'useEffect triggered, selected node for settings changed'
+    //     // );
+    // }, [selectedNode]);
 
     const getDisplayName = (path, activityName) => {
         const activityFieldsConfig =
@@ -313,7 +317,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     };
 
     // Get the configured fields for the current activity
-    const currentActivityName = selectedNode.data?.activityName || 'default';
+    const currentActivityName = editedNode.data?.activityName || 'default';
     const activityFieldsConfig =
         displayNameMapping[currentActivityName] ||
         displayNameMapping['default'];
@@ -321,12 +325,12 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     // Filter out hidden fields based on the activity type
     const visibleFields = activityFieldsConfig.filter((fieldConfig) => {
         const pathParts = fieldConfig.path.split('.');
-        let obj = selectedNode;
+        let obj = editedNode;
 
         // Check if this field has a dependency and if it's met
         if (fieldConfig.config.dependsOn) {
             const dependencyValue = getNestedValue(
-                selectedNode,
+                editedNode,
                 fieldConfig.config.dependsOn.path
             );
             if (dependencyValue !== fieldConfig.config.dependsOn.value) {
@@ -471,7 +475,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                         field.path
                                     );
                                     const currentActivityName =
-                                        selectedNode.data?.activityName ||
+                                        editedNode.data?.activityName ||
                                         'default';
 
                                     const isError =
@@ -634,8 +638,8 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                 {displayJson && (
                                     <JsonView
                                         data={{
-                                            id: selectedNode.id,
-                                            ...selectedNode.data,
+                                            id: editedNode.id,
+                                            ...editedNode.data,
                                         }}
                                         shouldExpandNode={allExpanded}
                                         style={defaultStyles}

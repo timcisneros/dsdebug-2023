@@ -152,13 +152,13 @@ const WorkflowDiagram = () => {
                         position: item.position || { x: 0, y: 0 },
                         type: customNodeTypes[item.type] || 'default',
                         selectable: true,
-                        selected:
-                            selectedNodes &&
-                            selectedNodes.find(
-                                (selectedNode) => selectedNode.id === item.id
-                            )
+                        selected: selectedNodes
+                            ? selectedNodes.find(
+                                  (selectedNode) => selectedNode.id === item.id
+                              )
                                 ? true
-                                : false,
+                                : false
+                            : false,
                     };
                 });
             setNodes(updatedNodes);
@@ -729,7 +729,6 @@ const WorkflowDiagram = () => {
         } else {
             setSelectedEdge(params.edges[0]);
         }
-        // console.log('dsdebug-log', '-dev', 'selection changed');
     }, []);
 
     const [minimapVisible, setMinimapVisible] = useState(false);
