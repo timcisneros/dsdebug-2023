@@ -125,6 +125,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         definedVariables,
         isVisible,
         handleToggleVisibility,
+        workflowName,
     } = useNode();
     const [fields, setFields] = useState([]);
     const [editedNode, setEditedNode] = useState(selectedNode);
@@ -153,6 +154,12 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return obj && (obj[key] === true || obj === true);
     };
 
+    // Persist changes when editedNode updates
+    useEffect(() => {
+        handleUpdateNode(editedNode);
+    }, [editedNode]);
+
+    // Set initial state when selectedNode changes
     useEffect(() => {
         setEditedNode(selectedNode);
     }, [selectedNode]);
@@ -316,6 +323,18 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return true;
     };
 
+    const getNestedValue = (obj, path) => {
+        const pathParts = path.split('.');
+        for (let part of pathParts) {
+            if (obj && obj.hasOwnProperty(part)) {
+                obj = obj[part];
+            } else {
+                return undefined;
+            }
+        }
+        return obj;
+    };
+
     // Get the configured fields for the current activity
     const currentActivityName = editedNode.data?.activityName || 'default';
     const activityFieldsConfig =
@@ -350,79 +369,47 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     });
 
     const handleInputChange = (path, newValue) => {
-        let updatedNode = JSON.parse(JSON.stringify(editedNode)); // Deep clone editedNode
+        setEditedNode((prevNode) => {
+            // Creating a shallow copy of the node
+            const updatedNode = { ...prevNode };
 
-        const setValueAtPath = (obj, path, value) => {
+            // Splitting the path and initializing a reference to the updatedNode
             const pathParts = path.split('.');
+            let currentPart = updatedNode;
+
+            // Iterating over the path parts to reach the target value
             for (let i = 0; i < pathParts.length - 1; i++) {
                 const part = pathParts[i];
-                if (!obj[part]) obj[part] = {}; // Create nested object if it doesn't exist
-                obj = obj[part];
+                // Shallow copy each nested level
+                currentPart[part] = { ...currentPart[part] };
+                currentPart = currentPart[part];
             }
-            obj[pathParts[pathParts.length - 1]] = value;
-        };
 
-        setValueAtPath(updatedNode, path, newValue);
+            // Setting the new value at the target
+            currentPart[pathParts[pathParts.length - 1]] = newValue;
 
-        const pathParts = path.split('.');
-        let obj = updatedNode;
+            // Perform your validation logic here
+            const isValid = validateNode(updatedNode);
 
-        // Traverse to the parent object of the value we want to change
-        for (let i = 0; i < pathParts.length - 1; i++) {
-            obj = obj[pathParts[i]];
-        }
+            // Update errorState based on validation
+            updatedNode.errorState = !isValid;
 
-        // Change the value
-        obj[pathParts[pathParts.length - 1]] = newValue;
-
-        // Perform validation check
-        const allFilled = fields.every((field) => {
-            try {
-                if (field.config.required) {
-                    const fieldValue =
-                        field.path === path
-                            ? newValue
-                            : getNestedValue(updatedNode, field.path);
-                    return fieldValue.trim() !== '';
-                }
-                return true;
-            } catch (error) {
-                // console.error('dsdebug-log', `Error - ${error.message}`);
-            }
+            // Returning the updated node
+            return updatedNode;
         });
+    };
 
-        const errorState = !allFilled;
-
-        // Update the errorState based on form validity
-        if (
-            updatedNode.type === 'StepNode' ||
-            updatedNode.type === 'DiamondNode'
-        ) {
-            if (Object.hasOwn(updatedNode.data, 'errorState')) {
-                updatedNode.data.errorState = errorState;
+    const validateNode = (node) => {
+        // Add your validation logic here
+        // For example, checking if required fields are non-empty
+        // Assuming 'fields' is an array of field configurations
+        return fields.every((field) => {
+            if (field.config.required) {
+                const fieldValue = getNestedValue(node, field.path);
+                return fieldValue && fieldValue.trim() !== '';
             }
-            if (
-                Object.hasOwn(updatedNode.data.attrs.rect, 'data-error-state')
-            ) {
-                updatedNode.data.attrs.rect['data-error-state'] =
-                    errorState.toString();
-            }
-            if (
-                Object.hasOwn(
-                    updatedNode.data.attrs['.step-container'],
-                    'data-error-state'
-                )
-            ) {
-                updatedNode.data.attrs['.step-container']['data-error-state'] =
-                    errorState;
-            }
-        }
-
-        // Update the editedNode state
-        setEditedNode(updatedNode);
-
-        // Update the node immediately without waiting for a save action
-        handleUpdateNode(updatedNode);
+            return true;
+        });
     };
 
     return (
