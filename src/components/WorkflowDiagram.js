@@ -19,12 +19,10 @@ import StepNode from './NodeTypes/StepNode';
 import GroupNode from './NodeTypes/GroupNode';
 import CircleNode from './NodeTypes/CircleNode';
 import DiamondNode from './NodeTypes/DiamondNode';
-import { Box, Flex, useToast, IconButton, Grid, Input } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { Box, Flex, useToast, Grid } from '@chakra-ui/react';
 import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import DefaultCustomEdge from './EdgeTypes/DefaultCustomEdge';
 import { useNode } from '../contexts/NodeContext';
-import Header from './Header';
 import SidePanel from './SidePanel';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4 to generate unique IDs
 import { SelectionChangeLogger } from './SelectionChangeLogger';
@@ -85,14 +83,19 @@ const WorkflowDiagram = () => {
     const onNodesChange = useCallback(
         (changes) =>
             setNodes((nds) => {
+                // console.log('dsdebug-log', '-dev', 'nodes change');
                 return applyNodeChanges(changes, nds);
             }),
         []
     );
-    const onEdgesChange = useCallback(
-        (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-        []
-    );
+    const onEdgesChange = useCallback((changes) => {
+        setEdges((eds) => {
+            console.log('dsdebug-log', '-dev', 'edges change');
+            // Ensure eds is always an array
+            const currentEdges = Array.isArray(eds) ? eds : [];
+            return applyEdgeChanges(changes, currentEdges);
+        });
+    }, []);
 
     const unwantedProperties = [
         'id',
@@ -103,6 +106,7 @@ const WorkflowDiagram = () => {
     ];
 
     useEffect(() => {
+        console.log('dsdebug-log', '-dev', 'data changed');
         if (data) {
             setStartActivity(
                 data.cells.find((cell) => cell.activityName === 'StartActivity')
@@ -256,39 +260,52 @@ const WorkflowDiagram = () => {
     const toast = useToast();
 
     const handleNodeDragStop = useCallback((event, draggedNode) => {
-        // Update the position, width, and height properties of the dragged node in the data before setting it
-        setData((prevData) => ({
-            ...prevData,
-            cells: prevData.cells.map((cell) =>
-                cell.id === draggedNode?.id
-                    ? {
-                          ...cell,
-                          position: draggedNode.position,
-                      }
-                    : cell
-            ),
-        }));
+        setData((prevData) => {
+            // console.log('dsdebug-log', '-dev', 'drag stopped');
+            const nodeToUpdate = prevData.cells.find(
+                (cell) => cell.id === draggedNode.id
+            );
+
+            // Check if the position has changed
+            if (
+                nodeToUpdate &&
+                (nodeToUpdate.position?.x !== draggedNode.position?.x ||
+                    nodeToUpdate.position?.y !== draggedNode.position?.y)
+            ) {
+                return {
+                    ...prevData,
+                    cells: prevData.cells.map((cell) =>
+                        cell.id === draggedNode.id
+                            ? { ...cell, position: draggedNode.position }
+                            : cell
+                    ),
+                };
+            }
+
+            // If position hasn't changed, return the previous data to avoid unnecessary re-render
+            return prevData;
+        });
         // console.log('dsdebug-log', '- Node Drag End', draggedNode);
     }, []);
 
-    const handleSelectionDragStop = useCallback((event, draggedNodes) => {
-        // Update the position property of the dragged nodes (selection) in the data before setting it
-        setData((prevData) => ({
-            ...prevData,
-            cells: prevData.cells.map((cell) => {
-                const draggedNode = draggedNodes.find(
-                    (node) => node.id === cell.id
-                );
-                return draggedNode
-                    ? {
-                          ...cell,
-                          position: draggedNode.position,
-                      }
-                    : cell;
-            }),
-        }));
-        console.log('dsdebug-log', 'run');
-    }, []);
+    // const handleSelectionDragStop = useCallback((event, draggedNodes) => {
+    //     console.log('dsdebug-log', 'run');
+    //     // Update the position property of the dragged nodes (selection) in the data before setting it
+    //     setData((prevData) => ({
+    //         ...prevData,
+    //         cells: prevData.cells.map((cell) => {
+    //             const draggedNode = draggedNodes.find(
+    //                 (node) => node.id === cell.id
+    //             );
+    //             return draggedNode
+    //                 ? {
+    //                       ...cell,
+    //                       position: draggedNode.position,
+    //                   }
+    //                 : cell;
+    //         }),
+    //     }));
+    // }, []);
 
     const handleReset = () => {
         const id = 'not allowed';
@@ -336,6 +353,7 @@ const WorkflowDiagram = () => {
 
     // Watch for changes in the templateDefinedVariables state
     useEffect(() => {
+        console.log('dsdebug-log', '-dev', 'template vars changed');
         try {
             if (templateDefinedVariables !== null) {
                 // Existing definedVariables
@@ -549,7 +567,7 @@ const WorkflowDiagram = () => {
                 console.log('dsdebug-log', 'Start activity missing.');
             }
         },
-        [reactFlowInstance]
+        [reactFlowInstance, data]
     );
 
     // const memoizedDefinedVariables = useMemo(
@@ -567,49 +585,6 @@ const WorkflowDiagram = () => {
             />
         ),
         [definedVariables, data]
-    );
-
-    const [isVisible, setIsVisible] = useState(true);
-
-    const handleToggleVisibility = () => {
-        setIsVisible((prevVisible) => !prevVisible); // Toggle the isVisible state
-    };
-
-    const nodeSettingsPanelComponent = useMemo(
-        () => (
-            <>
-                <IconButton
-                    pos="absolute"
-                    right={5}
-                    top="64px"
-                    icon={isVisible ? <ViewOffIcon /> : <ViewIcon />}
-                    onClick={handleToggleVisibility}
-                    variant="ghost"
-                    zIndex={1}
-                />
-                {isVisible && ( // Use curly braces here
-                    <Box
-                        w="20rem"
-                        backgroundColor="#fff"
-                        borderLeft="1px solid #ccc"
-                        overflowY="auto"
-                        paddingTop={50}
-                    >
-                        {/* Set a fixed height to enable scrolling */}
-                        {/* <NodeSettingsPanel
-                            selectedNodes={selectedNodes}
-                            handleUpdateNode={handleUpdateNode}
-                            definedVariables={definedVariables}
-                        /> */}
-                        {/* <Panel /> */}
-                        {selectedNodes && (
-                            <DeepFieldExplorer data={selectedNodes[0]} />
-                        )}
-                    </Box>
-                )}
-            </>
-        ),
-        [isVisible, selectedNodes, definedVariables] // Add isVisible as a dependency to useMemo
     );
 
     const [splitHeight, setSplitHeight] = useState(150); // Initial height of the bottom resizable box
@@ -754,6 +729,7 @@ const WorkflowDiagram = () => {
         } else {
             setSelectedEdge(params.edges[0]);
         }
+        // console.log('dsdebug-log', '-dev', 'selection changed');
     }, []);
 
     const [minimapVisible, setMinimapVisible] = useState(false);
@@ -764,7 +740,6 @@ const WorkflowDiagram = () => {
 
     return (
         <>
-            <Header />
             <Box position="fixed" top="0" left="0" right="0" bottom="0">
                 {/* Set position and dimensions */}
                 <Flex
@@ -807,9 +782,9 @@ const WorkflowDiagram = () => {
                                     onNodesDelete={handleNodeDelete}
                                     onEdgesDelete={handleEdgesDelete}
                                     onNodeDragStop={handleNodeDragStop}
-                                    onSelectionDragStop={
-                                        handleSelectionDragStop
-                                    }
+                                    // onSelectionDragStop={
+                                    //     handleSelectionDragStop
+                                    // }
                                     onSelectionChange={handleSelectionChange}
                                     fitView
                                     elevateEdgesOnSelect
@@ -874,13 +849,15 @@ const WorkflowDiagram = () => {
                                         generateUniqueName={generateUniqueName}
                                     />
                                 ),
-                                [splitHeight, nodes.length, edges.length]
+                                [splitHeight, nodes, edges]
                             )}
                         </Grid>
                     </Flex>
 
                     {/* NodeSettingsPanel */}
-                    {selectedNodes && nodeSettingsPanelComponent}
+                    {selectedNodes && (
+                        <DeepFieldExplorer selectedNode={selectedNodes[0]} />
+                    )}
                     {selectedEdge && !selectedNodes && <EdgeSettings />}
                 </Flex>
             </Box>

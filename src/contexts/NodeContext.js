@@ -22,6 +22,12 @@ export const NodeProvider = ({ children }) => {
     // useState to store defaultNodePositions and setDefaultNodePositions
     const [defaultNodePositions, setDefaultNodePositions] = useState(null);
 
+    const [isVisible, setIsVisible] = useState(true);
+
+    const handleToggleVisibility = () => {
+        setIsVisible((prevVisible) => !prevVisible); // Toggle the isVisible state
+    };
+
     // RUNNING MORE THAN NEEDED, OPTIMIZE
     useEffect(() => {
         if (startActivity) {
@@ -167,6 +173,8 @@ export const NodeProvider = ({ children }) => {
                 setDefaultNodePositions,
                 iterateVars,
                 setIterateVars,
+                isVisible,
+                handleToggleVisibility,
             }}
         >
             {children}

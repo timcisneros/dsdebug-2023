@@ -16,6 +16,17 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.notifiers.value',
+            config: {
+                displayName: 'Users To Receive Notification',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.sendNotification',
+                    value: true, // This field is visible only if the path value returns `true`
+                },
+            },
+        },
+        {
             path: 'data.trackActivity.value',
             config: {
                 displayName: 'Track Activity',

@@ -12,7 +12,9 @@ import {
     Textarea,
     Text,
     Flex,
+    IconButton,
 } from '@chakra-ui/react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useNode } from '../../contexts/NodeContext';
 import CustomCheckbox from './CustomInputs/CustomCheckbox';
 import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
@@ -117,16 +119,21 @@ const filterKeys = {
     positionAbsolute: true,
 };
 
-const DeepFieldExplorer = ({ data }) => {
-    const { handleUpdateNode, definedVariables } = useNode();
+const DeepFieldExplorer = ({ selectedNode }) => {
+    const {
+        handleUpdateNode,
+        definedVariables,
+        isVisible,
+        handleToggleVisibility,
+    } = useNode();
     const [fields, setFields] = useState([]);
-    const [editedNode, setEditedNode] = useState(data);
+    const [editedNode, setEditedNode] = useState(selectedNode);
     const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
     const [displayJson, setDisplayJson] = useState(false);
 
     const isFiltered = (key, currentPath) => {
         const usingFilter =
-            data.data?.activityName === 'StartActivity'
+            selectedNode.data?.activityName === 'StartActivity'
                 ? startActivityFilterKeys
                 : filterKeys;
 
@@ -184,9 +191,9 @@ const DeepFieldExplorer = ({ data }) => {
     //         return deepestFields;
     //     };
 
-    //     const deepestFields = findDeepestFields(data);
+    //     const deepestFields = findDeepestFields(selectedNode);
     //     setFields(deepestFields);
-    // }, [data, displayHiddenFields]);
+    // }, [selectedNode, displayHiddenFields]);
 
     const findDeepestFields = (obj, currentPath = []) => {
         let deepestFields = [];
@@ -238,12 +245,16 @@ const DeepFieldExplorer = ({ data }) => {
     };
 
     useEffect(() => {
-        const currentActivityName = data.data?.activityName || 'default';
+        // Update editedNode whenever selectedNode changes
+        setEditedNode(selectedNode);
+
+        const currentActivityName =
+            selectedNode.data?.activityName || 'default';
         const activityFieldsConfig =
             displayNameMapping[currentActivityName] ||
             displayNameMapping['default'];
 
-        let deepestFields = findDeepestFields(data);
+        const deepestFields = findDeepestFields(selectedNode);
 
         // Apply activity-specific configurations to deepestFields
         const fieldsForActivity = deepestFields.map((field) => {
@@ -261,7 +272,12 @@ const DeepFieldExplorer = ({ data }) => {
         });
 
         setFields(fieldsForActivity);
-    }, [data, displayHiddenFields]);
+        console.log(
+            'dsdebug-log',
+            '-dev',
+            'useEffect triggered, selected node for settings changed'
+        );
+    }, [selectedNode]);
 
     const getDisplayName = (path, activityName) => {
         const activityFieldsConfig =
@@ -296,31 +312,37 @@ const DeepFieldExplorer = ({ data }) => {
         return true;
     };
 
-    useEffect(() => {
-        setEditedNode(data); // Whenever the data prop changes, set it to editedNode
-    }, [data]);
-
     // Get the configured fields for the current activity
-    const currentActivityName = data.data?.activityName || 'default';
+    const currentActivityName = selectedNode.data?.activityName || 'default';
     const activityFieldsConfig =
         displayNameMapping[currentActivityName] ||
         displayNameMapping['default'];
 
     // Filter out hidden fields based on the activity type
-    const visibleFields = activityFieldsConfig.filter((field) => {
-        const pathParts = field.path.split('.');
-        let obj = data;
+    const visibleFields = activityFieldsConfig.filter((fieldConfig) => {
+        const pathParts = fieldConfig.path.split('.');
+        let obj = selectedNode;
+
+        // Check if this field has a dependency and if it's met
+        if (fieldConfig.config.dependsOn) {
+            const dependencyValue = getNestedValue(
+                selectedNode,
+                fieldConfig.config.dependsOn.path
+            );
+            if (dependencyValue !== fieldConfig.config.dependsOn.value) {
+                return false; // Do not include this field if the dependency condition is not met
+            }
+        }
 
         for (let part of pathParts) {
             if (obj && obj.hasOwnProperty(part)) {
                 obj = obj[part];
             } else {
-                // Return false if wanting to hide fields not already in the JSON data object
-                return field;
+                return fieldConfig; // Return fieldConfig if the field is not in the JSON object but no dependencies
             }
         }
 
-        return true;
+        return true; // Field is in the JSON object and all dependencies are met
     });
 
     const handleInputChange = (path, newValue) => {
@@ -400,12 +422,30 @@ const DeepFieldExplorer = ({ data }) => {
     };
 
     return (
-        <Box marginTop="-3rem">
-            <Flex direction="column" bg="#FAFAFA" p={4}>
-                <Text pb={4} fontWeight="bold">
-                    Dev Tools
-                </Text>
-                {/* <Checkbox
+        <>
+            <IconButton
+                pos="absolute"
+                right={5}
+                top="64px"
+                icon={isVisible ? <ViewOffIcon /> : <ViewIcon />}
+                onClick={handleToggleVisibility}
+                variant="ghost"
+                zIndex={1}
+            />
+            {isVisible && (
+                <Box
+                    w="20rem"
+                    backgroundColor="#fff"
+                    borderLeft="1px solid #ccc"
+                    overflowY="auto"
+                    paddingTop={50}
+                >
+                    <Box marginTop="-3rem">
+                        <Flex direction="column" bg="#FAFAFA" p={4}>
+                            <Text pb={4} fontWeight="bold">
+                                Dev Tools
+                            </Text>
+                            {/* <Checkbox
                     isChecked={displayHiddenFields}
                     onChange={(e) =>
                         setDisplayHiddenFields(!displayHiddenFields)
@@ -414,150 +454,199 @@ const DeepFieldExplorer = ({ data }) => {
                 >
                     Hidden Fields
                 </Checkbox> */}
-                <Checkbox
-                    isChecked={displayJson}
-                    onChange={(e) => setDisplayJson(!displayJson)}
-                >
-                    Json
-                </Checkbox>
-            </Flex>
-            <Box px={4} py={4}>
-                <VStack spacing={4}>
-                    {visibleFields.map((field) => {
-                        const { config, value } = field;
-                        const fieldType = config.type;
-                        const inputValue = getNestedValue(
-                            editedNode,
-                            field.path
-                        );
-                        const currentActivityName =
-                            data.data.activityName || 'default';
-
-                        const isError = config.required && inputValue === '';
-
-                        return (
-                            <FormControl
-                                isRequired={config.required}
-                                key={field.path}
-                                isInvalid={isError}
+                            <Checkbox
+                                isChecked={displayJson}
+                                onChange={(e) => setDisplayJson(!displayJson)}
                             >
-                                {config.displayName !== null &&
-                                    config.type !== 'Bool' && (
-                                        <FormLabel>
-                                            {getDisplayName(
-                                                field.path,
-                                                currentActivityName
+                                Json
+                            </Checkbox>
+                        </Flex>
+                        <Box px={4} py={4}>
+                            <VStack spacing={4}>
+                                {visibleFields.map((field) => {
+                                    const { config, value } = field;
+                                    const fieldType = config.type;
+                                    const inputValue = getNestedValue(
+                                        editedNode,
+                                        field.path
+                                    );
+                                    const currentActivityName =
+                                        selectedNode.data?.activityName ||
+                                        'default';
+
+                                    const isError =
+                                        config.required && inputValue === '';
+
+                                    return (
+                                        <FormControl
+                                            isRequired={config.required}
+                                            key={field.path}
+                                            isInvalid={isError}
+                                        >
+                                            {config.displayName !== null &&
+                                                config.type !== 'Bool' && (
+                                                    <FormLabel>
+                                                        {getDisplayName(
+                                                            field.path,
+                                                            currentActivityName
+                                                        )}
+                                                    </FormLabel>
+                                                )}
+                                            {fieldType === 'Bool' ? (
+                                                <CustomCheckbox
+                                                    editedNode={editedNode}
+                                                    handleInputChange={
+                                                        handleInputChange
+                                                    }
+                                                    getNestedValue={
+                                                        getNestedValue
+                                                    }
+                                                    field={field}
+                                                    getDisplayName={
+                                                        getDisplayName
+                                                    }
+                                                    currentActivityName={
+                                                        currentActivityName
+                                                    }
+                                                    inputValue={inputValue}
+                                                />
+                                            ) : fieldType === 'Choice' ? (
+                                                <Select
+                                                    value={inputValue}
+                                                    onChange={(e) =>
+                                                        handleInputChange(
+                                                            field.path,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                >
+                                                    {config.choices.map(
+                                                        (choice) => (
+                                                            <option
+                                                                key={
+                                                                    choice.value
+                                                                }
+                                                                value={
+                                                                    choice.value
+                                                                }
+                                                            >
+                                                                {
+                                                                    choice.displayName
+                                                                }
+                                                            </option>
+                                                        )
+                                                    )}
+                                                </Select>
+                                            ) : fieldType === 'Radio' ? (
+                                                <VStack align="start">
+                                                    {config.choices.map(
+                                                        (choice) => (
+                                                            <Radio
+                                                                key={
+                                                                    choice.value
+                                                                }
+                                                                value={
+                                                                    choice.value
+                                                                }
+                                                                isChecked={
+                                                                    inputValue ===
+                                                                    choice.value
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleInputChange(
+                                                                        field.path,
+                                                                        e.target
+                                                                            .value
+                                                                    )
+                                                                }
+                                                            >
+                                                                {
+                                                                    choice.displayName
+                                                                }
+                                                            </Radio>
+                                                        )
+                                                    )}
+                                                </VStack>
+                                            ) : fieldType === 'Textarea' ? (
+                                                <Textarea
+                                                    placeholder={
+                                                        config?.placeholder ||
+                                                        ''
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleInputChange(
+                                                            field.path,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    value={inputValue}
+                                                    size="md"
+                                                />
+                                            ) : fieldType === 'Variable' ? (
+                                                <>
+                                                    <TagInput
+                                                        variableName={
+                                                            inputValue?.[0]
+                                                                ?.value
+                                                                ?.value ||
+                                                            inputValue?.value ||
+                                                            inputValue?.[0]
+                                                                ?.value
+                                                        }
+                                                        editedNode={editedNode}
+                                                        setEditedNode={
+                                                            setEditedNode
+                                                        }
+                                                        path={field.path}
+                                                        definedVariables={
+                                                            definedVariables
+                                                        }
+                                                        handleUpdateNode={
+                                                            handleUpdateNode
+                                                        }
+                                                        isArray={config.isArray}
+                                                    />
+                                                </>
+                                            ) : (
+                                                <Input
+                                                    placeholder={
+                                                        config?.placeholder ||
+                                                        ''
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleInputChange(
+                                                            field.path,
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    value={inputValue}
+                                                    size="md"
+                                                />
                                             )}
-                                        </FormLabel>
-                                    )}
-                                {fieldType === 'Bool' ? (
-                                    <CustomCheckbox
-                                        editedNode={editedNode}
-                                        handleInputChange={handleInputChange}
-                                        getNestedValue={getNestedValue}
-                                        field={field}
-                                        getDisplayName={getDisplayName}
-                                        currentActivityName={
-                                            currentActivityName
-                                        }
-                                        inputValue={inputValue}
-                                    />
-                                ) : fieldType === 'Choice' ? (
-                                    <Select
-                                        value={inputValue}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                field.path,
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        {config.choices.map((choice) => (
-                                            <option
-                                                key={choice.value}
-                                                value={choice.value}
-                                            >
-                                                {choice.displayName}
-                                            </option>
-                                        ))}
-                                    </Select>
-                                ) : fieldType === 'Radio' ? (
-                                    <VStack align="start">
-                                        {config.choices.map((choice) => (
-                                            <Radio
-                                                key={choice.value}
-                                                value={choice.value}
-                                                isChecked={
-                                                    inputValue === choice.value
-                                                }
-                                                onChange={(e) =>
-                                                    handleInputChange(
-                                                        field.path,
-                                                        e.target.value
-                                                    )
-                                                }
-                                            >
-                                                {choice.displayName}
-                                            </Radio>
-                                        ))}
-                                    </VStack>
-                                ) : fieldType === 'Textarea' ? (
-                                    <Textarea
-                                        placeholder={config?.placeholder || ''}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                field.path,
-                                                e.target.value
-                                            )
-                                        }
-                                        value={inputValue}
-                                        size="md"
-                                    />
-                                ) : fieldType === 'Variable' ? (
-                                    <TagInput
-                                        variableName={
-                                            inputValue?.[0]?.value?.value ||
-                                            inputValue?.value ||
-                                            inputValue?.[0]?.value
-                                        }
-                                        editedNode={editedNode}
-                                        setEditedNode={setEditedNode}
-                                        path={field.path}
-                                        definedVariables={definedVariables}
-                                        handleUpdateNode={handleUpdateNode}
-                                        isArray={config.isArray}
-                                    />
-                                ) : (
-                                    <Input
-                                        placeholder={config?.placeholder || ''}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                field.path,
-                                                e.target.value
-                                            )
-                                        }
-                                        value={inputValue}
-                                        size="md"
+                                            {isError && (
+                                                <FormErrorMessage>
+                                                    This field is required.
+                                                </FormErrorMessage>
+                                            )}
+                                        </FormControl>
+                                    );
+                                })}
+                                {displayJson && (
+                                    <JsonView
+                                        data={{
+                                            id: selectedNode.id,
+                                            ...selectedNode.data,
+                                        }}
+                                        shouldExpandNode={allExpanded}
+                                        style={defaultStyles}
                                     />
                                 )}
-                                {isError && (
-                                    <FormErrorMessage>
-                                        This field is required.
-                                    </FormErrorMessage>
-                                )}
-                            </FormControl>
-                        );
-                    })}
-                    {displayJson && (
-                        <JsonView
-                            data={{ id: data.id, ...data.data }}
-                            shouldExpandNode={allExpanded}
-                            style={defaultStyles}
-                        />
-                    )}
-                </VStack>
-            </Box>
-        </Box>
+                            </VStack>
+                        </Box>
+                    </Box>
+                </Box>
+            )}
+        </>
     );
 };
 

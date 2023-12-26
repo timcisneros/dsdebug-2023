@@ -17,7 +17,6 @@ import {
     MenuItem,
     IconButton,
 } from '@chakra-ui/react';
-import { useNode } from '../../../contexts/NodeContext';
 import { ReactSVG } from 'react-svg';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 
@@ -36,16 +35,29 @@ function TagInput({
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
     const [error, setError] = useState('');
-    const [submittedAfterSelect, setSubmittedAfterSelect] = useState(false);
 
     const updatedProperty = path.split('.')[1];
 
+    // Update tags when editedNode or variableName changes
     useEffect(() => {
-        if (variableName) {
-            setTags([variableName]);
-            setInputDisabled(true);
+        let newTags = [];
+        if (isArray) {
+            const propertyArray = editedNode.data[updatedProperty]?.value;
+            if (Array.isArray(propertyArray) && propertyArray.length > 0) {
+                // Extract non-empty string values from the array
+                newTags = propertyArray
+                    .map((tagObj) => tagObj.value)
+                    .filter((tag) => tag && tag.trim() !== '');
+            }
+        } else {
+            const singleTag = editedNode.data?.[updatedProperty]?.value;
+            if (typeof singleTag === 'string' && singleTag.trim() !== '') {
+                // Add non-empty string as a tag
+                newTags = [singleTag];
+            }
         }
-    }, [variableName]);
+        setTags(newTags);
+    }, [editedNode, updatedProperty, isArray]);
 
     const handleSearch = (event) => {
         const inputText = event.target.value;
@@ -57,121 +69,66 @@ function TagInput({
         }
     };
 
-    const handleListItemClick = (index, type) => {
+    const handleListItemClick = (index) => {
         setSelectedIndex(index);
         setSearchTerm(filteredVariables[index].value.name);
-        handleTagSubmit(null, filteredVariables[index].value.name, isArray);
-        if (type) {
-            setSubmittedAfterSelect(true);
-        }
+        handleTagSubmit(null, filteredVariables[index].value.name);
     };
 
-    const handleTagSubmit = (event, passedSearchTerm, isArray = true) => {
-        let isTagValid;
+    const handleTagSubmit = (event, passedSearchTerm) => {
         if (event) {
             event.preventDefault();
         }
 
-        isTagValid = definedVariables.some(
+        const isTagValid = definedVariables.some(
             (variable) =>
                 variable.value.name.toLowerCase() ===
                 passedSearchTerm.toLowerCase()
         );
 
         if (isTagValid) {
-            setTags([...tags, passedSearchTerm]);
+            const newTags = [...tags, passedSearchTerm];
+            setTags(newTags);
             setInputDisabled(true);
             setSearchTerm('');
             setError('');
-            setSearchTerm('');
-
-            const definedVariableType = definedVariables.find(
-                (definedVariable) =>
-                    definedVariable.value.name === passedSearchTerm
-            ).type;
-
-            try {
-                const updatedNodeValue = {
-                    type: 'Variable',
-                    value: {
-                        type: definedVariableType,
-                        value: passedSearchTerm,
-                    },
-                };
-
-                let updatedNode;
-
-                if (isArray) {
-                    updatedNode = (prevEditedNode) => ({
-                        ...prevEditedNode,
-                        data: {
-                            ...prevEditedNode.data,
-                            [updatedProperty]: {
-                                type: 'Document',
-                                value: [updatedNodeValue],
-                            },
-                        },
-                    });
-                } else {
-                    updatedNode = (prevEditedNode) => ({
-                        ...prevEditedNode,
-                        data: {
-                            ...prevEditedNode.data,
-                            [updatedProperty]: updatedNodeValue,
-                        },
-                    });
-                }
-
-                setEditedNode(updatedNode);
-                handleUpdateNode(updatedNode);
-            } catch (error) {
-                console.error('dsdebug-log', `Error - ${error.message}`);
-            }
+            updateEditedNode(newTags);
         } else {
             setError('Variable does not exist.');
         }
     };
 
-    useEffect(() => {
-        handleUpdateNode(editedNode);
-    }, [editedNode]);
-
     const handleTagRemove = (tagToRemove) => {
-        const updatedTags = tags.filter((tag) => tag !== tagToRemove);
-        setTags(updatedTags);
+        const newTags = tags.filter((tag) => tag !== tagToRemove);
+        setTags(newTags);
         setInputDisabled(false);
+        updateEditedNode(newTags);
+    };
 
-        const updatedNode = (prevEditedNode) => {
-            return {
-                ...prevEditedNode,
-                data: {
-                    ...prevEditedNode.data,
-                    [updatedProperty]: {
-                        ...prevEditedNode.data[updatedProperty],
-                        value: [],
-                    },
-                },
-            };
+    const updateEditedNode = (newTags) => {
+        const updatedNodeValue = newTags.map((tag) => ({
+            type: 'Variable',
+            value: tag,
+            // Additional properties if needed
+        }));
+
+        const updatedNode = {
+            ...editedNode,
+            data: {
+                ...editedNode.data,
+                [updatedProperty]: isArray
+                    ? updatedNodeValue
+                    : updatedNodeValue[0],
+            },
         };
 
         setEditedNode(updatedNode);
         handleUpdateNode(updatedNode);
     };
 
-    const filteredVariables =
-        definedVariables?.length > 0 &&
-        definedVariables.filter((variable) => {
-            const variableType = variable.value.displayType;
-            return String(variable.value.name)
-                .toLowerCase()
-                .includes(searchTerm?.toLowerCase());
-        });
-
-    useEffect(() => {
-        if (selectedIndex !== -1 && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [selectedIndex]);
+    const filteredVariables = definedVariables?.filter((variable) =>
+        variable.value.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <Box position="relative">
@@ -189,22 +146,16 @@ function TagInput({
                     )}
                     <InputGroup>
                         <InputLeftElement pointerEvents="none">
-                            {definedVariables ? (
-                                <ReactSVG
-                                    beforeInjection={(svg) => {
-                                        svg.setAttribute('width', '24px');
-                                        svg.setAttribute('height', '24px');
-                                        svg.setAttribute('color', '#ccc');
-                                    }}
-                                    src="var.svg"
-                                />
-                            ) : (
-                                // Placeholder for your search icon
-                                <div></div>
-                            )}
+                            <ReactSVG
+                                beforeInjection={(svg) => {
+                                    svg.setAttribute('width', '24px');
+                                    svg.setAttribute('height', '24px');
+                                    svg.setAttribute('color', '#ccc');
+                                }}
+                                src="var.svg"
+                            />
                         </InputLeftElement>
                         <Input
-                            position="relative"
                             value={searchTerm}
                             onChange={handleSearch}
                             backgroundColor="#fff"
@@ -214,18 +165,19 @@ function TagInput({
                             autoComplete="off"
                         />
                     </InputGroup>
+                    {/* Tags display */}
                     <div className="tag-container">
                         {tags.map((tag, index) => (
                             <Tag
-                                top={0}
-                                width="100%"
-                                height="100%"
-                                position="absolute"
                                 key={index}
                                 size="md"
                                 variant="solid"
                                 colorScheme="gray"
                                 paddingX={5}
+                                position="absolute"
+                                top={0}
+                                width="100%"
+                                height="100%"
                             >
                                 <TagLabel>{tag}</TagLabel>
                                 <TagCloseButton
@@ -236,7 +188,7 @@ function TagInput({
                             </Tag>
                         ))}
                     </div>
-
+                    {/* Dropdown menu */}
                     <Menu isLazy gutter={5}>
                         {!tags.length && !searchTerm && (
                             <MenuButton
@@ -254,7 +206,6 @@ function TagInput({
                             zIndex={1}
                             borderWidth={1}
                             borderColor="gray.200"
-                            borderRadius="0 0 0"
                             bg="white"
                             position="relative"
                             p={0}
@@ -263,8 +214,8 @@ function TagInput({
                         >
                             {filteredVariables?.map((variable, index) => (
                                 <MenuItem
-                                    p={2}
                                     key={index}
+                                    p={2}
                                     onClick={() => handleListItemClick(index)}
                                 >
                                     {variable.value.name}
@@ -272,7 +223,6 @@ function TagInput({
                             ))}
                         </MenuList>
                     </Menu>
-
                     {searchTerm && (
                         <List
                             zIndex={1}
