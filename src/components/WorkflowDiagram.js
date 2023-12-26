@@ -105,148 +105,138 @@ const WorkflowDiagram = () => {
         // ... any other properties you don't want in `data`
     ];
 
+    const customNodeTypes = {
+        'springcm.Step': 'StepNode',
+        'springcm.Group': 'GroupNode',
+        'springcm.Circle': 'CircleNode',
+        'springcm.Diamond': 'DiamondNode',
+        'springcm.Lane': 'LaneNode',
+    };
+
+    // TODO: update this so node reference labels are not lost on refresh
+    const addItemLabel = (itemLabel, sourceNodeId) => {
+        if (itemLabel?.type === 'Reference') {
+            const sourceNode = nodes.find((node) => node.id === sourceNodeId);
+
+            const decisions =
+                sourceNode?.data?.decisions?.value?.decisions || [];
+            const timerOutputs = sourceNode?.data?.timers?.value || [];
+            const elseOutput =
+                sourceNode?.data?.decisions?.value?.elseOutput?.value || [];
+            const timeouts = sourceNode?.data?.timeout?.value || [];
+
+            const referenceKey = itemLabel?.value;
+
+            // Find the correct decision based on the referenceKey
+            const matchedDecision = decisions.find(
+                (decision) =>
+                    decision.output?.value?.referenceKey === referenceKey
+            );
+            const matchedTimer = timerOutputs.find(
+                (timerOutput) =>
+                    timerOutput.output?.value?.referenceKey === referenceKey
+            );
+            const matchedTimeout = timeouts.find(
+                (timeout) =>
+                    timeout.output?.value?.referenceKey === referenceKey
+            );
+
+            const outputs = sourceNode?.data?.outputs?.value || [];
+
+            // Find the correct decision based on the referenceKey
+            const matchedOutput = outputs.find(
+                (output) => output.value?.referenceKey === referenceKey
+            );
+
+            // Return the label if the decision was found, otherwise check the elseOutput
+            if (matchedDecision) {
+                return matchedDecision.output?.value?.name || '';
+            } else if (matchedTimer) {
+                return matchedTimer.output?.value?.name || '';
+            } else if (matchedTimeout) {
+                return matchedTimeout.output?.value?.name || '';
+            } else if (elseOutput) {
+                return elseOutput.name || '';
+            } else if (matchedOutput) {
+                return matchedOutput.value.name || '';
+            } else {
+                // // Check elseOutput if referenceKey doesn't match any decision
+                // const elseOutput =
+                //     sourceNode?.data?.decisions?.value?.elseOutput;
+                // return elseOutput?.value?.name || '';
+            }
+        } else {
+            return (
+                itemLabel?.value.charAt(0).toUpperCase() +
+                itemLabel?.value.slice(1)
+            );
+        }
+    };
+
+    const updatedNodes = useMemo(() => {
+        return data.cells
+            .filter((item) => item.type !== 'springcm.Link')
+            .map((item) => {
+                const dataProps = Object.keys(item).reduce((obj, key) => {
+                    if (!unwantedProperties.includes(key)) {
+                        obj[key] = item[key];
+                    }
+                    return obj;
+                }, {});
+
+                return {
+                    id: item.id,
+                    style: {
+                        width: item.size?.width ?? item.data?.size.width,
+                        height: item.size?.height ?? item.data?.size.height,
+                        zIndex: ['springcm.Group', 'springcm.Lane'].includes(
+                            item.type
+                        )
+                            ? 0
+                            : 1,
+                    },
+                    data: dataProps,
+                    position: item.position || { x: 0, y: 0 },
+                    type: customNodeTypes[item.type] || 'default',
+                    selectable: true,
+                    selected: !!selectedNodes?.find(
+                        (node) => node.id === item.id
+                    ),
+                };
+            });
+    }, [data, selectedNodes]);
+
+    const updatedEdges = useMemo(() => {
+        return data.cells
+            .filter((item) => item.type === 'springcm.Link')
+            .map((item) => ({
+                id: item.id,
+                source: item.source.id,
+                target: item.target.id,
+                label:
+                    addItemLabel(item.output, item.source.id) ||
+                    item.output?.value,
+                type: 'defaultCustomEdge',
+                animated: false,
+                markerEnd: {
+                    type: MarkerType.ArrowClosed,
+                    width: 20,
+                    height: 20,
+                },
+            }));
+    }, [data]);
+
     useEffect(() => {
-        // console.log('dsdebug-log', '-dev', 'data changed');
+        console.log('dsdebug-log', '-dev', 'data changed');
         if (data) {
             setStartActivity(
                 data.cells.find((cell) => cell.activityName === 'StartActivity')
             );
 
-            const customNodeTypes = {
-                'springcm.Step': 'StepNode',
-                'springcm.Group': 'GroupNode',
-                'springcm.Circle': 'CircleNode',
-                'springcm.Diamond': 'DiamondNode',
-                'springcm.Lane': 'LaneNode',
-            };
-            // console.log('running');
-            const updatedNodes = data.cells
-                .filter((item) => item.type !== 'springcm.Link')
-                .map((item) => {
-                    // Dynamically create the data object by filtering out unwanted properties
-                    const dataProps = Object.keys(item)
-                        .filter((key) => !unwantedProperties.includes(key))
-                        .reduce((obj, key) => {
-                            obj[key] = item[key];
-                            return obj;
-                        }, {});
-
-                    return {
-                        id: item.id,
-                        style: {
-                            width:
-                                item.size?.width !== undefined
-                                    ? item.size.width
-                                    : item.data?.size.width,
-                            height:
-                                item.size?.height !== undefined
-                                    ? item.size.height
-                                    : item.data?.size.height,
-                            zIndex:
-                                item.type === 'springcm.Group' ||
-                                item.type === 'springcm.Lane'
-                                    ? 0
-                                    : 1,
-                        },
-                        data: dataProps,
-                        position: item.position || { x: 0, y: 0 },
-                        type: customNodeTypes[item.type] || 'default',
-                        selectable: true,
-                        selected: selectedNodes
-                            ? selectedNodes.find(
-                                  (selectedNode) => selectedNode.id === item.id
-                              )
-                                ? true
-                                : false
-                            : false,
-                    };
-                });
             setNodes(updatedNodes);
-
-            // TODO: update this so node reference labels are not lost on refresh
-            const addItemLabel = (itemLabel, sourceNodeId) => {
-                if (itemLabel?.type === 'Reference') {
-                    const sourceNode = nodes.find(
-                        (node) => node.id === sourceNodeId
-                    );
-
-                    const decisions =
-                        sourceNode?.data?.decisions?.value?.decisions || [];
-                    const timerOutputs = sourceNode?.data?.timers?.value || [];
-                    const elseOutput =
-                        sourceNode?.data?.decisions?.value?.elseOutput?.value ||
-                        [];
-                    const timeouts = sourceNode?.data?.timeout?.value || [];
-
-                    const referenceKey = itemLabel?.value;
-
-                    // Find the correct decision based on the referenceKey
-                    const matchedDecision = decisions.find(
-                        (decision) =>
-                            decision.output?.value?.referenceKey ===
-                            referenceKey
-                    );
-                    const matchedTimer = timerOutputs.find(
-                        (timerOutput) =>
-                            timerOutput.output?.value?.referenceKey ===
-                            referenceKey
-                    );
-                    const matchedTimeout = timeouts.find(
-                        (timeout) =>
-                            timeout.output?.value?.referenceKey === referenceKey
-                    );
-
-                    const outputs = sourceNode?.data?.outputs?.value || [];
-
-                    // Find the correct decision based on the referenceKey
-                    const matchedOutput = outputs.find(
-                        (output) => output.value?.referenceKey === referenceKey
-                    );
-
-                    // Return the label if the decision was found, otherwise check the elseOutput
-                    if (matchedDecision) {
-                        return matchedDecision.output?.value?.name || '';
-                    } else if (matchedTimer) {
-                        return matchedTimer.output?.value?.name || '';
-                    } else if (matchedTimeout) {
-                        return matchedTimeout.output?.value?.name || '';
-                    } else if (elseOutput) {
-                        return elseOutput.name || '';
-                    } else if (matchedOutput) {
-                        return matchedOutput.value.name || '';
-                    } else {
-                        // // Check elseOutput if referenceKey doesn't match any decision
-                        // const elseOutput =
-                        //     sourceNode?.data?.decisions?.value?.elseOutput;
-                        // return elseOutput?.value?.name || '';
-                    }
-                } else {
-                    return (
-                        itemLabel?.value.charAt(0).toUpperCase() +
-                        itemLabel?.value.slice(1)
-                    );
-                }
-            };
-
-            const updatedEdges = data.cells
-                .filter((item) => item.type === 'springcm.Link')
-                .map((item) => ({
-                    id: item.id,
-                    source: item.source.id,
-                    target: item.target.id,
-                    label:
-                        addItemLabel(item.output, item.source.id) ||
-                        item.output?.value,
-                    type: 'defaultCustomEdge',
-                    animated: false,
-                    markerEnd: {
-                        type: MarkerType.ArrowClosed,
-                        width: 20,
-                        height: 20,
-                    },
-                }));
             setEdges(updatedEdges);
 
+            // Initialization for the 'reset node positions' toggle
             if (defaultNodePositions === null) {
                 const defaultPositions = updatedNodes.reduce((acc, node) => {
                     acc[node.id] = node.position;
@@ -261,7 +251,6 @@ const WorkflowDiagram = () => {
 
     const handleNodeDragStop = useCallback((event, draggedNode) => {
         setData((prevData) => {
-            // console.log('dsdebug-log', '-dev', 'drag stopped');
             const nodeToUpdate = prevData.cells.find(
                 (cell) => cell.id === draggedNode.id
             );

@@ -125,7 +125,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         definedVariables,
         isVisible,
         handleToggleVisibility,
-        workflowName,
     } = useNode();
     const [fields, setFields] = useState([]);
     const [editedNode, setEditedNode] = useState(selectedNode);
@@ -207,6 +206,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     // }, [selectedNode, displayHiddenFields]);
 
     const findDeepestFields = (obj, currentPath = []) => {
+        console.log('dsdebug-log', '-dev', 'deepest fields run');
         let deepestFields = [];
 
         for (const key in obj) {
