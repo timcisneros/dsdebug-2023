@@ -106,7 +106,7 @@ const WorkflowDiagram = () => {
     ];
 
     useEffect(() => {
-        console.log('dsdebug-log', '-dev', 'data changed');
+        // console.log('dsdebug-log', '-dev', 'data changed');
         if (data) {
             setStartActivity(
                 data.cells.find((cell) => cell.activityName === 'StartActivity')
@@ -353,7 +353,7 @@ const WorkflowDiagram = () => {
 
     // Watch for changes in the templateDefinedVariables state
     useEffect(() => {
-        console.log('dsdebug-log', '-dev', 'template vars changed');
+        // console.log('dsdebug-log', '-dev', 'template vars changed');
         try {
             if (templateDefinedVariables !== null) {
                 // Existing definedVariables
