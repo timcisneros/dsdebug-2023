@@ -22,102 +22,102 @@ import 'react-json-view-lite/dist/index.css';
 import TagInput from './CustomInputs/TagInput';
 import { displayNameMapping } from './InputData';
 
-const startActivityFilterKeys = {
-    width: true,
-    height: true,
-    id: true,
-    style: true,
-    data: {
-        name: true,
-        workflowName: false,
-        definedVariables: true,
-        size: true,
-        content: true,
-        angle: true,
-        activityName: true,
-        group: true,
-        icon: true,
-        z: true,
-        attrs: true,
-        '*': {
-            type: true,
-            '*': {
-                '*': {
-                    type: true,
-                    '*': {
-                        type: true,
-                    },
-                },
-            },
-        },
-    },
-    position: true,
-    type: true,
-    selectable: true,
-    selected: true,
-    positionAbsolute: true,
-};
+// const startActivityFilterKeys = {
+//     width: true,
+//     height: true,
+//     id: true,
+//     style: true,
+//     data: {
+//         name: true,
+//         workflowName: false,
+//         definedVariables: true,
+//         size: true,
+//         content: true,
+//         angle: true,
+//         activityName: true,
+//         group: true,
+//         icon: true,
+//         z: true,
+//         attrs: true,
+//         '*': {
+//             type: true,
+//             '*': {
+//                 '*': {
+//                     type: true,
+//                     '*': {
+//                         type: true,
+//                     },
+//                 },
+//             },
+//         },
+//     },
+//     position: true,
+//     type: true,
+//     selectable: true,
+//     selected: true,
+//     positionAbsolute: true,
+// };
 
-const filterKeys = {
-    width: true,
-    height: true,
-    id: true,
-    style: true,
-    data: {
-        icon: true,
-        color: true,
-        attrs: true,
-        size: true,
-        content: true,
-        angle: true,
-        activityName: true,
-        group: true,
-        z: true,
-        // variableUpdates: true,
-        errorState: true,
-        // definedVariables: true,
-        // workflowName: true,
-        '*': {
-            type: true,
-            '*': {
-                type: true,
-                returnType: true,
-                additionalCode: true,
-                '*': {
-                    type: true,
-                    '*': {
-                        type: true,
-                        '*': {
-                            type: true,
-                            returnType: true,
-                            additionalCode: true,
-                            '*': {
-                                type: true,
-                                '*': {
-                                    // For metadata (attributes) steps
-                                    setName: true,
-                                    groupName: true,
-                                    '*': {
-                                        type: true,
-                                        '*': {
-                                            returnType: true,
-                                            additionalCode: true,
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        },
-    },
-    position: true,
-    type: true,
-    selectable: true,
-    selected: true,
-    positionAbsolute: true,
-};
+// const filterKeys = {
+//     width: true,
+//     height: true,
+//     id: true,
+//     style: true,
+//     data: {
+//         icon: true,
+//         color: true,
+//         attrs: true,
+//         size: true,
+//         content: true,
+//         angle: true,
+//         activityName: true,
+//         group: true,
+//         z: true,
+//         // variableUpdates: true,
+//         errorState: true,
+//         // definedVariables: true,
+//         // workflowName: true,
+//         '*': {
+//             type: true,
+//             '*': {
+//                 type: true,
+//                 returnType: true,
+//                 additionalCode: true,
+//                 '*': {
+//                     type: true,
+//                     '*': {
+//                         type: true,
+//                         '*': {
+//                             type: true,
+//                             returnType: true,
+//                             additionalCode: true,
+//                             '*': {
+//                                 type: true,
+//                                 '*': {
+//                                     // For metadata (attributes) steps
+//                                     setName: true,
+//                                     groupName: true,
+//                                     '*': {
+//                                         type: true,
+//                                         '*': {
+//                                             returnType: true,
+//                                             additionalCode: true,
+//                                         },
+//                                     },
+//                                 },
+//                             },
+//                         },
+//                     },
+//                 },
+//             },
+//         },
+//     },
+//     position: true,
+//     type: true,
+//     selectable: true,
+//     selected: true,
+//     positionAbsolute: true,
+// };
 
 const DeepFieldExplorer = ({ selectedNode }) => {
     const {
@@ -152,11 +152,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
 
         return obj && (obj[key] === true || obj === true);
     };
-
-    // Persist changes when editedNode updates
-    useEffect(() => {
-        handleUpdateNode(editedNode);
-    }, [editedNode]);
 
     // Set initial state when selectedNode changes
     useEffect(() => {
@@ -255,41 +250,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return deepestFields;
     };
 
-    // useEffect(() => {
-    //     // Update editedNode whenever selectedNode changes
-    //     setEditedNode(selectedNode);
-
-    //     const currentActivityName =
-    //         selectedNode.data?.activityName || 'default';
-    //     const activityFieldsConfig =
-    //         displayNameMapping[currentActivityName] ||
-    //         displayNameMapping['default'];
-
-    //     const deepestFields = findDeepestFields(selectedNode);
-
-    //     // Apply activity-specific configurations to deepestFields
-    //     const fieldsForActivity = deepestFields.map((field) => {
-    //         try {
-    //             const fieldConfig = activityFieldsConfig.find((config) =>
-    //                 matchPathWithWildcard(config.path, field.path)
-    //             );
-    //             return {
-    //                 ...field,
-    //                 config: fieldConfig ? fieldConfig.config : {},
-    //             };
-    //         } catch (err) {
-    //             console.log('dsdebug-log', err.message);
-    //         }
-    //     });
-
-    //     setFields(fieldsForActivity);
-    //     // console.log(
-    //     //     'dsdebug-log',
-    //     //     '-dev',
-    //     //     'useEffect triggered, selected node for settings changed'
-    //     // );
-    // }, [selectedNode]);
-
     const getDisplayName = (path, activityName) => {
         const activityFieldsConfig =
             displayNameMapping[activityName] || displayNameMapping['default'];
@@ -336,7 +296,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     };
 
     // Get the configured fields for the current activity
-    const currentActivityName = editedNode.data?.activityName || 'default';
+    const currentActivityName = editedNode?.data?.activityName || 'default';
     const activityFieldsConfig =
         displayNameMapping[currentActivityName] ||
         displayNameMapping['default'];
@@ -368,35 +328,79 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return true; // Field is in the JSON object and all dependencies are met
     });
 
+    // const handleInputChange = (path, newValue) => {
+    //     // Create a copy of the current node
+    //     const updatedNode = { ...editedNode };
+
+    //     // Navigate to the correct property in the node
+    //     const pathParts = path.split('.');
+    //     let currentPart = updatedNode;
+    //     for (let i = 0; i < pathParts.length - 1; i++) {
+    //         const part = pathParts[i];
+    //         if (!currentPart[part]) currentPart[part] = {};
+    //         currentPart = currentPart[part];
+    //     }
+
+    //     // Update the value
+    //     currentPart[pathParts[pathParts.length - 1]] = newValue;
+
+    //     // Perform validation
+    //     const isValid = validateNode(updatedNode);
+    //     updatedNode.errorState = !isValid;
+
+    //     // Update the editedNode state
+    //     setEditedNode(updatedNode);
+
+    //     // Call handleUpdateNode to persist the changes
+    //     handleUpdateNode(updatedNode);
+    // };
+
     const handleInputChange = (path, newValue) => {
+        // Update only the relevant part of the node state to improve performance
         setEditedNode((prevNode) => {
-            // Creating a shallow copy of the node
-            const updatedNode = { ...prevNode };
-
-            // Splitting the path and initializing a reference to the updatedNode
+            // Navigate to the correct property in the node
             const pathParts = path.split('.');
-            let currentPart = updatedNode;
-
-            // Iterating over the path parts to reach the target value
+            let currentPart = { ...prevNode }; // Create a shallow copy of the node
             for (let i = 0; i < pathParts.length - 1; i++) {
                 const part = pathParts[i];
-                // Shallow copy each nested level
-                currentPart[part] = { ...currentPart[part] };
+                if (!currentPart[part]) currentPart[part] = {};
+                currentPart[part] = { ...currentPart[part] }; // Shallow copy each nested level
                 currentPart = currentPart[part];
             }
 
-            // Setting the new value at the target
+            // Update the value
             currentPart[pathParts[pathParts.length - 1]] = newValue;
 
-            // Perform your validation logic here
-            const isValid = validateNode(updatedNode);
-
-            // Update errorState based on validation
-            updatedNode.errorState = !isValid;
-
-            // Returning the updated node
-            return updatedNode;
+            // Return the updated node
+            return prevNode;
         });
+
+        // Call updateNodeData to handle node update separately
+        updateNodeData(path, newValue);
+    };
+
+    const updateNodeData = (path, newValue) => {
+        // Create a copy of the current node
+        const updatedNode = { ...editedNode };
+
+        // Navigate to the correct property in the node
+        const pathParts = path.split('.');
+        let currentPart = updatedNode;
+        for (let i = 0; i < pathParts.length - 1; i++) {
+            const part = pathParts[i];
+            if (!currentPart[part]) currentPart[part] = {};
+            currentPart = currentPart[part];
+        }
+
+        // Update the value
+        currentPart[pathParts[pathParts.length - 1]] = newValue;
+
+        // Perform validation (if necessary)
+        const isValid = validateNode(updatedNode);
+        updatedNode.errorState = !isValid;
+
+        // Call handleUpdateNode to persist the changes
+        handleUpdateNode(updatedNode);
     };
 
     const validateNode = (node) => {
@@ -462,7 +466,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                         field.path
                                     );
                                     const currentActivityName =
-                                        editedNode.data?.activityName ||
+                                        editedNode?.data?.activityName ||
                                         'default';
 
                                     const isError =
@@ -624,10 +628,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                 })}
                                 {displayJson && (
                                     <JsonView
-                                        data={{
-                                            id: editedNode.id,
-                                            ...editedNode.data,
-                                        }}
+                                        data={editedNode}
                                         shouldExpandNode={allExpanded}
                                         style={defaultStyles}
                                     />

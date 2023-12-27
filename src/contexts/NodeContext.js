@@ -129,7 +129,7 @@ export const NodeProvider = ({ children }) => {
 
     const handleUpdateNode = (editedNode) => {
         const nodeIndex = data.cells.findIndex(
-            (item) => item.id === editedNode.id
+            (item) => item.id === editedNode?.id
         );
 
         if (nodeIndex !== -1) {

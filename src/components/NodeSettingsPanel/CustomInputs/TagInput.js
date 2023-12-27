@@ -41,7 +41,9 @@ function TagInput({
     // Update tags when editedNode or variableName changes
     useEffect(() => {
         let newTags = [];
-        if (isArray) {
+        if (variableName && variableName.trim() !== '') {
+            newTags = [variableName];
+        } else if (isArray) {
             const propertyArray = editedNode.data[updatedProperty]?.value;
             if (Array.isArray(propertyArray) && propertyArray.length > 0) {
                 // Extract non-empty string values from the array
@@ -50,7 +52,7 @@ function TagInput({
                     .filter((tag) => tag && tag.trim() !== '');
             }
         } else {
-            const singleTag = editedNode.data?.[updatedProperty]?.value;
+            const singleTag = editedNode.data[updatedProperty]?.value;
             if (typeof singleTag === 'string' && singleTag.trim() !== '') {
                 // Add non-empty string as a tag
                 newTags = [singleTag];

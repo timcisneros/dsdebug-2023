@@ -462,7 +462,9 @@ const ConsoleContainer = ({
                 stepDataMapping[activityName]?.type?.name?.value ||
                 activityName;
 
-            const existingStepNames = nodes.map((node) => node.data.name.value);
+            const existingStepNames = nodes.map(
+                (node) => node.data.name?.value
+            );
 
             // Check if the name already exists in both temporary and existing step names, and if so, add a numeric suffix
             let uniqueName = name;

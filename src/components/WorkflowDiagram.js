@@ -61,7 +61,6 @@ const WorkflowDiagram = () => {
         setSelectedNodes,
         selectedEdge,
         setSelectedEdge,
-        handleUpdateNode,
         definedVariables,
         setDefinedVariables,
         mergeDefinedVariables,
@@ -83,35 +82,15 @@ const WorkflowDiagram = () => {
     const onNodesChange = useCallback(
         (changes) =>
             setNodes((nds) => {
-                // console.log('dsdebug-log', '-dev', 'nodes change');
                 return applyNodeChanges(changes, nds);
             }),
         []
     );
     const onEdgesChange = useCallback((changes) => {
         setEdges((eds) => {
-            // console.log('dsdebug-log', '-dev', 'edges change');
-            // Ensure eds is always an array
-            const currentEdges = Array.isArray(eds) ? eds : [];
-            return applyEdgeChanges(changes, currentEdges);
+            return applyEdgeChanges(changes, eds);
         });
     }, []);
-
-    const unwantedProperties = [
-        'id',
-        'type',
-        'position',
-        'selected',
-        // ... any other properties you don't want in `data`
-    ];
-
-    const customNodeTypes = {
-        'springcm.Step': 'StepNode',
-        'springcm.Group': 'GroupNode',
-        'springcm.Circle': 'CircleNode',
-        'springcm.Diamond': 'DiamondNode',
-        'springcm.Lane': 'LaneNode',
-    };
 
     // TODO: update this so node reference labels are not lost on refresh
     const addItemLabel = (itemLabel, sourceNodeId) => {
@@ -173,70 +152,82 @@ const WorkflowDiagram = () => {
         }
     };
 
-    const updatedNodes = useMemo(() => {
-        return data.cells
-            .filter((item) => item.type !== 'springcm.Link')
-            .map((item) => {
-                const dataProps = Object.keys(item).reduce((obj, key) => {
-                    if (!unwantedProperties.includes(key)) {
-                        obj[key] = item[key];
-                    }
-                    return obj;
-                }, {});
-
-                return {
-                    id: item.id,
-                    style: {
-                        width: item.size?.width ?? item.data?.size.width,
-                        height: item.size?.height ?? item.data?.size.height,
-                        zIndex: ['springcm.Group', 'springcm.Lane'].includes(
-                            item.type
-                        )
-                            ? 0
-                            : 1,
-                    },
-                    data: dataProps,
-                    position: item.position || { x: 0, y: 0 },
-                    type: customNodeTypes[item.type] || 'default',
-                    selectable: true,
-                    selected: !!selectedNodes?.find(
-                        (node) => node.id === item.id
-                    ),
-                };
-            });
-    }, [data, selectedNodes]);
-
-    const updatedEdges = useMemo(() => {
-        return data.cells
-            .filter((item) => item.type === 'springcm.Link')
-            .map((item) => ({
-                id: item.id,
-                source: item.source.id,
-                target: item.target.id,
-                label:
-                    addItemLabel(item.output, item.source.id) ||
-                    item.output?.value,
-                type: 'defaultCustomEdge',
-                animated: false,
-                markerEnd: {
-                    type: MarkerType.ArrowClosed,
-                    width: 20,
-                    height: 20,
-                },
-            }));
-    }, [data]);
-
     useEffect(() => {
         console.log('dsdebug-log', '-dev', 'data changed');
         if (data) {
+            const unwantedProperties = [
+                'id',
+                'type',
+                'position',
+                'selected',
+                // ... any other properties you don't want in `data`
+            ];
+
+            const customNodeTypes = {
+                'springcm.Step': 'StepNode',
+                'springcm.Group': 'GroupNode',
+                'springcm.Circle': 'CircleNode',
+                'springcm.Diamond': 'DiamondNode',
+                'springcm.Lane': 'LaneNode',
+            };
+
             setStartActivity(
                 data.cells.find((cell) => cell.activityName === 'StartActivity')
             );
 
+            const updatedNodes = data.cells
+                .filter((item) => item.type !== 'springcm.Link')
+                .map((item) => {
+                    const dataProps = Object.keys(item).reduce((obj, key) => {
+                        if (!unwantedProperties.includes(key)) {
+                            obj[key] = item[key];
+                        }
+                        return obj;
+                    }, {});
+
+                    return {
+                        id: item.id,
+                        style: {
+                            width: item.size?.width ?? item.data?.size.width,
+                            height: item.size?.height ?? item.data?.size.height,
+                            zIndex: [
+                                'springcm.Group',
+                                'springcm.Lane',
+                            ].includes(item.type)
+                                ? 0
+                                : 1,
+                        },
+                        data: dataProps,
+                        position: item.position || { x: 0, y: 0 },
+                        type: customNodeTypes[item.type] || 'default',
+                        selectable: true,
+                        selected: !!selectedNodes?.find(
+                            (node) => node.id === item.id
+                        ),
+                    };
+                });
+
+            const updatedEdges = data.cells
+                .filter((item) => item.type === 'springcm.Link')
+                .map((item) => ({
+                    id: item.id,
+                    source: item.source.id,
+                    target: item.target.id,
+                    label:
+                        addItemLabel(item.output, item.source.id) ||
+                        item.output?.value,
+                    type: 'defaultCustomEdge',
+                    animated: false,
+                    markerEnd: {
+                        type: MarkerType.ArrowClosed,
+                        width: 20,
+                        height: 20,
+                    },
+                }));
+
             setNodes(updatedNodes);
             setEdges(updatedEdges);
 
-            // Initialization for the 'reset node positions' toggle
             if (defaultNodePositions === null) {
                 const defaultPositions = updatedNodes.reduce((acc, node) => {
                     acc[node.id] = node.position;
@@ -251,6 +242,7 @@ const WorkflowDiagram = () => {
 
     const handleNodeDragStop = useCallback((event, draggedNode) => {
         setData((prevData) => {
+            // console.log('dsdebug-log', '-dev', 'drag stopped');
             const nodeToUpdate = prevData.cells.find(
                 (cell) => cell.id === draggedNode.id
             );
