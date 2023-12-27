@@ -225,7 +225,24 @@ export const displayNameMapping = {
             path: 'data.sourceText.value',
             config: {
                 displayName: 'Text',
+                type: 'String',
                 required: true,
+                dependsOn: {
+                    path: 'data.textSourceType',
+                    value: 'text', // This field is visible only if the path value returns `true`
+                },
+            },
+        },
+        {
+            path: 'data.sourceXmlVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.textSourceType',
+                    value: 'variable', // This field is visible only if the path value returns `true`
+                },
             },
         },
         {
@@ -291,6 +308,24 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.compareType.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 'Previous' },
+                    {
+                        displayName: 'First Version',
+                        value: 'First',
+                    },
+                ],
+                dependsOn: {
+                    path: 'data.compareVersion',
+                    value: true,
+                },
+            },
+        },
+        {
             path: 'data.assigneeType.value',
             config: {
                 displayName: 'Assign to a user or task group?',
@@ -306,11 +341,38 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -357,6 +419,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -656,6 +754,24 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.compareType.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 'Previous' },
+                    {
+                        displayName: 'First Version',
+                        value: 'First',
+                    },
+                ],
+                dependsOn: {
+                    path: 'data.compareVersion',
+                    value: true,
+                },
+            },
+        },
+        {
             path: 'data.assigneeType.value',
             config: {
                 displayName: 'Assign to a user or task group?',
@@ -671,11 +787,38 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -701,6 +844,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -795,7 +974,7 @@ export const displayNameMapping = {
         {
             path: 'data.assigneeType.value',
             config: {
-                displayName: 'Assign to a user or task group',
+                displayName: 'Assign to a user or task group?',
                 type: 'Radio',
                 choices: [
                     { displayName: 'Assign to a user', value: 'user' },
@@ -808,11 +987,38 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -894,6 +1100,42 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
             path: 'data.allowComment.value',
             config: {
                 displayName: 'Comments',
@@ -920,6 +1162,24 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Compare reference document with another version',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.compareType.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 'Previous' },
+                    {
+                        displayName: 'First Version',
+                        value: 'First',
+                    },
+                ],
+                dependsOn: {
+                    path: 'data.compareVersion',
+                    value: true,
+                },
             },
         },
         {
@@ -1013,11 +1273,38 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -1055,16 +1342,16 @@ export const displayNameMapping = {
         {
             path: 'data.allowedchoices.value',
             config: {
-                displayName: 'Documents for Successful Completion',
+                displayName: 'How many users can be selected',
                 type: 'Radio',
                 choices: [
                     {
-                        displayName: 'Any number of documents',
+                        displayName: 'Any number of users',
                         value: 'ZeroOrMore',
                     },
-                    { displayName: 'Only one document', value: 'One' },
+                    { displayName: 'Only one user', value: 'One' },
                     {
-                        displayName: 'At least one document',
+                        displayName: 'At least one user',
                         value: 'OneOrMore',
                     },
                 ],
@@ -1082,6 +1369,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -1111,6 +1434,24 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Compare reference document with another version',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.compareType.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 'Previous' },
+                    {
+                        displayName: 'First Version',
+                        value: 'First',
+                    },
+                ],
+                dependsOn: {
+                    path: 'data.compareVersion',
+                    value: true,
+                },
             },
         },
         {

@@ -119,7 +119,7 @@ function TagInput({
             data: {
                 ...editedNode.data,
                 [updatedProperty]: isArray
-                    ? updatedNodeValue
+                    ? { type: 'Document', value: updatedNodeValue }
                     : updatedNodeValue[0],
             },
         };

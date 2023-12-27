@@ -285,14 +285,34 @@ const DeepFieldExplorer = ({ selectedNode }) => {
 
     const getNestedValue = (obj, path) => {
         const pathParts = path.split('.');
-        for (let part of pathParts) {
-            if (obj && obj.hasOwnProperty(part)) {
-                obj = obj[part];
+        let currentObj = obj;
+
+        for (let i = 0; i < pathParts.length; i++) {
+            if (pathParts[i] === '*') {
+                // If a wildcard is encountered, iterate through all properties of the current object
+                const keys = Object.keys(currentObj);
+                for (let key of keys) {
+                    // Recursively call getNestedValue for each key with the remaining path
+                    const remainingPath = pathParts.slice(i + 1).join('.');
+                    const result = getNestedValue(
+                        currentObj[key],
+                        remainingPath
+                    );
+                    if (result !== undefined) {
+                        return result;
+                    }
+                }
+                // If no match is found after checking all keys, return undefined
+                return undefined;
+            } else if (currentObj && currentObj.hasOwnProperty(pathParts[i])) {
+                // Continue traversing the object structure if the current part matches
+                currentObj = currentObj[pathParts[i]];
             } else {
+                // If the current part does not exist in the object, return undefined
                 return undefined;
             }
         }
-        return obj;
+        return currentObj;
     };
 
     // Get the configured fields for the current activity
@@ -311,7 +331,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
             const dependencyValue = getNestedValue(
                 editedNode,
                 fieldConfig.config.dependsOn.path
-            );
+            ).value;
             if (dependencyValue !== fieldConfig.config.dependsOn.value) {
                 return false; // Do not include this field if the dependency condition is not met
             }
@@ -535,31 +555,53 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                             ) : fieldType === 'Radio' ? (
                                                 <VStack align="start">
                                                     {config.choices.map(
-                                                        (choice) => (
-                                                            <Radio
-                                                                key={
-                                                                    choice.value
-                                                                }
-                                                                value={
-                                                                    choice.value
-                                                                }
-                                                                isChecked={
-                                                                    inputValue ===
-                                                                    choice.value
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleInputChange(
-                                                                        field.path,
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                }
-                                                            >
-                                                                {
-                                                                    choice.displayName
-                                                                }
-                                                            </Radio>
-                                                        )
+                                                        (choice) => {
+                                                            const isNumberValue =
+                                                                typeof choice.value ===
+                                                                'number';
+                                                            const checked =
+                                                                isNumberValue
+                                                                    ? Number(
+                                                                          inputValue
+                                                                      ) ===
+                                                                      choice.value
+                                                                    : inputValue ===
+                                                                      choice.value.toString();
+
+                                                            return (
+                                                                <Radio
+                                                                    key={
+                                                                        choice.value
+                                                                    }
+                                                                    value={
+                                                                        choice.value
+                                                                    }
+                                                                    isChecked={
+                                                                        checked
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleInputChange(
+                                                                            field.path,
+                                                                            isNumberValue
+                                                                                ? Number(
+                                                                                      e
+                                                                                          .target
+                                                                                          .value
+                                                                                  )
+                                                                                : e
+                                                                                      .target
+                                                                                      .value
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        choice.displayName
+                                                                    }
+                                                                </Radio>
+                                                            );
+                                                        }
                                                     )}
                                                 </VStack>
                                             ) : fieldType === 'Textarea' ? (
@@ -643,18 +685,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
             )}
         </>
     );
-};
-
-const getNestedValue = (obj, path) => {
-    const pathParts = path.split('.');
-    for (let part of pathParts) {
-        if (obj && obj.hasOwnProperty(part)) {
-            obj = obj[part];
-        } else {
-            return undefined;
-        }
-    }
-    return obj;
 };
 
 export default memo(DeepFieldExplorer);
