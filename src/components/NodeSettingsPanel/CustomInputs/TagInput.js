@@ -41,7 +41,7 @@ function TagInput({
     // Update tags when editedNode or variableName changes
     useEffect(() => {
         let newTags = [];
-        if (variableName && variableName.trim() !== '') {
+        if (typeof variableName === 'string' && variableName.trim() !== '') {
             newTags = [variableName];
         } else if (isArray) {
             const propertyArray = editedNode.data[updatedProperty]?.value;
