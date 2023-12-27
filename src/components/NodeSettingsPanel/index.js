@@ -628,7 +628,10 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                 })}
                                 {displayJson && (
                                     <JsonView
-                                        data={editedNode}
+                                        data={{
+                                            id: editedNode.id,
+                                            ...editedNode.data,
+                                        }}
                                         shouldExpandNode={allExpanded}
                                         style={defaultStyles}
                                     />
