@@ -331,7 +331,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
             const actualValue = getNestedValue(
                 editedNode,
                 dependency.path
-            ).value;
+            )?.value;
             return actualValue === dependency.value;
         });
     };
