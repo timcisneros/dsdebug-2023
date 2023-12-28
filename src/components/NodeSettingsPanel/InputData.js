@@ -1585,7 +1585,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.revisedDocumentProperty.value.*.value.value',
+            path: 'data.revisedDocumentProperty.value.*.value',
             config: {
                 displayName: 'Document',
                 type: 'Variable',
@@ -1610,7 +1610,7 @@ export const displayNameMapping = {
                 displayName: 'Save new document as',
                 type: 'Radio',
                 choices: [
-                    { displayName: 'New Version', value: 'New Version' },
+                    { displayName: 'New Version', value: 'Version' },
                     { displayName: 'New Document', value: 'New Document' },
                 ],
                 required: true,
@@ -1621,6 +1621,10 @@ export const displayNameMapping = {
             config: {
                 displayName: 'New Document Name',
                 type: 'String',
+                dependsOn: {
+                    path: 'data.resultDocumentTypeProperty',
+                    value: 'New Document',
+                },
             },
         },
         {
@@ -1629,6 +1633,10 @@ export const displayNameMapping = {
                 displayName: 'Folder Destination',
                 type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.resultDocumentTypeProperty',
+                    value: 'New Document',
+                },
             },
         },
         {
@@ -1679,9 +1687,32 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'New Version', value: 'Version' },
-                    { displayName: 'New Document', value: 'Document' },
+                    { displayName: 'New Document', value: 'New Document' },
                 ],
                 required: true,
+            },
+        },
+        {
+            path: 'data.resultDocumentNameProperty.value',
+            config: {
+                displayName: 'New Document Name',
+                type: 'String',
+                dependsOn: {
+                    path: 'data.resultDocumentTypeProperty',
+                    value: 'New Document',
+                },
+            },
+        },
+        {
+            path: 'data.resultDocumentFolderProperty.value',
+            config: {
+                displayName: 'Folder Destination',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.resultDocumentTypeProperty',
+                    value: 'New Document',
+                },
             },
         },
         {
@@ -1771,6 +1802,23 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Variable',
                 type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.conversionType',
+                    value: 'jsonToXml',
+                },
+            },
+        },
+        {
+            path: 'data.xmlToJsonDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.conversionType',
+                    value: 'xmlToJson',
+                },
             },
         },
         {
@@ -1824,6 +1872,45 @@ export const displayNameMapping = {
                 displayName: 'Destination Folder',
                 type: 'Variable',
                 required: true,
+            },
+        },
+        {
+            path: 'data.includeAttributes.value',
+            config: {
+                displayName: 'Include attributes',
+                type: 'Bool',
+                dependsOn: {
+                    path: 'data.action',
+                    value: 'copy',
+                },
+            },
+        },
+        {
+            path: 'data.saveAsPdf.value',
+            config: {
+                displayName: 'Save as a PDF',
+                type: 'Bool',
+                dependsOn: {
+                    path: 'data.action',
+                    value: 'copy',
+                },
+            },
+        },
+        {
+            path: 'data.includeComments.value',
+            config: {
+                displayName: 'Include comments',
+                type: 'Bool',
+                dependsOn: [
+                    {
+                        path: 'data.action',
+                        value: 'copy',
+                    },
+                    {
+                        path: 'data.saveAsPdf',
+                        value: true,
+                    },
+                ],
             },
         },
         {
@@ -1951,7 +2038,11 @@ export const displayNameMapping = {
             path: 'data.limitedAttributeGroups.value',
             config: {
                 displayName: 'Add Attribute Groups',
-                type: 'String',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.inheritLimitedAttributeGroups',
+                    value: false,
+                },
             },
         },
         {
@@ -2152,6 +2243,62 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.configurationType.value',
+            config: {
+                displayName: null,
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Configuration Document',
+                        value: 'document',
+                    },
+                    {
+                        displayName: 'Configuration Variable',
+                        value: 'variable',
+                    },
+                ],
+                required: true,
+                dependsOn: {
+                    path: 'data.selectConfigurationDocument',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.etlConfigDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'Variable',
+                dependsOn: [
+                    {
+                        path: 'data.selectConfigurationDocument',
+                        value: true,
+                    },
+                    {
+                        path: 'data.configurationType',
+                        value: 'document',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.etlConfigXmlVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                dependsOn: [
+                    {
+                        path: 'data.selectConfigurationDocument',
+                        value: true,
+                    },
+                    {
+                        path: 'data.configurationType',
+                        value: 'variable',
+                    },
+                ],
+            },
+        },
+        {
             path: 'data.outputXml.value',
             config: {
                 displayName: 'Output',
@@ -2207,7 +2354,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -2390,7 +2537,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee',
                 type: 'String',
@@ -2663,7 +2810,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -2808,7 +2955,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -3393,7 +3540,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -3989,7 +4136,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -4127,7 +4274,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -4546,7 +4693,7 @@ export const displayNameMapping = {
                 type: 'Radio',
                 choices: [
                     { displayName: 'New Version', value: 'Version' },
-                    { displayName: 'New Document', value: 'Document' },
+                    { displayName: 'New Document', value: 'New Document' },
                 ],
                 required: true,
             },
@@ -4764,7 +4911,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -4902,7 +5049,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -5152,7 +5299,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',
@@ -5321,7 +5468,7 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.assignedUsers.value.*.value.value',
+            path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
                 type: 'String',

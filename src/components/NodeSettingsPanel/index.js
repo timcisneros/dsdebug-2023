@@ -321,31 +321,32 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         displayNameMapping[currentActivityName] ||
         displayNameMapping['default'];
 
+    const checkDependenciesMet = (dependencies, editedNode) => {
+        // Convert dependencies to an array if it's not already one
+        const depsArray = Array.isArray(dependencies)
+            ? dependencies
+            : [dependencies];
+
+        return depsArray.every((dependency) => {
+            const actualValue = getNestedValue(
+                editedNode,
+                dependency.path
+            ).value;
+            return actualValue === dependency.value;
+        });
+    };
+
     // Filter out hidden fields based on the activity type
     const visibleFields = activityFieldsConfig.filter((fieldConfig) => {
-        const pathParts = fieldConfig.path.split('.');
-        let obj = editedNode;
-
-        // Check if this field has a dependency and if it's met
-        if (fieldConfig.config.dependsOn) {
-            const dependencyValue = getNestedValue(
-                editedNode,
-                fieldConfig.config.dependsOn.path
-            ).value;
-            if (dependencyValue !== fieldConfig.config.dependsOn.value) {
-                return false; // Do not include this field if the dependency condition is not met
-            }
+        // If there are dependencies, check if all are met
+        if (fieldConfig.config && fieldConfig.config.dependsOn) {
+            return checkDependenciesMet(
+                fieldConfig.config.dependsOn,
+                editedNode
+            );
         }
-
-        for (let part of pathParts) {
-            if (obj && obj.hasOwnProperty(part)) {
-                obj = obj[part];
-            } else {
-                return fieldConfig; // Return fieldConfig if the field is not in the JSON object but no dependencies
-            }
-        }
-
-        return true; // Field is in the JSON object and all dependencies are met
+        // No dependencies, include field
+        return true;
     });
 
     // const handleInputChange = (path, newValue) => {
