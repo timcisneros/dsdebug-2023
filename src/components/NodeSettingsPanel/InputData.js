@@ -2357,8 +2357,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -2385,6 +2412,14 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Document Template Name',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.dataSource.value',
+            config: {
+                displayName: 'Input Xml',
+                type: 'Variable',
+                isArray: false,
             },
         },
         {
@@ -2540,8 +2575,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -2610,6 +2672,13 @@ export const displayNameMapping = {
             path: 'data.decisions.value.decisions.*.output.value.name',
             config: {
                 displayName: 'Step Description',
+                type: 'String',
+            },
+        },
+        {
+            path: 'data.decisions.value.elseOutput.value.name',
+            config: {
+                displayName: 'Else',
                 type: 'String',
             },
         },
@@ -2723,6 +2792,10 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Target Identifier',
                 type: 'String',
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'variable',
+                },
             },
         },
         {
@@ -2730,6 +2803,22 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Value',
                 type: 'String',
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'variable',
+                },
+            },
+        },
+        {
+            path: 'data.dataSource.value',
+            config: {
+                displayName: 'Input Xml',
+                type: 'Variable',
+                isArray: false,
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'xml',
+                },
             },
         },
         {
@@ -2795,6 +2884,24 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.compareType.value',
+            config: {
+                displayName: 'Compare Current Document Version With',
+                type: 'Radio',
+                choices: [
+                    { displayName: 'Previous Version', value: 'Previous' },
+                    {
+                        displayName: 'First Version',
+                        value: 'First',
+                    },
+                ],
+                dependsOn: {
+                    path: 'data.compareVersion',
+                    value: true,
+                },
+            },
+        },
+        {
             path: 'data.assigneeType.value',
             config: {
                 displayName: 'Assign to a user or task group?',
@@ -2813,8 +2920,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -2840,6 +2974,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -2958,8 +3128,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -3014,6 +3211,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -3348,6 +3581,22 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.configurationType',
+                    value: 'document',
+                },
+            },
+        },
+        {
+            path: 'data.etlConfigXmlVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.configurationType',
+                    value: 'variable',
+                },
             },
         },
         {
@@ -3543,8 +3792,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -3598,6 +3874,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -3835,6 +4147,22 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'document',
+                },
+            },
+        },
+        {
+            path: 'data.folder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'folder',
+                },
             },
         },
         {
@@ -4139,8 +4467,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -4187,6 +4542,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -4277,8 +4668,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -4332,6 +4750,42 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Add a custom action',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.customActionButtonLabel.value',
+            config: {
+                displayName: 'Custom Button Text',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonURL.value',
+            config: {
+                displayName: 'Custom Button URL',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
+            },
+        },
+        {
+            path: 'data.customActionButtonMode.value',
+            config: {
+                displayName: 'Open-in Behavior',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.addCustomAction',
+                    value: true,
+                },
             },
         },
         {
@@ -4432,6 +4886,22 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'document',
+                },
+            },
+        },
+        {
+            path: 'data.folder.value',
+            config: {
+                displayName: 'Folder',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.entityType',
+                    value: 'folder',
+                },
             },
         },
         {
@@ -4612,6 +5082,14 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.webServiceDetails.value',
+            config: {
+                displayName: 'Web Service',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
             path: 'data.retryOnFailure.value',
             config: {
                 displayName: 'Retry on Failure',
@@ -4699,6 +5177,29 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.resultDocumentNameProperty.value',
+            config: {
+                displayName: 'New Document Name',
+                type: 'String',
+                dependsOn: {
+                    path: 'data.resultDocumentTypeProperty',
+                    value: 'New Document',
+                },
+            },
+        },
+        {
+            path: 'data.resultDocumentFolderProperty.value',
+            config: {
+                displayName: 'Folder Destination',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.resultDocumentTypeProperty',
+                    value: 'New Document',
+                },
+            },
+        },
+        {
             path: 'data.outputDocumentsProperty.value',
             config: {
                 displayName: 'Output',
@@ -4764,6 +5265,10 @@ export const displayNameMapping = {
                 displayName: 'User(s)',
                 type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.unsubscribeAll',
+                    value: false,
+                },
             },
         },
         {
@@ -4914,19 +5419,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
             },
         },
         {
-            path: 'data.requiredCompletion.value',
+            path: 'data.assignedWorkerPools.value.*.value',
             config: {
-                displayName: 'Who needs to respond?',
-                type: 'Radio',
-                choices: [
-                    { displayName: 'Any one assignee', value: 1 },
-                    { displayName: 'All of the assignees', value: 100 },
-                ],
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -5052,8 +5573,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -5103,6 +5651,17 @@ export const displayNameMapping = {
                     },
                     { displayName: 'Use standard text email', value: 1 },
                 ],
+            },
+        },
+        {
+            path: 'data.watchers.value',
+            config: {
+                displayName: 'Notification Recipients',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.sendOutNotifications',
+                    value: true,
+                },
             },
         },
         {
@@ -5302,8 +5861,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPools.value.*.value',
+            config: {
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -5471,19 +6057,35 @@ export const displayNameMapping = {
             path: 'data.assignedUsers.value.*.value',
             config: {
                 displayName: 'Assignee(s)',
-                type: 'String',
+                type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'user',
+                },
             },
         },
         {
-            path: 'data.requiredCompletion.value',
+            path: 'data.assignedWorkerPools.value.*.value',
             config: {
-                displayName: 'Who needs to respond?',
-                type: 'Radio',
-                choices: [
-                    { displayName: 'Any one assignee', value: 1 },
-                    { displayName: 'All of the assignees', value: 100 },
-                ],
+                displayName: 'Assigned Task Group',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
+            },
+        },
+        {
+            path: 'data.assignedWorkerPoolUsers.value.*.value',
+            config: {
+                displayName: 'Task Group Assignee',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.assigneeType',
+                    value: 'workerpool',
+                },
             },
         },
         {
@@ -5491,6 +6093,14 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Instructions',
                 type: 'String',
+            },
+        },
+        {
+            path: 'data.options.value',
+            config: {
+                displayName: 'Options',
+                type: 'String',
+                required: true,
             },
         },
         {
@@ -5637,15 +6247,42 @@ export const displayNameMapping = {
                 ],
             },
         },
-        // Not a variable field
-        // {
-        //     path: 'data.configDocument.value',
-        //     config: {
-        //         displayName: 'Document Generation Form',
-        //         type: 'Variable',
-        //         required: true,
-        //     },
-        // },
+        {
+            path: 'data.configDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.configurationType',
+                    value: 'document',
+                },
+            },
+        },
+        {
+            path: 'data.configXmlVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.configurationType',
+                    value: 'variable',
+                },
+            },
+        },
+        {
+            path: 'data.docLauncherForm.value',
+            config: {
+                displayName: 'Document Generation Form',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.configurationType',
+                    value: 'docLauncherForm',
+                },
+            },
+        },
         {
             path: 'data.outputXmlVariable.value',
             config: {
@@ -5953,6 +6590,17 @@ export const displayNameMapping = {
                         value: 1,
                     },
                 ],
+            },
+        },
+        {
+            path: 'data.watchers.value',
+            config: {
+                displayName: 'Notification Recipients',
+                type: 'Variable',
+                dependsOn: {
+                    path: 'data.sendOutNotifications',
+                    value: true,
+                },
             },
         },
         {
@@ -6404,6 +7052,22 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+                dependsOn: {
+                    path: 'data.useDSTemplates',
+                    value: 'document',
+                },
+            },
+        },
+        {
+            path: 'data.esignatureDocuments.value',
+            config: {
+                displayName: 'Documents and Templates',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.useDSTemplates',
+                    value: 'esignatureDocuments',
+                },
             },
         },
         {
@@ -6569,6 +7233,10 @@ export const displayNameMapping = {
             config: {
                 displayName: 'New File Name',
                 type: 'String',
+                dependsOn: {
+                    path: 'data.splitMethod',
+                    value: 'pages',
+                },
             },
         },
         {
@@ -6577,6 +7245,22 @@ export const displayNameMapping = {
                 displayName: 'Page(s)',
                 type: 'String',
                 required: true,
+                dependsOn: {
+                    path: 'data.splitMethod',
+                    value: 'pages',
+                },
+            },
+        },
+        {
+            path: 'data.splitXml.value',
+            config: {
+                displayName: 'Split XML',
+                type: 'String',
+                required: true,
+                dependsOn: {
+                    path: 'data.splitMethod',
+                    value: 'xml',
+                },
             },
         },
         {
@@ -6885,19 +7569,41 @@ export const displayNameMapping = {
                 type: 'Choice',
                 choices: [
                     { displayName: '', value: '' },
-                    { displayName: 'Inherit from Parent Folder', value: '1' },
-                    { displayName: 'No Access', value: '2' },
-                    { displayName: 'View', value: '3' },
-                    { displayName: 'View & Create', value: '4' },
-                    { displayName: 'View & Edit', value: '5' },
-                    { displayName: 'View, Edit & Delete', value: '6' },
+                    {
+                        displayName: 'Inherit from Parent Folder',
+                        value: 'Inherit from Parent Folder',
+                    },
+                    { displayName: 'No Access', value: 'DDDDD' },
+                    { displayName: 'View', value: 'GDDDD' },
+                    { displayName: 'View & Create', value: 'GDDGD' },
+                    { displayName: 'View & Edit', value: 'GGDGD' },
+                    {
+                        displayName: 'View, Edit & Delete',
+                        value: 'GGGGD',
+                    },
                     {
                         displayName: 'View, Edit, Delete & Set Access',
-                        value: '7',
+                        value: 'GGGGG',
                     },
-                    { displayName: 'Security Variable', value: '8' },
+                    {
+                        displayName: 'Security Variable',
+                        value: 'Security Variable',
+                    },
                 ],
                 required: true,
+            },
+        },
+        {
+            path: 'data.securityVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                isArray: false,
+                dependsOn: {
+                    path: 'data.security',
+                    value: 'Security Variable',
+                },
             },
         },
     ],
@@ -7222,6 +7928,10 @@ export const displayNameMapping = {
                 displayName: 'Watermark Text',
                 type: 'String',
                 required: true,
+                dependsOn: {
+                    path: 'data.watermarkType',
+                    value: 'text',
+                },
             },
         },
         {
@@ -7241,6 +7951,10 @@ export const displayNameMapping = {
                     { displayName: 'White', value: 'white' },
                     { displayName: 'Gray', value: 'gray' },
                 ],
+                dependsOn: {
+                    path: 'data.watermarkType',
+                    value: 'text',
+                },
             },
         },
         {
@@ -7285,6 +7999,10 @@ export const displayNameMapping = {
                     },
                     { displayName: 'Symbol', value: 'Symbol' },
                 ],
+                dependsOn: {
+                    path: 'data.watermarkType',
+                    value: 'text',
+                },
             },
         },
         {
@@ -7292,6 +8010,22 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Text Font Size',
                 type: 'String',
+                dependsOn: {
+                    path: 'data.watermarkType',
+                    value: 'text',
+                },
+            },
+        },
+        {
+            path: 'data.watermarkImageDocument.value',
+            config: {
+                displayName: 'Watermark Image',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.watermarkType',
+                    value: 'image',
+                },
             },
         },
         {
@@ -7367,6 +8101,14 @@ export const displayNameMapping = {
             },
         },
         {
+            path: 'data.workflow.value',
+            config: {
+                displayName: 'Workflow',
+                type: 'String',
+                required: true,
+            },
+        },
+        {
             path: 'data.variables.value',
             config: {
                 displayName: 'Variables',
@@ -7387,6 +8129,13 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Wait for the sub-workflow',
                 type: 'Bool',
+            },
+        },
+        {
+            path: 'data.outputs.value',
+            config: {
+                displayName: 'Output Paths',
+                type: 'String',
             },
         },
     ],
@@ -7423,6 +8172,22 @@ export const displayNameMapping = {
                 displayName: 'Text',
                 type: 'String',
                 required: true,
+                dependsOn: {
+                    path: 'data.textSourceType',
+                    value: 'text',
+                },
+            },
+        },
+        {
+            path: 'data.sourceXml.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                required: true,
+                dependsOn: {
+                    path: 'data.textSourceType',
+                    value: 'variable',
+                },
             },
         },
         {
@@ -7441,13 +8206,87 @@ export const displayNameMapping = {
                 required: true,
             },
         },
-        // {
-        //     path: 'data.selectConfigurationDocument.value',
-        //     config: {
-        //         displayName: 'Select a Configuration Document?',
-        //         type: 'Bool',
-        //     },
-        // },
+        {
+            path: 'data.selectConfigurationDocument.value',
+            config: {
+                displayName: 'Select a Configuration Document?',
+                type: 'Bool',
+                dependsOn: {
+                    path: 'data.textSourceType',
+                    value: 'variable',
+                },
+            },
+        },
+        {
+            path: 'data.configurationType.value',
+            config: {
+                displayName: null,
+                type: 'Radio',
+                choices: [
+                    {
+                        displayName: 'Configuration Document',
+                        value: 'document',
+                    },
+                    {
+                        displayName: 'Configuration Variable',
+                        value: 'variable',
+                    },
+                ],
+                required: true,
+                dependsOn: [
+                    {
+                        path: 'data.textSourceType',
+                        value: 'variable',
+                    },
+                    {
+                        path: 'data.selectConfigurationDocument',
+                        value: true,
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.etlConfigDocument.value',
+            config: {
+                displayName: 'Document',
+                type: 'Variable',
+                dependsOn: [
+                    {
+                        path: 'data.textSourceType',
+                        value: 'variable',
+                    },
+                    {
+                        path: 'data.selectConfigurationDocument',
+                        value: true,
+                    },
+                    {
+                        path: 'data.configurationType',
+                        value: 'document',
+                    },
+                ],
+            },
+        },
+        {
+            path: 'data.etlConfigXmlVariable.value',
+            config: {
+                displayName: 'Variable',
+                type: 'Variable',
+                dependsOn: [
+                    {
+                        path: 'data.textSourceType',
+                        value: 'variable',
+                    },
+                    {
+                        path: 'data.selectConfigurationDocument',
+                        value: true,
+                    },
+                    {
+                        path: 'data.configurationType',
+                        value: 'variable',
+                    },
+                ],
+            },
+        },
         {
             path: 'data.outputXml.value',
             config: {
