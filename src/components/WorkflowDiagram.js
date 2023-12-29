@@ -153,7 +153,7 @@ const WorkflowDiagram = () => {
     };
 
     useEffect(() => {
-        console.log('dsdebug-log', '-dev', 'data changed');
+        // console.log('dsdebug-log', '-dev', 'data changed');
         if (data) {
             const unwantedProperties = [
                 'id',
@@ -240,53 +240,72 @@ const WorkflowDiagram = () => {
 
     const toast = useToast();
 
-    const handleNodeDragStop = useCallback((event, draggedNode) => {
-        setData((prevData) => {
-            // console.log('dsdebug-log', '-dev', 'drag stopped');
-            const nodeToUpdate = prevData.cells.find(
-                (cell) => cell.id === draggedNode.id
-            );
+    const handleNodeDragStop = useCallback(
+        (event, draggedNode) => {
+            // console.log('dsdebug-log', '-dev', 'drag stop');
+            setData((prevData) => {
+                // Find the dragged node in the data
+                const nodeToUpdate = prevData.cells.find(
+                    (cell) => cell.id === draggedNode.id
+                );
 
-            // Check if the position has changed
-            if (
-                nodeToUpdate &&
-                (nodeToUpdate.position?.x !== draggedNode.position?.x ||
-                    nodeToUpdate.position?.y !== draggedNode.position?.y)
-            ) {
-                return {
-                    ...prevData,
-                    cells: prevData.cells.map((cell) =>
-                        cell.id === draggedNode.id
-                            ? { ...cell, position: draggedNode.position }
-                            : cell
-                    ),
-                };
-            }
+                // Check if the position has changed
+                if (
+                    nodeToUpdate &&
+                    (nodeToUpdate.position?.x !== draggedNode.position?.x ||
+                        nodeToUpdate.position?.y !== draggedNode.position?.y)
+                ) {
+                    // Calculate the offset of the drag
+                    const dx = draggedNode.position.x - nodeToUpdate.position.x;
+                    const dy = draggedNode.position.y - nodeToUpdate.position.y;
 
-            // If position hasn't changed, return the previous data to avoid unnecessary re-render
-            return prevData;
-        });
-        // console.log('dsdebug-log', '- Node Drag End', draggedNode);
+                    return {
+                        ...prevData,
+                        cells: prevData.cells.map((cell) => {
+                            // Update the position of the dragged node and any other selected nodes
+                            if (
+                                cell.id === draggedNode.id ||
+                                selectedNodes.some(
+                                    (selectedNode) =>
+                                        selectedNode.id === cell.id
+                                )
+                            ) {
+                                return {
+                                    ...cell,
+                                    position: {
+                                        x: cell.position.x + dx,
+                                        y: cell.position.y + dy,
+                                    },
+                                };
+                            }
+                            return cell;
+                        }),
+                    };
+                }
+                return prevData;
+            });
+        },
+        [selectedNodes]
+    );
+
+    const handleSelectionDragStop = useCallback((event, draggedNodes) => {
+        // console.log('dsdebug-log', '-dev', 'selection drag stop');
+        // Update the position property of the dragged nodes (selection) in the data before setting it
+        setData((prevData) => ({
+            ...prevData,
+            cells: prevData.cells.map((cell) => {
+                const draggedNode = draggedNodes.find(
+                    (node) => node.id === cell.id
+                );
+                return draggedNode
+                    ? {
+                          ...cell,
+                          position: draggedNode.position,
+                      }
+                    : cell;
+            }),
+        }));
     }, []);
-
-    // const handleSelectionDragStop = useCallback((event, draggedNodes) => {
-    //     console.log('dsdebug-log', 'run');
-    //     // Update the position property of the dragged nodes (selection) in the data before setting it
-    //     setData((prevData) => ({
-    //         ...prevData,
-    //         cells: prevData.cells.map((cell) => {
-    //             const draggedNode = draggedNodes.find(
-    //                 (node) => node.id === cell.id
-    //             );
-    //             return draggedNode
-    //                 ? {
-    //                       ...cell,
-    //                       position: draggedNode.position,
-    //                   }
-    //                 : cell;
-    //         }),
-    //     }));
-    // }, []);
 
     const handleReset = () => {
         const id = 'not allowed';
@@ -762,9 +781,9 @@ const WorkflowDiagram = () => {
                                     onNodesDelete={handleNodeDelete}
                                     onEdgesDelete={handleEdgesDelete}
                                     onNodeDragStop={handleNodeDragStop}
-                                    // onSelectionDragStop={
-                                    //     handleSelectionDragStop
-                                    // }
+                                    onSelectionDragStop={
+                                        handleSelectionDragStop
+                                    }
                                     onSelectionChange={handleSelectionChange}
                                     fitView
                                     elevateEdgesOnSelect
