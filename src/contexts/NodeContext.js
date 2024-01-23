@@ -89,44 +89,6 @@ export const NodeProvider = ({ children }) => {
         return mergedVariables;
     };
 
-    // const handleUpdateNode = (editedNode) => {
-    //     // Find the index of the node in data.cells with the matching id
-    //     const nodeIndex = data.cells.findIndex(
-    //         (item) => item.id === editedNode.id
-    //     );
-
-    //     if (nodeIndex !== -1) {
-    //         // Create a new copy of data to avoid directly mutating the state
-    //         let updatedData = { ...data };
-
-    //         // Create a filtered copy of editedNode.data with undefined properties removed
-    //         const filteredEditedData = Object.entries(editedNode.data).reduce(
-    //             (result, [key, value]) => {
-    //                 if (value !== undefined) {
-    //                     result[key] = value;
-    //                 }
-    //                 return result;
-    //             },
-    //             {}
-    //         );
-
-    //         // Merge the properties of the filteredEditedData with the existing node data
-    //         updatedData.cells[nodeIndex] = {
-    //             ...updatedData.cells[nodeIndex],
-    //             ...filteredEditedData,
-    //         };
-
-    //         // console.log(
-    //         //     'dsdebug-log',
-    //         //     '- Node Updated',
-    //         //     updatedData.cells[nodeIndex]
-    //         // );
-
-    //         // Set the updated data back to the state
-    //         setData(updatedData);
-    //     }
-    // };
-
     const handleUpdateNode = (editedNode) => {
         const nodeIndex = data.cells.findIndex(
             (item) => item.id === editedNode?.id
@@ -144,8 +106,6 @@ export const NodeProvider = ({ children }) => {
 
             // Set the updated data back to the state
             setData(updatedData);
-            // console.log('dsdebug-log', 'edited', editedNode.data);
-            // console.log('dsdebug-log', 'updated', updatedData);
         }
     };
 

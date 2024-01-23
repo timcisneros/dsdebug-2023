@@ -5,7 +5,6 @@ export const displayNameMapping = {
             config: {
                 displayName: 'Workflow Name',
                 type: 'String',
-                required: true,
             },
         },
         {
@@ -291,6 +290,7 @@ export const displayNameMapping = {
                 displayName: 'Document',
                 type: 'Variable',
                 required: true,
+                isArray: true,
             },
         },
         {
@@ -2669,12 +2669,19 @@ export const displayNameMapping = {
             },
         },
         {
-            path: 'data.decisions.value.decisions.*.output.value.name',
+            path: 'data.stepDescription.value',
             config: {
                 displayName: 'Step Description',
                 type: 'String',
             },
         },
+        // {
+        //     path: 'data.decisions.value.decisions.*.output.value.name',
+        //     config: {
+        //         displayName: 'Step Description',
+        //         type: 'String',
+        //     },
+        // },
         {
             path: 'data.decisions.value.elseOutput.value.name',
             config: {
@@ -7713,6 +7720,46 @@ export const displayNameMapping = {
                 type: 'Bool',
             },
         },
+        // {
+        //     path: 'data.variableUpdates.value.*.variableToConfigure.value',
+        //     config: {
+        //         displayName: 'Variable',
+        //         type: 'Variable',
+        //         group: 'variable',
+        //         repeatable: true,
+        //     },
+        // },
+        // {
+        //     path: 'data.variableUpdates.value.*.variableValue.value',
+        //     config: {
+        //         displayName: 'Value',
+        //         type: 'String',
+        //         group: 'variable',
+        //         repeatable: true,
+        //     },
+        // },
+        // {
+        //     path: 'data.variableUpdates.value',
+        //     groupConfig: {
+        //         fields: [
+        //             {
+        //                 path: 'variableToConfigure.value',
+        //                 config: {
+        //                     displayName: 'Variable',
+        //                     type: 'Variable',
+        //                 },
+        //             },
+        //             {
+        //                 path: 'variableValue.value',
+        //                 config: {
+        //                     displayName: 'Value',
+        //                     type: 'String',
+        //                 },
+        //             },
+        //         ],
+        //         repeatable: true,
+        //     },
+        // },
     ],
     WaitForExternalReviewActivity: [
         {

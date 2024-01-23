@@ -13,6 +13,9 @@ import {
     Text,
     Flex,
     IconButton,
+    Button,
+    Badge,
+    CloseButton,
 } from '@chakra-ui/react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useNode } from '../../contexts/NodeContext';
@@ -21,103 +24,6 @@ import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 import TagInput from './CustomInputs/TagInput';
 import { displayNameMapping } from './InputData';
-
-// const startActivityFilterKeys = {
-//     width: true,
-//     height: true,
-//     id: true,
-//     style: true,
-//     data: {
-//         name: true,
-//         workflowName: false,
-//         definedVariables: true,
-//         size: true,
-//         content: true,
-//         angle: true,
-//         activityName: true,
-//         group: true,
-//         icon: true,
-//         z: true,
-//         attrs: true,
-//         '*': {
-//             type: true,
-//             '*': {
-//                 '*': {
-//                     type: true,
-//                     '*': {
-//                         type: true,
-//                     },
-//                 },
-//             },
-//         },
-//     },
-//     position: true,
-//     type: true,
-//     selectable: true,
-//     selected: true,
-//     positionAbsolute: true,
-// };
-
-// const filterKeys = {
-//     width: true,
-//     height: true,
-//     id: true,
-//     style: true,
-//     data: {
-//         icon: true,
-//         color: true,
-//         attrs: true,
-//         size: true,
-//         content: true,
-//         angle: true,
-//         activityName: true,
-//         group: true,
-//         z: true,
-//         // variableUpdates: true,
-//         errorState: true,
-//         // definedVariables: true,
-//         // workflowName: true,
-//         '*': {
-//             type: true,
-//             '*': {
-//                 type: true,
-//                 returnType: true,
-//                 additionalCode: true,
-//                 '*': {
-//                     type: true,
-//                     '*': {
-//                         type: true,
-//                         '*': {
-//                             type: true,
-//                             returnType: true,
-//                             additionalCode: true,
-//                             '*': {
-//                                 type: true,
-//                                 '*': {
-//                                     // For metadata (attributes) steps
-//                                     setName: true,
-//                                     groupName: true,
-//                                     '*': {
-//                                         type: true,
-//                                         '*': {
-//                                             returnType: true,
-//                                             additionalCode: true,
-//                                         },
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                     },
-//                 },
-//             },
-//         },
-//     },
-//     position: true,
-//     type: true,
-//     selectable: true,
-//     selected: true,
-//     positionAbsolute: true,
-// };
 
 const DeepFieldExplorer = ({ selectedNode }) => {
     const {
@@ -130,8 +36,15 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     const [editedNode, setEditedNode] = useState(selectedNode);
     const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
     const [displayJson, setDisplayJson] = useState(false);
+    const [displayIndex, setDisplayIndex] = useState(false);
+    const [displayPaths, setDisplayPaths] = useState(false);
+    const [displayIsArray, setDisplayIsArray] = useState(false);
+    // const [displayOptions, setDisplayOptions] = useState({
+    //     json: false, index: false, paths: false,
+    // });
 
     const isFiltered = (key, currentPath) => {
+        // Special handling for start activity or regular filter
         const usingFilter =
             editedNode.data?.activityName === 'StartActivity'
                 ? startActivityFilterKeys
@@ -155,50 +68,12 @@ const DeepFieldExplorer = ({ selectedNode }) => {
 
     // Set initial state when selectedNode changes
     useEffect(() => {
-        setEditedNode(selectedNode);
+        // If selected node is not null
+        if (selectedNode) {
+            setEditedNode(selectedNode);
+        }
+        // console.log('dsdebug-log', 'useEffect run for selectedNode');
     }, [selectedNode]);
-
-    // useEffect(() => {
-    //     const findDeepestFields = (obj, currentPath = []) => {
-    //         let deepestFields = [];
-
-    //         for (const key in obj) {
-    //             if (!displayHiddenFields && isFiltered(key, currentPath)) {
-    //                 continue;
-    //             }
-
-    //             const newPath = currentPath.concat(key);
-
-    //             if (typeof obj[key] === 'object' && obj[key] !== null) {
-    //                 // Special handling for the "type" and "value" structure
-    //                 if (
-    //                     1 === 2
-    //                     // obj[key].hasOwnProperty('type') &&
-    //                     // obj[key].hasOwnProperty('value')
-    //                 ) {
-    //                     deepestFields.push({
-    //                         path: newPath.join('.') + '.value',
-    //                         value: obj[key].value,
-    //                     });
-    //                     // We've added the ".value", so continue to next key
-    //                     continue;
-    //                 }
-    //                 // If not a special "type" & "value" structure, continue exploring deeper fields
-    //                 deepestFields = deepestFields.concat(
-    //                     findDeepestFields(obj[key], newPath)
-    //                 );
-    //             } else {
-    //                 const path = newPath.join('.');
-    //                 deepestFields.push({ path, value: obj[key] });
-    //             }
-    //         }
-
-    //         return deepestFields;
-    //     };
-
-    //     const deepestFields = findDeepestFields(selectedNode);
-    //     setFields(deepestFields);
-    // }, [selectedNode, displayHiddenFields]);
 
     const findDeepestFields = (obj, currentPath = []) => {
         console.log('dsdebug-log', '-dev', 'deepest fields run');
@@ -212,19 +87,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
             const newPath = currentPath.concat(key);
 
             if (typeof obj[key] === 'object' && obj[key] !== null) {
-                // Check if the object has a "type" but no "value"
-                // if (
-                //     obj[key].hasOwnProperty('type') &&
-                //     !obj[key].hasOwnProperty('value')
-                // ) {
-                //     // Assign an empty array to the "value" key
-                //     obj[key].value = [];
-                //     deepestFields.push({
-                //         path: newPath.join('.') + '.value',
-                //         value: [], // Assign an empty array as the default value
-                //     });
-                // }
-                // Check if the object has a "value" key that is an empty array
                 if (
                     obj[key].hasOwnProperty('value') &&
                     Array.isArray(obj[key].value) &&
@@ -254,20 +116,17 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         const activityFieldsConfig =
             displayNameMapping[activityName] || displayNameMapping['default'];
 
-        const fieldConfig = activityFieldsConfig.find((config) =>
-            matchPathWithWildcard(config.path, path)
+        // Find the first configuration that matches the path using the wildcard matcher
+        const matchingConfig = activityFieldsConfig.find((config) =>
+            doesPathMatchPattern(config.path, path)
         );
-        return fieldConfig &&
-            fieldConfig.config &&
-            fieldConfig.config.displayName
-            ? fieldConfig.config.displayName
-            : path;
+
+        // If a matching configuration is found, return its display name; otherwise, return the path
+        return matchingConfig?.config?.displayName || path;
     };
 
-    const matchPathWithWildcard = (pattern, path) => {
-        // Check if pattern is undefined
-        if (!pattern) return false;
-
+    // Function to check if a path matches a pattern with wildcards
+    const doesPathMatchPattern = (pattern, path) => {
         const patternParts = pattern.split('.');
         const pathParts = path.split('.');
 
@@ -349,33 +208,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return true;
     });
 
-    // const handleInputChange = (path, newValue) => {
-    //     // Create a copy of the current node
-    //     const updatedNode = { ...editedNode };
-
-    //     // Navigate to the correct property in the node
-    //     const pathParts = path.split('.');
-    //     let currentPart = updatedNode;
-    //     for (let i = 0; i < pathParts.length - 1; i++) {
-    //         const part = pathParts[i];
-    //         if (!currentPart[part]) currentPart[part] = {};
-    //         currentPart = currentPart[part];
-    //     }
-
-    //     // Update the value
-    //     currentPart[pathParts[pathParts.length - 1]] = newValue;
-
-    //     // Perform validation
-    //     const isValid = validateNode(updatedNode);
-    //     updatedNode.errorState = !isValid;
-
-    //     // Update the editedNode state
-    //     setEditedNode(updatedNode);
-
-    //     // Call handleUpdateNode to persist the changes
-    //     handleUpdateNode(updatedNode);
-    // };
-
     const handleInputChange = (path, newValue) => {
         // Update only the relevant part of the node state to improve performance
         setEditedNode((prevNode) => {
@@ -404,17 +236,44 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         // Create a copy of the current node
         const updatedNode = { ...editedNode };
 
-        // Navigate to the correct property in the node
-        const pathParts = path.split('.');
-        let currentPart = updatedNode;
-        for (let i = 0; i < pathParts.length - 1; i++) {
-            const part = pathParts[i];
-            if (!currentPart[part]) currentPart[part] = {};
-            currentPart = currentPart[part];
-        }
+        // Function to recursively update the value
+        const updateNestedValue = (currentObj, pathParts, value) => {
+            // Base case: If we're at the last part of the path
+            if (pathParts.length === 1) {
+                currentObj[pathParts[0]] = value;
+                return;
+            }
 
-        // Update the value
-        currentPart[pathParts[pathParts.length - 1]] = newValue;
+            // Handle wildcard
+            if (pathParts[0] === '*') {
+                // Iterate over all keys if the current part is a wildcard
+                Object.keys(currentObj).forEach((key) => {
+                    updateNestedValue(
+                        currentObj[key],
+                        pathParts.slice(1),
+                        value
+                    );
+                });
+            } else {
+                // Make sure the next part of the path is an object
+                if (
+                    typeof currentObj[pathParts[0]] !== 'object' ||
+                    currentObj[pathParts[0]] === null
+                ) {
+                    currentObj[pathParts[0]] = {};
+                }
+                // Recursive call for the next part of the path
+                updateNestedValue(
+                    currentObj[pathParts[0]],
+                    pathParts.slice(1),
+                    value
+                );
+            }
+        };
+
+        // Split the path and call the recursive function
+        const pathParts = path.split('.');
+        updateNestedValue(updatedNode, pathParts, newValue);
 
         // Perform validation (if necessary)
         const isValid = validateNode(updatedNode);
@@ -435,6 +294,131 @@ const DeepFieldExplorer = ({ selectedNode }) => {
             }
             return true;
         });
+    };
+
+    // Function to render a single field
+    const renderField = (field) => {
+        const inputValue = getNestedValue(editedNode, field.path);
+        const currentActivityName = editedNode?.data?.activityName || 'default';
+        const isError = field.config?.required && inputValue === '';
+
+        // console.log('dsdebug-log', field.path);
+
+        return (
+            <FormControl
+                isRequired={field.config.required}
+                key={field.path}
+                isInvalid={isError}
+            >
+                {displayPaths && (
+                    <Text color="blue.400" mb={2}>
+                        {field.path}
+                    </Text>
+                )}
+                {displayIsArray && field.config.isArray && (
+                    <Badge color="blue.400" mb={2}>
+                        isArray
+                    </Badge>
+                )}
+                {field.config.displayName !== null &&
+                    field.config.type !== 'Bool' && (
+                        <FormLabel>
+                            {getDisplayName(field.path, currentActivityName)}
+                        </FormLabel>
+                    )}
+                {field.config.type === 'Bool' ? (
+                    <CustomCheckbox
+                        editedNode={editedNode}
+                        handleInputChange={handleInputChange}
+                        getNestedValue={getNestedValue}
+                        field={field}
+                        getDisplayName={getDisplayName}
+                        currentActivityName={currentActivityName}
+                        inputValue={inputValue}
+                    />
+                ) : field.config.type === 'Choice' ? (
+                    <Select
+                        value={inputValue}
+                        onChange={(e) =>
+                            handleInputChange(field.path, e.target.value)
+                        }
+                    >
+                        {field.config.choices.map((choice) => (
+                            <option key={choice.value} value={choice.value}>
+                                {choice.displayName}
+                            </option>
+                        ))}
+                    </Select>
+                ) : field.config.type === 'Radio' ? (
+                    <VStack align="start">
+                        {field.config.choices.map((choice) => {
+                            const isNumberValue =
+                                typeof choice.value === 'number';
+                            const checked = isNumberValue
+                                ? Number(inputValue) === choice.value
+                                : inputValue === choice.value.toString();
+
+                            return (
+                                <Radio
+                                    key={choice.value}
+                                    value={choice.value}
+                                    isChecked={checked}
+                                    onChange={(e) =>
+                                        handleInputChange(
+                                            field.path,
+                                            isNumberValue
+                                                ? Number(e.target.value)
+                                                : e.target.value
+                                        )
+                                    }
+                                >
+                                    {choice.displayName}
+                                </Radio>
+                            );
+                        })}
+                    </VStack>
+                ) : field.config.type === 'Textarea' ? (
+                    <Textarea
+                        placeholder={field.config.placeholder || ''}
+                        onChange={(e) =>
+                            handleInputChange(field.path, e.target.value)
+                        }
+                        value={inputValue}
+                        size="md"
+                    />
+                ) : field.config.type === 'Variable' ? (
+                    <>
+                        <TagInput
+                            field={field}
+                            variableName={
+                                inputValue?.[0]?.value?.value ||
+                                inputValue?.value ||
+                                inputValue?.[0]?.value
+                            }
+                            editedNode={editedNode}
+                            setEditedNode={setEditedNode}
+                            path={field.path}
+                            definedVariables={definedVariables}
+                            handleUpdateNode={handleUpdateNode}
+                            isArray={field.config.isArray}
+                            getNestedValue={getNestedValue}
+                        />
+                    </>
+                ) : (
+                    <Input
+                        placeholder={field.config.placeholder || ''}
+                        onChange={(e) =>
+                            handleInputChange(field.path, e.target.value)
+                        }
+                        value={inputValue}
+                        size="md"
+                    />
+                )}
+                {isError && (
+                    <FormErrorMessage>This field is required.</FormErrorMessage>
+                )}
+            </FormControl>
+        );
     };
 
     return (
@@ -461,226 +445,54 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                             <Text pb={4} fontWeight="bold">
                                 Dev Tools
                             </Text>
-                            {/* <Checkbox
-                    isChecked={displayHiddenFields}
-                    onChange={(e) =>
-                        setDisplayHiddenFields(!displayHiddenFields)
-                    }
-                    pb={4}
-                >
-                    Hidden Fields
-                </Checkbox> */}
                             <Checkbox
                                 isChecked={displayJson}
-                                onChange={(e) => setDisplayJson(!displayJson)}
+                                onChange={() => setDisplayJson(!displayJson)}
                             >
                                 Json
                             </Checkbox>
+                            <Checkbox
+                                isChecked={displayIndex}
+                                onChange={() => setDisplayIndex(!displayIndex)}
+                            >
+                                Group Index
+                            </Checkbox>
+                            <Checkbox
+                                isChecked={displayPaths}
+                                onChange={() => setDisplayPaths(!displayPaths)}
+                            >
+                                Paths
+                            </Checkbox>
+                            <Checkbox
+                                isChecked={displayIsArray}
+                                onChange={() =>
+                                    setDisplayIsArray(!displayIsArray)
+                                }
+                            >
+                                isArray
+                            </Checkbox>
                         </Flex>
-                        <Box px={4} py={4}>
-                            <VStack spacing={4}>
-                                {visibleFields.map((field) => {
-                                    const { config, value } = field;
-                                    const fieldType = config.type;
-                                    const inputValue = getNestedValue(
-                                        editedNode,
-                                        field.path
-                                    );
-                                    const currentActivityName =
-                                        editedNode?.data?.activityName ||
-                                        'default';
-
-                                    const isError =
-                                        config.required && inputValue === '';
-
-                                    return (
-                                        <FormControl
-                                            isRequired={config.required}
-                                            key={field.path}
-                                            isInvalid={isError}
-                                        >
-                                            {config.displayName !== null &&
-                                                config.type !== 'Bool' && (
-                                                    <FormLabel>
-                                                        {getDisplayName(
-                                                            field.path,
-                                                            currentActivityName
-                                                        )}
-                                                    </FormLabel>
-                                                )}
-                                            {fieldType === 'Bool' ? (
-                                                <CustomCheckbox
-                                                    editedNode={editedNode}
-                                                    handleInputChange={
-                                                        handleInputChange
-                                                    }
-                                                    getNestedValue={
-                                                        getNestedValue
-                                                    }
-                                                    field={field}
-                                                    getDisplayName={
-                                                        getDisplayName
-                                                    }
-                                                    currentActivityName={
-                                                        currentActivityName
-                                                    }
-                                                    inputValue={inputValue}
-                                                />
-                                            ) : fieldType === 'Choice' ? (
-                                                <Select
-                                                    value={inputValue}
-                                                    onChange={(e) =>
-                                                        handleInputChange(
-                                                            field.path,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                >
-                                                    {config.choices.map(
-                                                        (choice) => (
-                                                            <option
-                                                                key={
-                                                                    choice.value
-                                                                }
-                                                                value={
-                                                                    choice.value
-                                                                }
-                                                            >
-                                                                {
-                                                                    choice.displayName
-                                                                }
-                                                            </option>
-                                                        )
-                                                    )}
-                                                </Select>
-                                            ) : fieldType === 'Radio' ? (
-                                                <VStack align="start">
-                                                    {config.choices.map(
-                                                        (choice) => {
-                                                            const isNumberValue =
-                                                                typeof choice.value ===
-                                                                'number';
-                                                            const checked =
-                                                                isNumberValue
-                                                                    ? Number(
-                                                                          inputValue
-                                                                      ) ===
-                                                                      choice.value
-                                                                    : inputValue ===
-                                                                      choice.value.toString();
-
-                                                            return (
-                                                                <Radio
-                                                                    key={
-                                                                        choice.value
-                                                                    }
-                                                                    value={
-                                                                        choice.value
-                                                                    }
-                                                                    isChecked={
-                                                                        checked
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleInputChange(
-                                                                            field.path,
-                                                                            isNumberValue
-                                                                                ? Number(
-                                                                                      e
-                                                                                          .target
-                                                                                          .value
-                                                                                  )
-                                                                                : e
-                                                                                      .target
-                                                                                      .value
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        choice.displayName
-                                                                    }
-                                                                </Radio>
-                                                            );
-                                                        }
-                                                    )}
-                                                </VStack>
-                                            ) : fieldType === 'Textarea' ? (
-                                                <Textarea
-                                                    placeholder={
-                                                        config?.placeholder ||
-                                                        ''
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleInputChange(
-                                                            field.path,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    value={inputValue}
-                                                    size="md"
-                                                />
-                                            ) : fieldType === 'Variable' ? (
-                                                <>
-                                                    <TagInput
-                                                        variableName={
-                                                            inputValue?.[0]
-                                                                ?.value
-                                                                ?.value ||
-                                                            inputValue?.value ||
-                                                            inputValue?.[0]
-                                                                ?.value
-                                                        }
-                                                        editedNode={editedNode}
-                                                        setEditedNode={
-                                                            setEditedNode
-                                                        }
-                                                        path={field.path}
-                                                        definedVariables={
-                                                            definedVariables
-                                                        }
-                                                        handleUpdateNode={
-                                                            handleUpdateNode
-                                                        }
-                                                        isArray={config.isArray}
-                                                    />
-                                                </>
-                                            ) : (
-                                                <Input
-                                                    placeholder={
-                                                        config?.placeholder ||
-                                                        ''
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleInputChange(
-                                                            field.path,
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    value={inputValue}
-                                                    size="md"
-                                                />
-                                            )}
-                                            {isError && (
-                                                <FormErrorMessage>
-                                                    This field is required.
-                                                </FormErrorMessage>
-                                            )}
-                                        </FormControl>
-                                    );
-                                })}
-                                {displayJson && (
-                                    <JsonView
-                                        data={{
-                                            id: editedNode.id,
-                                            ...editedNode.data,
-                                        }}
-                                        shouldExpandNode={allExpanded}
-                                        style={defaultStyles}
-                                    />
-                                )}
-                            </VStack>
+                        <Box>
+                            <Box p={4}>
+                                <VStack spacing={4}>
+                                    {visibleFields.map((field) => {
+                                        return renderField(field);
+                                    })}
+                                </VStack>
+                            </Box>
                         </Box>
+
+                        {displayJson && (
+                            <JsonView
+                                data={{
+                                    id: editedNode.id,
+                                    ...editedNode.data,
+                                }}
+                                // data={editedNode}
+                                shouldExpandNode={allExpanded}
+                                style={defaultStyles}
+                            />
+                        )}
                     </Box>
                 </Box>
             )}

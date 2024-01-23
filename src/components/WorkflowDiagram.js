@@ -188,8 +188,8 @@ const WorkflowDiagram = () => {
                     return {
                         id: item.id,
                         style: {
-                            width: item.size?.width ?? item.data?.size.width,
-                            height: item.size?.height ?? item.data?.size.height,
+                            width: item.size?.width || item.data?.size.width,
+                            height: item.size?.height || item.data?.size.height,
                             zIndex: [
                                 'springcm.Group',
                                 'springcm.Lane',
@@ -256,8 +256,10 @@ const WorkflowDiagram = () => {
                         nodeToUpdate.position?.y !== draggedNode.position?.y)
                 ) {
                     // Calculate the offset of the drag
-                    const dx = draggedNode.position.x - nodeToUpdate.position.x;
-                    const dy = draggedNode.position.y - nodeToUpdate.position.y;
+                    const dx =
+                        draggedNode.position.x - nodeToUpdate.position?.x;
+                    const dy =
+                        draggedNode.position.y - nodeToUpdate.position?.y;
 
                     return {
                         ...prevData,
@@ -588,33 +590,6 @@ const WorkflowDiagram = () => {
     );
 
     const [splitHeight, setSplitHeight] = useState(150); // Initial height of the bottom resizable box
-
-    // const handleNodeDelete = useCallback((nodes) => {
-    //     setData((prevData) => {
-    //         // Filter out the selected nodes and their connected links
-    //         const filteredCells = prevData.cells.filter(
-    //             (cell) =>
-    //                 !selectedNodes.some(
-    //                     (selectedNode) => cell.id === selectedNode.id
-    //                 ) &&
-    //                 !(
-    //                     cell.type === 'springcm.Link' &&
-    //                     selectedNodes.some(
-    //                         (selectedNode) =>
-    //                             cell.source?.id === selectedNode.id ||
-    //                             cell.target?.id === selectedNode.id
-    //                     )
-    //                 )
-    //         );
-
-    //         return {
-    //             ...prevData,
-    //             cells: filteredCells,
-    //         };
-    //     });
-
-    //     console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
-    // }, []);
 
     const handleNodeDelete = useCallback((nodes) => {
         const isNodeSelected = (cell) =>

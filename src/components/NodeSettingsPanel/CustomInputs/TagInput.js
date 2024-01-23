@@ -19,15 +19,17 @@ import {
 } from '@chakra-ui/react';
 import { ReactSVG } from 'react-svg';
 import { ChevronDownIcon } from '@chakra-ui/icons';
+import { useNode } from '../../../contexts/NodeContext';
 
 function TagInput({
+    field,
     variableName,
     editedNode,
     setEditedNode,
     path,
-    definedVariables,
     handleUpdateNode,
     isArray,
+    getNestedValue,
 }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [tags, setTags] = useState([]);
@@ -37,6 +39,8 @@ function TagInput({
     const [error, setError] = useState('');
 
     const updatedProperty = path.split('.')[1];
+
+    const { definedVariables } = useNode();
 
     // Update tags when editedNode or variableName changes
     useEffect(() => {
@@ -59,14 +63,20 @@ function TagInput({
             }
         }
         setTags(newTags);
+        // console.log('dsdebug-log', 'useEffect run for Tag Input');
     }, [editedNode, updatedProperty, isArray]);
 
     const handleSearch = (event) => {
         const inputText = event.target.value;
-        if (!/\s/.test(inputText)) {
+        const isFolderPathTag = inputText.startsWith('/');
+
+        // If it's a custom tag (starts with '/'), allow spaces
+        if (isFolderPathTag || !/\s/.test(inputText)) {
             setSearchTerm(inputText);
             setSelectedIndex(-1);
+            setError('');
         } else {
+            // Only set an error if the tag isn't a custom tag and contains spaces
             setError('Spaces in variable names are not allowed.');
         }
     };
@@ -77,29 +87,38 @@ function TagInput({
         handleTagSubmit(null, filteredVariables[index].value.name);
     };
 
-    const handleTagSubmit = (event, passedSearchTerm) => {
+    const handleTagSubmit = (event, passedSearchTerm = '') => {
         if (event) {
             event.preventDefault();
         }
 
-        const isTagValid = definedVariables.some(
-            (variable) =>
-                variable.value.name.toLowerCase() ===
-                passedSearchTerm.toLowerCase()
-        );
+        // Use passedSearchTerm if provided, else fall back to searchTerm
+        const termToCheck = passedSearchTerm || searchTerm;
+
+        // Check if termToCheck is a custom tag (starts with '/')
+        const isFolderPathTag = termToCheck.startsWith('/');
+
+        // If it's a custom tag or an existing variable, process it
+        const isTagValid =
+            isFolderPathTag ||
+            definedVariables.some(
+                (variable) =>
+                    variable.value.name.toLowerCase() ===
+                    termToCheck.toLowerCase()
+            );
 
         if (isTagValid) {
-            const newTags = [...tags, passedSearchTerm];
+            // Replace existing tag with the new one
+            const newTags = [termToCheck];
             setTags(newTags);
-            setInputDisabled(true);
+            setInputDisabled(true); // Disable input after adding a tag
             setSearchTerm('');
             setError('');
-            updateEditedNode(newTags);
+            updateEditedNode(newTags, isFolderPathTag);
         } else {
             setError('Variable does not exist.');
         }
     };
-
     const handleTagRemove = (tagToRemove) => {
         const newTags = tags.filter((tag) => tag !== tagToRemove);
         setTags(newTags);
@@ -107,22 +126,49 @@ function TagInput({
         updateEditedNode(newTags);
     };
 
-    const updateEditedNode = (newTags) => {
-        const updatedNodeValue = newTags.map((tag) => ({
-            type: 'Variable',
-            value: tag,
-            // Additional properties if needed
-        }));
+    const findVariableType = (tag) => {
+        // TODO: make sure this matches variable types coming out of ds
+        return definedVariables?.find(
+            (definedVariable) => definedVariable.value.name === tag
+        )?.type;
+    };
 
-        const updatedNode = {
-            ...editedNode,
-            data: {
-                ...editedNode.data,
-                [updatedProperty]: isArray
-                    ? { type: 'Document', value: updatedNodeValue }
-                    : updatedNodeValue[0],
-            },
-        };
+    const updateEditedNode = (newTags, isFolderPathTag) => {
+        const currentPath = path;
+
+        let updatedNodeValue;
+        if (isArray) {
+            updatedNodeValue = newTags.map((tag) => {
+                // For array tags
+                return {
+                    type: 'Variable',
+                    value: { type: findVariableType(tag), value: tag },
+                };
+            });
+        } else {
+            if (newTags.length > 0) {
+                if (isFolderPathTag) {
+                    // For a single custom tag
+                    updatedNodeValue = [{ type: 'String', value: newTags[0] }];
+                } else {
+                    // For a single regular tag
+                    updatedNodeValue = { type: 'Variable', value: newTags[0] };
+                }
+            } else {
+                updatedNodeValue = null;
+            }
+        }
+
+        // Update the editedNode with the new value
+        let updatedNode = { ...editedNode };
+        const pathParts = currentPath.split('.');
+        let target = updatedNode;
+        for (let i = 0; i < pathParts.length - 1; i++) {
+            if (!target[pathParts[i]]) target[pathParts[i]] = {};
+            target = target[pathParts[i]];
+        }
+
+        target[pathParts[pathParts.length - 1]] = updatedNodeValue;
 
         setEditedNode(updatedNode);
         handleUpdateNode(updatedNode);
