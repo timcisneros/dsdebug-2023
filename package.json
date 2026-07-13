@@ -15,9 +15,9 @@
     "@emotion/styled": "^11.11.0",
     "console-feed": "^3.5.0",
     "framer-motion": "^10.13.0",
-    "jsonpath-plus": "^7.2.0",
-    "lodash": "^4.17.21",
-    "next": "^13.5.4",
+    "jsonpath-plus": "^10.4.0",
+    "lodash": "^4.18.1",
+    "next": "^15.5.16",
     "react": "18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dnd": "^16.0.1",
@@ -31,13 +31,16 @@
     "react-virtualized-auto-sizer": "^1.0.20",
     "react-window": "^1.8.9",
     "reactflow": "^11.7.4",
-    "uuid": "^9.0.0",
+    "uuid": "^11.1.1",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "@types/node": "20.4.5",
     "@types/react": "18.2.17",
-    "eslint": "8.45.0",
-    "eslint-config-next": "13.4.10"
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.16"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   }
 }
