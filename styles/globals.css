@@ -60,7 +60,7 @@ a {
 /* This will style the scrollbar when the mouse is not hovering over it */
 /* Note: Firefox uses different pseudo-elements */
 /* You can also use a dark mode scrollbar with custom addons for Firefox */
-@-moz-document url-prefix() {
+.console {
     scrollbar-color: #888 #333; /* Change the color of the thumb and track */
     scrollbar-width: thin; /* Adjust the width of the scrollbar */
 }

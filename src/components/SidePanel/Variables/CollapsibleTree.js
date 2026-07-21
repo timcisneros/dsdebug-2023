@@ -1,25 +1,14 @@
-import { useState, useEffect, useRef, memo, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import {
     Accordion,
-    AccordionItem,
-    AccordionButton,
-    AccordionPanel,
-    AccordionIcon,
     Box,
     Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
     Input,
-    useClipboard,
     Flex,
+    IconButton,
+    Portal,
 } from '@chakra-ui/react';
-import {
-    ChevronUpIcon,
-    ChevronRightIcon,
-    SettingsIcon,
-} from '@chakra-ui/icons';
-import xmljs from 'xml-js';
+import { FiSettings } from 'react-icons/fi';
 import { useNode } from '../../../contexts/NodeContext';
 import { varDataMapping } from './varData';
 
@@ -40,168 +29,107 @@ const TreeItem = memo(
     }) => {
         // Check if the node has children
         const hasChildren = childNodes && childNodes.length > 0;
-        const { hasCopied, onCopy, onPaste } = useClipboard();
-        const handlePasteFromClipboard = () => {
-            if (hasCopied) {
-                const clipboardData = onPaste();
-                // Validate the clipboard data as XML
-                if (validateXml(clipboardData)) {
-                    const parsedData = parseXml(clipboardData);
-                    if (parsedData) {
-                        // Update the current node with the new data down the tree
-                        setNewNodeData(parsedData.nodes);
-                    }
-                } else {
-                    // Show an error message when the XML data is invalid
-                    alert('Invalid XML data in clipboard.');
-                }
-            }
-        };
-
-        // Function to validate XML data
-        const validateXml = (xmlData) => {
-            // Add your XML validation logic here
-            // Return true if the XML is valid, otherwise return false
-            return true;
-        };
-
-        // Function to parse the XML string
-        const parseXml = (xmlData) => {
-            try {
-                const options = {
-                    compact: true, // Convert XML to JavaScript object
-                };
-                const jsonData = xmljs.xml2js(xmlData, options);
-                return jsonData;
-            } catch (error) {
-                console.error('Error parsing XML:', error);
-                return null;
-            }
-        };
-        // Function to set the new data for the current node
-        const setNewNodeData = (newData) => {
-            // Call the onRename function to set the new data for the current node
-            onRename(label, newData);
-        };
-
         return (
-            <AccordionItem
+            <Accordion.Item
+                value={label}
                 _active={{ backgroundColor: '#ffffff0a' }}
                 border="none"
             >
-                {({ isExpanded }) => (
-                    <>
-                        <Flex alignItems="center" position="relative">
-                            <AccordionButton>
-                                <AccordionIcon
-                                    as={
-                                        isExpanded
-                                            ? ChevronUpIcon
-                                            : ChevronRightIcon
+                <Flex alignItems="center" position="relative">
+                    <Accordion.ItemTrigger>
+                        <Accordion.ItemIndicator />
+                        <Box>{icon}</Box>
+                        {isEditing ? (
+                            <Input
+                                height="max-content"
+                                ref={inputRef}
+                                ml={1}
+                                mr={3}
+                                spellCheck="false"
+                                variant="flushed"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        onRename?.(label, newName);
+                                        setIsEditing?.(false);
                                     }
-                                />
-                                <Box>{icon}</Box>
-                                {isEditing ? (
-                                    <Input
-                                        height="max-content"
-                                        ref={inputRef}
-                                        ml={1}
-                                        mr={3}
-                                        spellCheck="false"
-                                        variant="flushed"
-                                        value={newName}
-                                        onChange={(e) =>
-                                            setNewName(e.target.value)
-                                        }
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                onRename(label, newName); // Pass the previous name and the new name
-                                                setIsEditing(false);
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <Box
-                                        pl={1}
-                                        whiteSpace="nowrap"
-                                        overflow="hidden"
-                                        textOverflow="ellipsis"
-                                    >
-                                        {label}
-                                    </Box>
-                                )}
-                            </AccordionButton>
-                            {deletable && (
-                                <Menu>
-                                    <MenuButton
-                                        position="absolute"
-                                        right="0"
-                                        size="xs"
-                                        mx={2}
-                                        as={SettingsIcon}
-                                        cursor="pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // Prevent the click event from bubbling up to the AccordionButton
-                                        }}
-                                    />
-                                    <MenuList>
-                                        <MenuItem
+                                }}
+                            />
+                        ) : (
+                            <Box
+                                pl={1}
+                                whiteSpace="nowrap"
+                                overflow="hidden"
+                                textOverflow="ellipsis"
+                            >
+                                {label}
+                            </Box>
+                        )}
+                    </Accordion.ItemTrigger>
+                    {deletable && (
+                        <Menu.Root>
+                            <Menu.Trigger asChild>
+                                <IconButton
+                                    position="absolute"
+                                    right="0"
+                                    size="xs"
+                                    mx={2}
+                                    cursor="pointer"
+                                    aria-label={`Options for ${label}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <FiSettings />
+                                </IconButton>
+                            </Menu.Trigger>
+                            <Portal>
+                                <Menu.Positioner>
+                                    <Menu.Content>
+                                        <Menu.Item
+                                            value="delete"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                onDelete(label);
+                                                onDelete?.(label);
                                             }}
                                         >
                                             Delete
-                                        </MenuItem>
-                                        <MenuItem
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            value="rename"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setIsEditing(!isEditing);
-                                                // If renaming is toggled off, set the Input value back to the original name
-                                                if (!isEditing) {
-                                                    setNewName(label);
-                                                }
+                                                setIsEditing?.(!isEditing);
+                                                if (!isEditing) setNewName?.(label);
                                             }}
                                         >
                                             Rename
-                                        </MenuItem>
-                                        {/* <MenuItem
-                                        onClick={handlePasteFromClipboard}
-                                    >
-                                        XML from clipboard
-                                    </MenuItem> */}
-                                    </MenuList>
-                                </Menu>
-                            )}
-                        </Flex>
-
-                        <AccordionPanel
-                            pl={4}
-                            pb={2}
-                            display={isExpanded ? 'block' : 'none'}
-                            minWidth="200px"
-                        >
-                            {hasChildren && (
-                                <Accordion allowMultiple>
-                                    {childNodes.map((child) => (
-                                        <TreeItem
-                                            key={`child-${child.name}`}
-                                            label={child.name}
-                                            childNodes={child.nodes}
-                                            optionsMenu={optionsMenu}
-                                            onDelete={onDelete}
-                                            deletable={child.deletable}
-                                        />
-                                    ))}
-                                </Accordion>
-                            )}
-                        </AccordionPanel>
-                    </>
-                )}
-            </AccordionItem>
+                                        </Menu.Item>
+                                    </Menu.Content>
+                                </Menu.Positioner>
+                            </Portal>
+                        </Menu.Root>
+                    )}
+                </Flex>
+                <Accordion.ItemContent>
+                    <Accordion.ItemBody pl={4} pb={2} minWidth="200px">
+                        {hasChildren && (
+                            <Accordion.Root multiple>
+                                {childNodes.map((child) => (
+                                    <TreeItem
+                                        key={`child-${child.name}`}
+                                        label={child.name}
+                                        childNodes={child.nodes}
+                                        optionsMenu={optionsMenu}
+                                        onDelete={onDelete}
+                                        deletable={child.deletable}
+                                    />
+                                ))}
+                            </Accordion.Root>
+                        )}
+                    </Accordion.ItemBody>
+                </Accordion.ItemContent>
+            </Accordion.Item>
         );
     }
 );
@@ -213,7 +141,6 @@ const CollapsibleTree = ({
     data,
     setData,
     definedVariables,
-    setDefinedVariables,
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
@@ -278,11 +205,9 @@ const CollapsibleTree = ({
                 // Use setData to update the data object in the context
                 setData(updatedData);
 
-                // Update the definedVariables array in the context
-                setDefinedVariables(updatedVariables);
             }
         },
-        [definedVariables, data]
+        [definedVariables, data, setData]
     );
 
     const handleRenameVariable = useCallback(
@@ -337,42 +262,38 @@ const CollapsibleTree = ({
                 // Use setData to update the data object in the context
                 setData(updatedData);
 
-                // Update the definedVariables array in the context
-                setDefinedVariables(updatedVariables);
             }
         },
-        [definedVariables, data]
+        [definedVariables, data, setData]
     );
 
-    const treeItemComponent = useMemo(
-        () => (
-            <TreeItem
-                key={`parent-${definedVariable.value.name}`}
-                label={definedVariable.value.name}
-                childNodes={definedVariable.value.schema.nodes}
-                icon={icon}
-                onDelete={handleDeleteVariable}
-                onRename={handleRenameVariable} // Pass the handleRenameVariable function
-                deletable={definedVariable.value.deletable}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                newName={newName}
-                setNewName={setNewName}
-                inputRef={inputRef}
-            />
-        ),
-        [definedVariables, data]
+    const treeItemComponent = (
+        <TreeItem
+            key={`parent-${definedVariable.value.name}`}
+            label={definedVariable.value.name}
+            childNodes={definedVariable.value.schema.nodes}
+            icon={icon}
+            onDelete={handleDeleteVariable}
+            onRename={handleRenameVariable}
+            deletable={definedVariable.value.deletable}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            newName={newName}
+            setNewName={setNewName}
+            inputRef={inputRef}
+        />
     );
 
     return (
         <>
-            <Accordion allowMultiple>
+            <Accordion.Root multiple>
                 {Object.keys(definedVariable.value.schema).length !== 0 ? (
                     <Box background="#fff" my={2}>
                         {treeItemComponent}
                     </Box>
                 ) : (
-                    <AccordionItem
+                    <Accordion.Item
+                        value={definedVariable.value.name}
                         cursor="pointer"
                         border="none"
                         background="#fff"
@@ -380,7 +301,7 @@ const CollapsibleTree = ({
                         width="100%"
                     >
                         <Flex alignItems="center" position="relative">
-                            <AccordionButton>
+                            <Accordion.ItemTrigger>
                                 <Box>{icon}</Box>
                                 {isEditing ? (
                                     <Input
@@ -417,52 +338,58 @@ const CollapsibleTree = ({
                                         {definedVariable.value.displayName}
                                     </Box>
                                 )}
-                            </AccordionButton>
+                            </Accordion.ItemTrigger>
                             {definedVariable.value.deletable && (
-                                <Menu>
-                                    <MenuButton
-                                        position="absolute"
-                                        right="0"
-                                        mx={2}
-                                        size="xs"
-                                        as={SettingsIcon}
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // Prevent the click event from bubbling up to the AccordionButton
-                                        }}
-                                    />
-                                    <MenuList>
-                                        <MenuItem
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDeleteVariable(
-                                                    definedVariable.value.name
-                                                );
-                                            }}
+                                <Menu.Root>
+                                    <Menu.Trigger asChild>
+                                        <IconButton
+                                            position="absolute"
+                                            right="0"
+                                            mx={2}
+                                            size="xs"
+                                            aria-label={`Options for ${definedVariable.value.name}`}
+                                            onClick={(e) => e.stopPropagation()}
                                         >
-                                            Delete
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setIsEditing(!isEditing);
-                                                // If renaming is toggled off, set the Input value back to the original name
-                                                if (!isEditing) {
-                                                    setNewName(
-                                                        definedVariable.value
-                                                            .name
-                                                    );
-                                                }
-                                            }}
-                                        >
-                                            Rename
-                                        </MenuItem>
-                                    </MenuList>
-                                </Menu>
+                                            <FiSettings />
+                                        </IconButton>
+                                    </Menu.Trigger>
+                                    <Portal>
+                                        <Menu.Positioner>
+                                            <Menu.Content>
+                                                <Menu.Item
+                                                    value="delete"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteVariable(
+                                                            definedVariable.value.name
+                                                        );
+                                                    }}
+                                                >
+                                                    Delete
+                                                </Menu.Item>
+                                                <Menu.Item
+                                                    value="rename"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setIsEditing(!isEditing);
+                                                        if (!isEditing) {
+                                                            setNewName(
+                                                                definedVariable.value.name
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    Rename
+                                                </Menu.Item>
+                                            </Menu.Content>
+                                        </Menu.Positioner>
+                                    </Portal>
+                                </Menu.Root>
                             )}
                         </Flex>
-                    </AccordionItem>
+                    </Accordion.Item>
                 )}
-            </Accordion>
+            </Accordion.Root>
         </>
     );
 };

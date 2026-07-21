@@ -2,15 +2,13 @@
 const nextConfig = {
     reactStrictMode: false,
     images: {
-        domains: ['localhost:3000'],
-    },
-    webpack(config) {
-        config.module.rules.push({
-            test: /\.svg$/,
-            use: ['@svgr/webpack'],
-        });
-
-        return config;
+        remotePatterns: [
+            {
+                protocol: 'http',
+                hostname: 'localhost',
+                port: '3000',
+            },
+        ],
     },
 };
 

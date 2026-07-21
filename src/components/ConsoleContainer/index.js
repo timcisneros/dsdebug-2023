@@ -4,16 +4,11 @@ import {
     Input,
     IconButton,
     InputGroup,
-    InputLeftElement,
 } from '@chakra-ui/react';
 import { Resizable } from 'react-resizable';
 import { ReactSVG } from 'react-svg';
 import LogsContainer from './LogsContainer';
-import {
-    ChevronDownIcon,
-    ChevronRightIcon,
-    ChevronUpIcon,
-} from '@chakra-ui/icons';
+import { FiChevronDown, FiChevronRight, FiChevronUp } from 'react-icons/fi';
 import { useNode } from '../../contexts/NodeContext';
 import { stepDataMapping } from '../SidePanel/Steps/StepData';
 
@@ -962,7 +957,6 @@ const ConsoleContainer = ({
                 {/* Arrow icon button */}
                 <IconButton
                     zIndex={1}
-                    icon={isExpanded ? <ChevronDownIcon /> : <ChevronUpIcon />}
                     position="absolute"
                     top="0"
                     right="10px"
@@ -971,7 +965,9 @@ const ConsoleContainer = ({
                     variant="unstyled"
                     color="white"
                     size="xs"
-                />
+                >
+                    {isExpanded ? <FiChevronDown /> : <FiChevronUp />}
+                </IconButton>
                 {inputVisible && (
                     <>
                         <Box
@@ -991,10 +987,11 @@ const ConsoleContainer = ({
                         </Box>
                         <Box position="absolute" bottom="0" width="100%">
                             <form onSubmit={handleInputSubmit}>
-                                <InputGroup>
-                                    <InputLeftElement pointerEvents="none">
-                                        <ChevronRightIcon color="gray.300" />
-                                    </InputLeftElement>
+                                <InputGroup
+                                    startElement={
+                                        <FiChevronRight color="var(--chakra-colors-gray-300)" />
+                                    }
+                                >
                                     <Input
                                         spellCheck="false"
                                         placeholder="command line"

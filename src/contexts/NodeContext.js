@@ -1,5 +1,12 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import initialData from '../../data/New Workflow.json';
+
+const getNodePositions = (data) =>
+    Object.fromEntries(
+        data.cells
+            .filter((cell) => cell.type !== 'springcm.Link')
+            .map((cell) => [cell.id, cell.position ?? { x: 0, y: 0 }])
+    );
 
 // Create a new context for Node
 const NodeContext = createContext();
@@ -14,13 +21,12 @@ export const NodeProvider = ({ children }) => {
     const [selectedNodes, setSelectedNodes] = useState(null);
     const [selectedEdge, setSelectedEdge] = useState(null);
     const [data, setData] = useState(initialData);
-    const [startActivity, setStartActivity] = useState(null);
-    const [definedVariables, setDefinedVariables] = useState(null);
-    const [workflowName, setWorkflowName] = useState(null);
     const [newNodesAdded, setNewNodesAdded] = useState(false);
     const [iterateVars, setIterateVars] = useState(false);
     // useState to store defaultNodePositions and setDefaultNodePositions
-    const [defaultNodePositions, setDefaultNodePositions] = useState(null);
+    const [defaultNodePositions, setDefaultNodePositions] = useState(() =>
+        getNodePositions(initialData)
+    );
 
     const [isVisible, setIsVisible] = useState(true);
 
@@ -28,14 +34,11 @@ export const NodeProvider = ({ children }) => {
         setIsVisible((prevVisible) => !prevVisible); // Toggle the isVisible state
     };
 
-    // RUNNING MORE THAN NEEDED, OPTIMIZE
-    useEffect(() => {
-        if (startActivity) {
-            setDefinedVariables(startActivity.definedVariables.value);
-            setWorkflowName(startActivity.workflowName);
-        }
-        // console.log('dsdebug-log', 'run');
-    }, [startActivity?.definedVariables?.value, startActivity?.workflowName]);
+    const startActivity = data.cells.find(
+        (cell) => cell.activityName === 'StartActivity'
+    );
+    const definedVariables = startActivity?.definedVariables?.value ?? null;
+    const workflowName = startActivity?.workflowName ?? null;
 
     const generateUniqueName = (baseName, existingNames) => {
         let newName = baseName;
@@ -120,13 +123,10 @@ export const NodeProvider = ({ children }) => {
                 setSelectedEdge,
                 handleUpdateNode,
                 workflowName,
-                setWorkflowName,
                 generateUniqueName,
                 definedVariables,
-                setDefinedVariables,
                 mergeDefinedVariables,
                 startActivity,
-                setStartActivity,
                 newNodesAdded,
                 setNewNodesAdded,
                 defaultNodePositions,

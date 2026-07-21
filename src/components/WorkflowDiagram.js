@@ -1,7 +1,6 @@
 import React, {
     useState,
     useMemo,
-    useEffect,
     useRef,
     useCallback,
 } from 'react';
@@ -10,8 +9,6 @@ import ReactFlow, {
     Controls,
     ControlButton,
     MiniMap,
-    applyNodeChanges,
-    applyEdgeChanges,
     Background,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -19,7 +16,8 @@ import StepNode from './NodeTypes/StepNode';
 import GroupNode from './NodeTypes/GroupNode';
 import CircleNode from './NodeTypes/CircleNode';
 import DiamondNode from './NodeTypes/DiamondNode';
-import { Box, Flex, useToast, Grid } from '@chakra-ui/react';
+import { Box, Flex, Grid } from '@chakra-ui/react';
+import { toaster } from './ui/toaster';
 import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import DefaultCustomEdge from './EdgeTypes/DefaultCustomEdge';
 import { useNode } from '../contexts/NodeContext';
@@ -53,6 +51,91 @@ const snapGrid = [25, 25];
 
 const deleteKeyCode = ['Backspace', 'Delete'];
 
+const getItemLabel = (itemLabel, sourceNodeId, nodes) => {
+    if (itemLabel?.type !== 'Reference') {
+        return itemLabel?.value
+            ? itemLabel.value.charAt(0).toUpperCase() + itemLabel.value.slice(1)
+            : '';
+    }
+
+    const sourceNode = nodes.find((node) => node.id === sourceNodeId);
+    const decisions = sourceNode?.data?.decisions?.value?.decisions || [];
+    const timerOutputs = sourceNode?.data?.timers?.value || [];
+    const elseOutput =
+        sourceNode?.data?.decisions?.value?.elseOutput?.value || [];
+    const timeouts = sourceNode?.data?.timeout?.value || [];
+    const outputs = sourceNode?.data?.outputs?.value || [];
+    const referenceKey = itemLabel.value;
+
+    return (
+        decisions.find(
+            (decision) => decision.output?.value?.referenceKey === referenceKey
+        )?.output?.value?.name ||
+        timerOutputs.find(
+            (output) => output.output?.value?.referenceKey === referenceKey
+        )?.output?.value?.name ||
+        timeouts.find(
+            (timeout) => timeout.output?.value?.referenceKey === referenceKey
+        )?.output?.value?.name ||
+        elseOutput.name ||
+        outputs.find((output) => output.value?.referenceKey === referenceKey)
+            ?.value?.name ||
+        ''
+    );
+};
+
+const createFlowNodes = (data, selectedNodes) => {
+    const unwantedProperties = ['id', 'type', 'position', 'selected'];
+    const customNodeTypes = {
+        'springcm.Step': 'StepNode',
+        'springcm.Group': 'GroupNode',
+        'springcm.Circle': 'CircleNode',
+        'springcm.Diamond': 'DiamondNode',
+        'springcm.Lane': 'LaneNode',
+    };
+
+    return data.cells
+        .filter((item) => item.type !== 'springcm.Link')
+        .map((item) => ({
+            id: item.id,
+            style: {
+                width: item.size?.width || item.data?.size.width,
+                height: item.size?.height || item.data?.size.height,
+                zIndex: ['springcm.Group', 'springcm.Lane'].includes(item.type)
+                    ? 0
+                    : 1,
+            },
+            data: Object.fromEntries(
+                Object.entries(item).filter(
+                    ([key]) => !unwantedProperties.includes(key)
+                )
+            ),
+            position: item.position || { x: 0, y: 0 },
+            type: customNodeTypes[item.type] || 'default',
+            selectable: true,
+            selected: !!selectedNodes?.some((node) => node.id === item.id),
+        }));
+};
+
+const createFlowEdges = (data, nodes) =>
+    data.cells
+        .filter((item) => item.type === 'springcm.Link')
+        .map((item) => ({
+            id: item.id,
+            source: item.source.id,
+            target: item.target.id,
+            label:
+                getItemLabel(item.output, item.source.id, nodes) ||
+                item.output?.value,
+            type: 'defaultCustomEdge',
+            animated: false,
+            markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+            },
+        }));
+
 const WorkflowDiagram = () => {
     const {
         data,
@@ -62,252 +145,41 @@ const WorkflowDiagram = () => {
         selectedEdge,
         setSelectedEdge,
         definedVariables,
-        setDefinedVariables,
         mergeDefinedVariables,
         startActivity,
         newNodesAdded,
         setNewNodesAdded,
         defaultNodePositions,
-        setDefaultNodePositions,
-        setStartActivity,
         generateUniqueName,
     } = useNode();
 
-    const [nodes, setNodes] = useState([]);
-    const [edges, setEdges] = useState([]);
-
-    const memoizedNodes = useMemo(() => nodes, [nodes]);
-    const memoizedEdges = useMemo(() => edges, [edges]);
+    const nodes = useMemo(
+        () => createFlowNodes(data, selectedNodes),
+        [data, selectedNodes]
+    );
+    const edges = useMemo(() => createFlowEdges(data, nodes), [data, nodes]);
 
     const onNodesChange = useCallback(
-        (changes) =>
-            setNodes((nds) => {
-                return applyNodeChanges(changes, nds);
-            }),
-        []
-    );
-    const onEdgesChange = useCallback((changes) => {
-        setEdges((eds) => {
-            return applyEdgeChanges(changes, eds);
-        });
-    }, []);
-
-    // TODO: update this so node reference labels are not lost on refresh
-    const addItemLabel = (itemLabel, sourceNodeId) => {
-        if (itemLabel?.type === 'Reference') {
-            const sourceNode = nodes.find((node) => node.id === sourceNodeId);
-
-            const decisions =
-                sourceNode?.data?.decisions?.value?.decisions || [];
-            const timerOutputs = sourceNode?.data?.timers?.value || [];
-            const elseOutput =
-                sourceNode?.data?.decisions?.value?.elseOutput?.value || [];
-            const timeouts = sourceNode?.data?.timeout?.value || [];
-
-            const referenceKey = itemLabel?.value;
-
-            // Find the correct decision based on the referenceKey
-            const matchedDecision = decisions.find(
-                (decision) =>
-                    decision.output?.value?.referenceKey === referenceKey
+        (changes) => {
+            const positions = new Map(
+                changes
+                    .filter((change) => change.type === 'position' && change.position)
+                    .map((change) => [change.id, change.position])
             );
-            const matchedTimer = timerOutputs.find(
-                (timerOutput) =>
-                    timerOutput.output?.value?.referenceKey === referenceKey
-            );
-            const matchedTimeout = timeouts.find(
-                (timeout) =>
-                    timeout.output?.value?.referenceKey === referenceKey
-            );
-
-            const outputs = sourceNode?.data?.outputs?.value || [];
-
-            // Find the correct decision based on the referenceKey
-            const matchedOutput = outputs.find(
-                (output) => output.value?.referenceKey === referenceKey
-            );
-
-            // Return the label if the decision was found, otherwise check the elseOutput
-            if (matchedDecision) {
-                return matchedDecision.output?.value?.name || '';
-            } else if (matchedTimer) {
-                return matchedTimer.output?.value?.name || '';
-            } else if (matchedTimeout) {
-                return matchedTimeout.output?.value?.name || '';
-            } else if (elseOutput) {
-                return elseOutput.name || '';
-            } else if (matchedOutput) {
-                return matchedOutput.value.name || '';
-            } else {
-                // // Check elseOutput if referenceKey doesn't match any decision
-                // const elseOutput =
-                //     sourceNode?.data?.decisions?.value?.elseOutput;
-                // return elseOutput?.value?.name || '';
-            }
-        } else {
-            return (
-                itemLabel?.value.charAt(0).toUpperCase() +
-                itemLabel?.value.slice(1)
-            );
-        }
-    };
-
-    useEffect(() => {
-        // console.log('dsdebug-log', '-dev', 'data changed');
-        if (data) {
-            const unwantedProperties = [
-                'id',
-                'type',
-                'position',
-                'selected',
-                // ... any other properties you don't want in `data`
-            ];
-
-            const customNodeTypes = {
-                'springcm.Step': 'StepNode',
-                'springcm.Group': 'GroupNode',
-                'springcm.Circle': 'CircleNode',
-                'springcm.Diamond': 'DiamondNode',
-                'springcm.Lane': 'LaneNode',
-            };
-
-            setStartActivity(
-                data.cells.find((cell) => cell.activityName === 'StartActivity')
-            );
-
-            const updatedNodes = data.cells
-                .filter((item) => item.type !== 'springcm.Link')
-                .map((item) => {
-                    const dataProps = Object.keys(item).reduce((obj, key) => {
-                        if (!unwantedProperties.includes(key)) {
-                            obj[key] = item[key];
-                        }
-                        return obj;
-                    }, {});
-
-                    return {
-                        id: item.id,
-                        style: {
-                            width: item.size?.width || item.data?.size.width,
-                            height: item.size?.height || item.data?.size.height,
-                            zIndex: [
-                                'springcm.Group',
-                                'springcm.Lane',
-                            ].includes(item.type)
-                                ? 0
-                                : 1,
-                        },
-                        data: dataProps,
-                        position: item.position || { x: 0, y: 0 },
-                        type: customNodeTypes[item.type] || 'default',
-                        selectable: true,
-                        selected: !!selectedNodes?.find(
-                            (node) => node.id === item.id
-                        ),
-                    };
-                });
-
-            const updatedEdges = data.cells
-                .filter((item) => item.type === 'springcm.Link')
-                .map((item) => ({
-                    id: item.id,
-                    source: item.source.id,
-                    target: item.target.id,
-                    label:
-                        addItemLabel(item.output, item.source.id) ||
-                        item.output?.value,
-                    type: 'defaultCustomEdge',
-                    animated: false,
-                    markerEnd: {
-                        type: MarkerType.ArrowClosed,
-                        width: 20,
-                        height: 20,
-                    },
-                }));
-
-            setNodes(updatedNodes);
-            setEdges(updatedEdges);
-
-            if (defaultNodePositions === null) {
-                const defaultPositions = updatedNodes.reduce((acc, node) => {
-                    acc[node.id] = node.position;
-                    return acc;
-                }, {});
-                setDefaultNodePositions(defaultPositions);
-            }
-        }
-    }, [data]);
-
-    const toast = useToast();
-
-    const handleNodeDragStop = useCallback(
-        (event, draggedNode) => {
-            // console.log('dsdebug-log', '-dev', 'drag stop');
-            setData((prevData) => {
-                // Find the dragged node in the data
-                const nodeToUpdate = prevData.cells.find(
-                    (cell) => cell.id === draggedNode.id
-                );
-
-                // Check if the position has changed
-                if (
-                    nodeToUpdate &&
-                    (nodeToUpdate.position?.x !== draggedNode.position?.x ||
-                        nodeToUpdate.position?.y !== draggedNode.position?.y)
-                ) {
-                    // Calculate the offset of the drag
-                    const dx =
-                        draggedNode.position.x - nodeToUpdate.position?.x;
-                    const dy =
-                        draggedNode.position.y - nodeToUpdate.position?.y;
-
-                    return {
-                        ...prevData,
-                        cells: prevData.cells.map((cell) => {
-                            // Update the position of the dragged node and any other selected nodes
-                            if (
-                                cell.id === draggedNode.id ||
-                                selectedNodes.some(
-                                    (selectedNode) =>
-                                        selectedNode.id === cell.id
-                                )
-                            ) {
-                                return {
-                                    ...cell,
-                                    position: {
-                                        x: cell.position.x + dx,
-                                        y: cell.position.y + dy,
-                                    },
-                                };
-                            }
-                            return cell;
-                        }),
-                    };
-                }
-                return prevData;
-            });
+            if (positions.size === 0) return;
+            setData((currentData) => ({
+                ...currentData,
+                cells: currentData.cells.map((cell) =>
+                    positions.has(cell.id)
+                        ? { ...cell, position: positions.get(cell.id) }
+                        : cell
+                ),
+            }));
         },
-        [selectedNodes]
+        [setData]
     );
 
-    const handleSelectionDragStop = useCallback((event, draggedNodes) => {
-        // console.log('dsdebug-log', '-dev', 'selection drag stop');
-        // Update the position property of the dragged nodes (selection) in the data before setting it
-        setData((prevData) => ({
-            ...prevData,
-            cells: prevData.cells.map((cell) => {
-                const draggedNode = draggedNodes.find(
-                    (node) => node.id === cell.id
-                );
-                return draggedNode
-                    ? {
-                          ...cell,
-                          position: draggedNode.position,
-                      }
-                    : cell;
-            }),
-        }));
-    }, []);
+    const onEdgesChange = useCallback(() => {}, []);
 
     const handleReset = () => {
         const id = 'not allowed';
@@ -322,18 +194,14 @@ const WorkflowDiagram = () => {
                 })),
             }));
         } else {
-            if (!toast.isActive(id)) {
-                toast({
+            if (!toaster.isVisible(id)) {
+                toaster.create({
                     id,
-                    position: 'top-right',
                     title: 'Action not allowed',
                     description: 'Reset is not allowed after adding new nodes.',
-                    status: 'warning',
+                    type: 'warning',
                     duration: 9000,
-                    isClosable: true,
-                    containerStyle: {
-                        marginTop: '55px',
-                    },
+                    closable: true,
                 });
             }
         }
@@ -349,60 +217,6 @@ const WorkflowDiagram = () => {
     const handleDragOver = useCallback((event) => {
         event.preventDefault(); // Prevent default behavior to allow drop
     }, []);
-
-    const [templateDefinedVariables, setTemplateDefinedVariables] =
-        useState(null);
-
-    // Watch for changes in the templateDefinedVariables state
-    useEffect(() => {
-        // console.log('dsdebug-log', '-dev', 'template vars changed');
-        try {
-            if (templateDefinedVariables !== null) {
-                // Existing definedVariables
-                const existingDefinedVariables =
-                    startActivity.definedVariables?.value?.slice();
-
-                // Merge the variables
-                const mergedVars = mergeDefinedVariables(
-                    existingDefinedVariables,
-                    templateDefinedVariables
-                );
-
-                // // Update the definedVariables state with the merged variables
-                // setDefinedVariables(mergedVars);
-
-                // Find the index of the StartActivity node in data.cells
-                const startActivityIndex = data.cells.findIndex(
-                    (cell) => cell.activityName === 'StartActivity'
-                );
-
-                // Update the definedVariables of the StartActivity node in data.cells
-                if (startActivityIndex !== -1) {
-                    const updatedDataCells = [...data.cells];
-                    updatedDataCells[
-                        startActivityIndex
-                    ].definedVariables.value = mergedVars;
-
-                    // Update the data with the updated cells
-                    setData((prevData) => ({
-                        ...prevData,
-                        cells: updatedDataCells,
-                    }));
-
-                    console.log(
-                        'dsdebug-log',
-                        '- Variables Merged:',
-                        mergedVars
-                    );
-                }
-            }
-        } catch (error) {
-            console.warn(
-                'dsdebug-log',
-                "Warning - Start activity is missing and variables could not be merged, if you accidentally deleted the start step use the command 'start' to replace it"
-            );
-        }
-    }, [templateDefinedVariables]);
 
     const handleDrop = useCallback(
         (event) => {
@@ -489,8 +303,9 @@ const WorkflowDiagram = () => {
                         (step) => step.activityName === 'StartActivity'
                     );
 
-                    setTemplateDefinedVariables(
-                        templateStartActivity.definedVariables.value
+                    const mergedVariables = mergeDefinedVariables(
+                        startActivity.definedVariables?.value ?? [],
+                        templateStartActivity.definedVariables?.value ?? []
                     );
 
                     templateData.forEach((step) => {
@@ -527,8 +342,6 @@ const WorkflowDiagram = () => {
 
                     templateData.forEach((step) => {
                         if (step.type === 'springcm.Link') {
-                            step.vertices = []; // Set vertices to an empty array
-
                             // Handle link nodes
                             const oldSourceStepId = step.source.id;
                             const oldTargetStepId = step.target.id;
@@ -541,6 +354,7 @@ const WorkflowDiagram = () => {
                             if (newSourceStepId && newTargetStepId) {
                                 newLinks.push({
                                     ...step,
+                                    vertices: [],
                                     id: generateId(),
                                     name: generateUniqueName(
                                         step.name?.value,
@@ -560,7 +374,22 @@ const WorkflowDiagram = () => {
                     });
 
                     setData((prevData) => ({
-                        cells: [...prevData.cells, ...newNodes, ...newLinks],
+                        ...prevData,
+                        cells: [
+                            ...prevData.cells.map((cell) =>
+                                cell.activityName === 'StartActivity'
+                                    ? {
+                                          ...cell,
+                                          definedVariables: {
+                                              ...cell.definedVariables,
+                                              value: mergedVariables,
+                                          },
+                                      }
+                                    : cell
+                            ),
+                            ...newNodes,
+                            ...newLinks,
+                        ],
                     }));
 
                     console.log('dsdebug-log', '- Template Added:', data.cells);
@@ -569,7 +398,15 @@ const WorkflowDiagram = () => {
                 console.log('dsdebug-log', 'Start activity missing.');
             }
         },
-        [reactFlowInstance, data]
+        [
+            data,
+            generateUniqueName,
+            mergeDefinedVariables,
+            reactFlowInstance,
+            setData,
+            setNewNodesAdded,
+            startActivity,
+        ]
     );
 
     // const memoizedDefinedVariables = useMemo(
@@ -583,10 +420,9 @@ const WorkflowDiagram = () => {
                 definedVariables={definedVariables}
                 data={data}
                 setData={setData}
-                setDefinedVariables={setDefinedVariables}
             />
         ),
-        [definedVariables, data]
+        [definedVariables, data, setData]
     );
 
     const [splitHeight, setSplitHeight] = useState(150); // Initial height of the bottom resizable box
@@ -610,53 +446,30 @@ const WorkflowDiagram = () => {
         }));
 
         console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
-    }, []);
+    }, [setData]);
 
     const handleEdgesDelete = useCallback(
         (edges) => {
             // Create a Set to store the IDs of the edges to be deleted
             const edgesToDelete = new Set(edges.map((edge) => edge.id));
 
-            // Filter out the edges that are not in the edgesToDelete set
-            const updatedEdges = data.cells.filter(
-                (cell) =>
-                    cell.type !== 'springcm.Link' || !edgesToDelete.has(cell.id)
-            );
-
-            // Update the data with the updated edges
             setData((prevData) => ({
                 ...prevData,
-                cells: updatedEdges,
+                cells: prevData.cells.filter(
+                    (cell) =>
+                        cell.type !== 'springcm.Link' ||
+                        !edgesToDelete.has(cell.id)
+                ),
             }));
 
             console.log('dsdebug-log', '- Link(s) Deleted:', edges);
         },
-        [data]
+        [setData]
     );
 
     const onConnect = useCallback((params) => {
-        const { source, target, type } = params;
-
-        // Check if the connection is allowed based on your business logic (if needed)
-
-        // Check if a link already exists with the same source and target IDs
-        const existingLink = data.cells.find(
-            (cell) =>
-                cell.type === 'springcm.Link' &&
-                cell.source?.id === source &&
-                cell.target?.id === target
-        );
-
-        if (existingLink) {
-            console.log(
-                'dsdebug-log',
-                '- Link already exists between source and target nodes:',
-                { source, target }
-            );
-            return;
-        }
-
-        const linkId = generateId();
+        const { source, target } = params;
+        const linkId = uuidv4();
 
         // Create a new link object for the connection
         const newLink = {
@@ -685,13 +498,22 @@ const WorkflowDiagram = () => {
         };
 
         // Update the data with the new link
-        setData((prevData) => ({
-            ...prevData,
-            cells: [...prevData.cells, newLink], // Add the new link to the existing cells array
-        }));
+        setData((prevData) => {
+            const linkExists = prevData.cells.some(
+                (cell) =>
+                    cell.type === 'springcm.Link' &&
+                    cell.source?.id === source &&
+                    cell.target?.id === target
+            );
+            if (linkExists) return prevData;
+            return {
+                ...prevData,
+                cells: [...prevData.cells, newLink],
+            };
+        });
 
         console.log('dsdebug-log', '- Link Added:', { source, target });
-    }, []);
+    }, [setData]);
 
     const handleSelectionChange = useCallback((params) => {
         if (params.nodes.length === 0) {
@@ -704,7 +526,7 @@ const WorkflowDiagram = () => {
         } else {
             setSelectedEdge(params.edges[0]);
         }
-    }, []);
+    }, [setSelectedEdge, setSelectedNodes]);
 
     const [minimapVisible, setMinimapVisible] = useState(false);
 
@@ -743,8 +565,8 @@ const WorkflowDiagram = () => {
                                     deleteKeyCode={deleteKeyCode}
                                     proOptions={proOptions}
                                     minZoom={0.1}
-                                    nodes={memoizedNodes}
-                                    edges={memoizedEdges}
+                                    nodes={nodes}
+                                    edges={edges}
                                     nodeTypes={nodeTypes}
                                     edgeTypes={edgeTypes}
                                     onNodesChange={onNodesChange}
@@ -755,10 +577,6 @@ const WorkflowDiagram = () => {
                                     onConnect={onConnect}
                                     onNodesDelete={handleNodeDelete}
                                     onEdgesDelete={handleEdgesDelete}
-                                    onNodeDragStop={handleNodeDragStop}
-                                    onSelectionDragStop={
-                                        handleSelectionDragStop
-                                    }
                                     onSelectionChange={handleSelectionChange}
                                     fitView
                                     elevateEdgesOnSelect
@@ -810,29 +628,29 @@ const WorkflowDiagram = () => {
                                 </ReactFlow>
                             </Flex>
 
-                            {useMemo(
-                                () => (
-                                    <ConsoleContainer
-                                        splitHeight={splitHeight}
-                                        setSplitHeight={setSplitHeight}
-                                        reactFlowWrapper={reactFlowWrapper}
-                                        reactFlowInstance={reactFlowInstance}
-                                        nodes={nodes}
-                                        edges={edges}
-                                        generateId={generateId}
-                                        generateUniqueName={generateUniqueName}
-                                    />
-                                ),
-                                [splitHeight, nodes, edges]
-                            )}
+                            <ConsoleContainer
+                                splitHeight={splitHeight}
+                                setSplitHeight={setSplitHeight}
+                                reactFlowWrapper={reactFlowWrapper}
+                                reactFlowInstance={reactFlowInstance}
+                                nodes={nodes}
+                                edges={edges}
+                                generateId={generateId}
+                                generateUniqueName={generateUniqueName}
+                            />
                         </Grid>
                     </Flex>
 
                     {/* NodeSettingsPanel */}
                     {selectedNodes && (
-                        <DeepFieldExplorer selectedNode={selectedNodes[0]} />
+                        <DeepFieldExplorer
+                            key={selectedNodes[0]?.id}
+                            selectedNode={selectedNodes[0]}
+                        />
                     )}
-                    {selectedEdge && !selectedNodes && <EdgeSettings />}
+                    {selectedEdge && !selectedNodes && (
+                        <EdgeSettings key={selectedEdge.id} />
+                    )}
                 </Flex>
             </Box>
         </>

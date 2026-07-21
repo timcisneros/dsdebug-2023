@@ -28,7 +28,18 @@ const Header = () => {
                     setData(jsonData);
                     setErrorMessage(null);
                     setNewNodesAdded(false);
-                    setDefaultNodePositions(null);
+                    setDefaultNodePositions(
+                        Object.fromEntries(
+                            jsonData.cells
+                                .filter(
+                                    (cell) => cell.type !== 'springcm.Link'
+                                )
+                                .map((cell) => [
+                                    cell.id,
+                                    cell.position ?? { x: 0, y: 0 },
+                                ])
+                        )
+                    );
                     setSelectedNodes(null);
                 } catch (error) {
                     setErrorMessage('Error parsing JSON file.');
@@ -125,7 +136,7 @@ const Header = () => {
                 setData(updatedData);
             }
         },
-        [workflowName, data]
+        [data, setData]
     );
 
     return (
@@ -200,12 +211,11 @@ const Header = () => {
                 </span>
                 <label htmlFor="upload-input">
                     <IconButton
-                        isRound={true}
+                        rounded="full"
                         backgroundColor="transparent"
                         color="#fff"
                         as="span"
                         aria-label="Upload JSON File"
-                        icon={<AiOutlineUpload />}
                         variant="solid"
                         size="md"
                         cursor="pointer"
@@ -213,7 +223,9 @@ const Header = () => {
                             backgroundColor: 'white',
                             color: '#000',
                         }}
-                    />
+                    >
+                        <AiOutlineUpload />
+                    </IconButton>
                     <input
                         id="upload-input"
                         type="file"
@@ -223,12 +235,11 @@ const Header = () => {
                     />
                 </label>
                 <IconButton
-                    isRound={true}
+                    rounded="full"
                     backgroundColor="transparent"
                     color="#fff"
                     as="span"
                     aria-label="Download JSON File"
-                    icon={<AiOutlineDownload />}
                     variant="solid"
                     size="md"
                     cursor="pointer"
@@ -238,7 +249,9 @@ const Header = () => {
                         color: '#000',
                     }}
                     onClick={handleDownload}
-                />
+                >
+                    <AiOutlineDownload />
+                </IconButton>
             </Box>
         </Box>
     );

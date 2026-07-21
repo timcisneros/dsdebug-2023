@@ -1,24 +1,18 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import {
     Box,
+    Field,
     Input,
     Tag,
-    TagLabel,
-    TagCloseButton,
     List,
-    ListItem,
-    FormControl,
     Text,
     InputGroup,
-    InputLeftElement,
     Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
     IconButton,
+    Portal,
 } from '@chakra-ui/react';
 import { ReactSVG } from 'react-svg';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { FiChevronDown } from 'react-icons/fi';
 import { useNode } from '../../../contexts/NodeContext';
 
 function TagInput({
@@ -31,40 +25,31 @@ function TagInput({
     isArray,
     getNestedValue,
 }) {
+    const updatedProperty = path.split('.')[1];
+    const getInitialTags = () => {
+        if (typeof variableName === 'string' && variableName.trim() !== '') {
+            return [variableName];
+        }
+        const propertyValue = editedNode.data[updatedProperty]?.value;
+        if (isArray && Array.isArray(propertyValue)) {
+            return propertyValue
+                .map((tagObject) => tagObject.value)
+                .filter((tag) => tag && tag.trim() !== '');
+        }
+        return typeof propertyValue === 'string' && propertyValue.trim() !== ''
+            ? [propertyValue]
+            : [];
+    };
     const [searchTerm, setSearchTerm] = useState('');
-    const [tags, setTags] = useState([]);
-    const [inputDisabled, setInputDisabled] = useState(false);
+    const [tags, setTags] = useState(getInitialTags);
+    const [inputDisabled, setInputDisabled] = useState(
+        () => getInitialTags().length > 0
+    );
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
     const [error, setError] = useState('');
 
-    const updatedProperty = path.split('.')[1];
-
     const { definedVariables } = useNode();
-
-    // Update tags when editedNode or variableName changes
-    useEffect(() => {
-        let newTags = [];
-        if (typeof variableName === 'string' && variableName.trim() !== '') {
-            newTags = [variableName];
-        } else if (isArray) {
-            const propertyArray = editedNode.data[updatedProperty]?.value;
-            if (Array.isArray(propertyArray) && propertyArray.length > 0) {
-                // Extract non-empty string values from the array
-                newTags = propertyArray
-                    .map((tagObj) => tagObj.value)
-                    .filter((tag) => tag && tag.trim() !== '');
-            }
-        } else {
-            const singleTag = editedNode.data[updatedProperty]?.value;
-            if (typeof singleTag === 'string' && singleTag.trim() !== '') {
-                // Add non-empty string as a tag
-                newTags = [singleTag];
-            }
-        }
-        setTags(newTags);
-        // console.log('dsdebug-log', 'useEffect run for Tag Input');
-    }, [editedNode, updatedProperty, isArray]);
 
     const handleSearch = (event) => {
         const inputText = event.target.value;
@@ -181,7 +166,7 @@ function TagInput({
     return (
         <Box position="relative">
             <form onSubmit={handleTagSubmit}>
-                <FormControl isInvalid={!!error}>
+                <Field.Root invalid={!!error}>
                     {error && (
                         <Text
                             position="absolute"
@@ -192,8 +177,8 @@ function TagInput({
                             {error}
                         </Text>
                     )}
-                    <InputGroup>
-                        <InputLeftElement pointerEvents="none">
+                    <InputGroup
+                        startElement={
                             <ReactSVG
                                 beforeInjection={(svg) => {
                                     svg.setAttribute('width', '24px');
@@ -202,7 +187,8 @@ function TagInput({
                                 }}
                                 src="var.svg"
                             />
-                        </InputLeftElement>
+                        }
+                    >
                         <Input
                             value={searchTerm}
                             onChange={handleSearch}
@@ -216,63 +202,66 @@ function TagInput({
                     {/* Tags display */}
                     <div className="tag-container">
                         {tags.map((tag, index) => (
-                            <Tag
+                            <Tag.Root
                                 key={index}
                                 size="md"
                                 variant="solid"
-                                colorScheme="gray"
+                                colorPalette="gray"
                                 paddingX={5}
                                 position="absolute"
                                 top={0}
                                 width="100%"
                                 height="100%"
                             >
-                                <TagLabel>{tag}</TagLabel>
-                                <TagCloseButton
-                                    position="absolute"
-                                    right={5}
-                                    onClick={() => handleTagRemove(tag)}
-                                />
-                            </Tag>
+                                <Tag.Label>{tag}</Tag.Label>
+                                <Tag.EndElement position="absolute" right={5}>
+                                    <Tag.CloseTrigger
+                                        onClick={() => handleTagRemove(tag)}
+                                    />
+                                </Tag.EndElement>
+                            </Tag.Root>
                         ))}
                     </div>
                     {/* Dropdown menu */}
-                    <Menu isLazy gutter={5}>
+                    <Menu.Root lazyMount positioning={{ gutter: 5 }}>
                         {!tags.length && !searchTerm && (
-                            <MenuButton
-                                as={IconButton}
-                                icon={<ChevronDownIcon />}
-                                aria-label="Search Options"
-                                variant="ghost"
-                                position="absolute"
-                                right={0}
-                                top={0}
-                                borderLeftRadius="0"
-                            />
-                        )}
-                        <MenuList
-                            zIndex={1}
-                            borderWidth={1}
-                            borderColor="gray.200"
-                            bg="white"
-                            position="relative"
-                            p={0}
-                            maxH="20rem"
-                            overflowY="auto"
-                        >
-                            {filteredVariables?.map((variable, index) => (
-                                <MenuItem
-                                    key={index}
-                                    p={2}
-                                    onClick={() => handleListItemClick(index)}
+                            <Menu.Trigger asChild>
+                                <IconButton
+                                    aria-label="Search Options"
+                                    variant="ghost"
+                                    position="absolute"
+                                    right={0}
+                                    top={0}
+                                    borderLeftRadius="0"
                                 >
-                                    {variable.value.name}
-                                </MenuItem>
-                            ))}
-                        </MenuList>
-                    </Menu>
+                                    <FiChevronDown />
+                                </IconButton>
+                            </Menu.Trigger>
+                        )}
+                        <Portal>
+                            <Menu.Positioner>
+                                <Menu.Content
+                                    zIndex={1}
+                                    p={0}
+                                    maxH="20rem"
+                                    overflowY="auto"
+                                >
+                                    {filteredVariables?.map((variable, index) => (
+                                        <Menu.Item
+                                            key={variable.value.name}
+                                            value={variable.value.name}
+                                            p={2}
+                                            onClick={() => handleListItemClick(index)}
+                                        >
+                                            {variable.value.name}
+                                        </Menu.Item>
+                                    ))}
+                                </Menu.Content>
+                            </Menu.Positioner>
+                        </Portal>
+                    </Menu.Root>
                     {searchTerm && (
-                        <List
+                        <List.Root
                             zIndex={1}
                             mt={1}
                             borderWidth={1}
@@ -289,7 +278,7 @@ function TagInput({
                                 <div key={index}>
                                     {searchTerm.toLowerCase() !==
                                         variable.value.name.toLowerCase() && (
-                                        <ListItem
+                                        <List.Item
                                             p={2}
                                             tabIndex={0} // Set the tabIndex attribute to enable keyboard focus
                                             outline="none"
@@ -312,13 +301,13 @@ function TagInput({
                                             }}
                                         >
                                             {variable.value.name}
-                                        </ListItem>
+                                        </List.Item>
                                     )}
                                 </div>
                             ))}
-                        </List>
+                        </List.Root>
                     )}
-                </FormControl>
+                </Field.Root>
             </form>
         </Box>
     );

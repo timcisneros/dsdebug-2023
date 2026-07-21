@@ -34,16 +34,20 @@ const CustomCheckbox = ({
     );
 
     // Handle checkbox change
-    const handleChange = (e) => {
+    const handleChange = ({ checked }) => {
         // Convert the new checkbox state back to value
-        const newValue = convertToCustomValue(e.target.checked, boolValues);
+        const newValue = convertToCustomValue(checked === true, boolValues);
         handleInputChange(field.path, newValue);
     };
 
     return (
-        <Checkbox isChecked={isChecked} onChange={handleChange}>
-            {getDisplayName(field.path, currentActivityName)}
-        </Checkbox>
+        <Checkbox.Root checked={isChecked} onCheckedChange={handleChange}>
+            <Checkbox.HiddenInput />
+            <Checkbox.Control />
+            <Checkbox.Label>
+                {getDisplayName(field.path, currentActivityName)}
+            </Checkbox.Label>
+        </Checkbox.Root>
     );
 };
 

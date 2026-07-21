@@ -1,21 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { SearchIcon } from '@chakra-ui/icons';
 import {
+    Box,
+    Field,
     Flex,
     Input,
     InputGroup,
-    InputLeftElement,
-    InputRightAddon,
     List,
-    ListItem,
     Menu,
-    MenuButton,
     IconButton,
-    MenuList,
-    MenuItem,
-    FormControl,
+    Portal,
     Text,
 } from '@chakra-ui/react';
+import { FiSearch } from 'react-icons/fi';
 import { varDataMapping } from './Variables/varData';
 import { useNode } from '../../contexts/NodeContext';
 import { ReactSVG } from 'react-svg';
@@ -166,10 +162,53 @@ const Search = ({ definedVariables }) => {
         }
     };
 
+    const variableTypes = [
+        ['Actor', 'Actor'],
+        ['CustomXml', 'Custom XML'],
+        ['Date', 'Date'],
+        ['Document', 'Document'],
+        ['Folder', 'Folder'],
+        ['IdList', 'ID List'],
+        ['Iterator', 'Iterator'],
+        ['Number', 'Number'],
+        ['Text', 'Text'],
+    ];
+
+    const variableTypeMenu = definedVariables ? (
+        <Menu.Root>
+            <Menu.Trigger asChild>
+                <IconButton
+                    variant="outline"
+                    borderLeft={0}
+                    borderLeftRadius={0}
+                    aria-label="Variable Type"
+                >
+                    {variableTypeImage}
+                </IconButton>
+            </Menu.Trigger>
+            <Portal>
+                <Menu.Positioner>
+                    <Menu.Content>
+                        {variableTypes.map(([type, label]) => (
+                            <Menu.Item
+                                key={type}
+                                value={type}
+                                onClick={() => handleSetVariableType(type)}
+                            >
+                                <Box>{varDataMapping[type].icon}</Box>
+                                {label}
+                            </Menu.Item>
+                        ))}
+                    </Menu.Content>
+                </Menu.Positioner>
+            </Portal>
+        </Menu.Root>
+    ) : null;
+
     return (
         <Flex flexDirection="column" position="relative" pb={4}>
             <form onSubmit={handleSubmit}>
-                <FormControl isInvalid={!!error}>
+                <Field.Root invalid={!!error}>
                     {error && (
                         <Text
                             position="absolute"
@@ -180,9 +219,10 @@ const Search = ({ definedVariables }) => {
                             {error}
                         </Text>
                     )}
-                    <InputGroup zIndex={1}>
-                        <InputLeftElement pointerEvents="none">
-                            {definedVariables ? (
+                    <InputGroup
+                        zIndex={1}
+                        startElement={
+                            definedVariables ? (
                                 <ReactSVG
                                     beforeInjection={(svg) => {
                                         svg.setAttribute('width', '24px');
@@ -192,9 +232,12 @@ const Search = ({ definedVariables }) => {
                                     src="var.svg"
                                 />
                             ) : (
-                                <SearchIcon color="gray.300" />
-                            )}
-                        </InputLeftElement>
+                                <FiSearch color="var(--chakra-colors-gray-300)" />
+                            )
+                        }
+                        endElement={variableTypeMenu}
+                        endElementProps={{ padding: 0 }}
+                    >
                         <Input
                             spellCheck="false"
                             disabled={definedVariables ? false : true}
@@ -209,111 +252,11 @@ const Search = ({ definedVariables }) => {
                                 definedVariables ? 'Create Variable' : 'Search'
                             }
                         />
-                        {definedVariables && (
-                            <InputRightAddon padding={0}>
-                                <Menu>
-                                    <MenuButton
-                                        variant="outline"
-                                        borderLeft={0}
-                                        borderLeftRadius={0}
-                                        as={IconButton}
-                                        icon={variableTypeImage}
-                                        aria-label="Variable Type"
-                                    />
-                                    <MenuList>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType('Actor')
-                                            }
-                                            icon={varDataMapping['Actor'].icon}
-                                        >
-                                            Actor
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType(
-                                                    'CustomXml'
-                                                )
-                                            }
-                                            icon={
-                                                varDataMapping['CustomXml'].icon
-                                            }
-                                        >
-                                            Custom XML
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType('Date')
-                                            }
-                                            icon={varDataMapping['Date'].icon}
-                                        >
-                                            Date
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType(
-                                                    'Document'
-                                                )
-                                            }
-                                            icon={
-                                                varDataMapping['Document'].icon
-                                            }
-                                        >
-                                            Document
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType('Folder')
-                                            }
-                                            icon={varDataMapping['Folder'].icon}
-                                        >
-                                            Folder
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType('IdList')
-                                            }
-                                            icon={varDataMapping['IdList'].icon}
-                                        >
-                                            ID List
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType(
-                                                    'Iterator'
-                                                )
-                                            }
-                                            icon={
-                                                varDataMapping['Iterator'].icon
-                                            }
-                                        >
-                                            Iterator
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType('Number')
-                                            }
-                                            icon={varDataMapping['Number'].icon}
-                                        >
-                                            Number
-                                        </MenuItem>
-                                        <MenuItem
-                                            onClick={() =>
-                                                handleSetVariableType('Text')
-                                            }
-                                            icon={varDataMapping['Text'].icon}
-                                        >
-                                            Text
-                                        </MenuItem>
-                                    </MenuList>
-                                </Menu>
-                            </InputRightAddon>
-                        )}
                     </InputGroup>
-                </FormControl>
+                </Field.Root>
             </form>
             {searchTerm && (
-                <List
+                <List.Root
                     zIndex={1}
                     mt={1}
                     borderWidth={1}
@@ -330,7 +273,7 @@ const Search = ({ definedVariables }) => {
                         <div key={index}>
                             {searchTerm.toLowerCase() !==
                                 variable.value.name.toLowerCase() && (
-                                <ListItem
+                                <List.Item
                                     p={2}
                                     tabIndex={0} // Set the tabIndex attribute to enable keyboard focus
                                     outline="none"
@@ -348,11 +291,11 @@ const Search = ({ definedVariables }) => {
                                     }}
                                 >
                                     {variable.value.name}
-                                </ListItem>
+                                </List.Item>
                             )}
                         </div>
                     ))}
-                </List>
+                </List.Root>
             )}
         </Flex>
     );

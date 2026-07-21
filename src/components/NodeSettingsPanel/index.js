@@ -1,29 +1,38 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, memo } from 'react';
 import {
     Input,
     VStack,
-    FormControl,
-    FormLabel,
+    Field,
     Checkbox,
-    Select,
+    NativeSelect,
     Box,
-    Radio,
-    FormErrorMessage,
+    RadioGroup,
     Textarea,
     Text,
     Flex,
     IconButton,
-    Button,
     Badge,
-    CloseButton,
 } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useNode } from '../../contexts/NodeContext';
 import CustomCheckbox from './CustomInputs/CustomCheckbox';
 import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 import TagInput from './CustomInputs/TagInput';
 import { displayNameMapping } from './InputData';
+
+const SettingsCheckbox = ({ checked, onCheckedChange, children }) => (
+    <Checkbox.Root
+        checked={checked}
+        onCheckedChange={({ checked: nextChecked }) =>
+            onCheckedChange(nextChecked === true)
+        }
+    >
+        <Checkbox.HiddenInput />
+        <Checkbox.Control />
+        <Checkbox.Label>{children}</Checkbox.Label>
+    </Checkbox.Root>
+);
 
 const DeepFieldExplorer = ({ selectedNode }) => {
     const {
@@ -32,7 +41,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         isVisible,
         handleToggleVisibility,
     } = useNode();
-    const [fields, setFields] = useState([]);
+    const fields = [];
     const [editedNode, setEditedNode] = useState(selectedNode);
     const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
     const [displayJson, setDisplayJson] = useState(false);
@@ -65,15 +74,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
 
         return obj && (obj[key] === true || obj === true);
     };
-
-    // Set initial state when selectedNode changes
-    useEffect(() => {
-        // If selected node is not null
-        if (selectedNode) {
-            setEditedNode(selectedNode);
-        }
-        // console.log('dsdebug-log', 'useEffect run for selectedNode');
-    }, [selectedNode]);
 
     const findDeepestFields = (obj, currentPath = []) => {
         console.log('dsdebug-log', '-dev', 'deepest fields run');
@@ -305,10 +305,10 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         // console.log('dsdebug-log', field.path);
 
         return (
-            <FormControl
-                isRequired={field.config.required}
+            <Field.Root
+                required={field.config.required}
                 key={field.path}
-                isInvalid={isError}
+                invalid={isError}
             >
                 {displayPaths && (
                     <Text color="blue.400" mb={2}>
@@ -322,9 +322,12 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                 )}
                 {field.config.displayName !== null &&
                     field.config.type !== 'Bool' && (
-                        <FormLabel>
+                        <Field.Label>
                             {getDisplayName(field.path, currentActivityName)}
-                        </FormLabel>
+                            {field.config.required && (
+                                <Field.RequiredIndicator />
+                            )}
+                        </Field.Label>
                     )}
                 {field.config.type === 'Bool' ? (
                     <CustomCheckbox
@@ -337,46 +340,48 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                         inputValue={inputValue}
                     />
                 ) : field.config.type === 'Choice' ? (
-                    <Select
-                        value={inputValue}
-                        onChange={(e) =>
-                            handleInputChange(field.path, e.target.value)
-                        }
-                    >
-                        {field.config.choices.map((choice) => (
-                            <option key={choice.value} value={choice.value}>
-                                {choice.displayName}
-                            </option>
-                        ))}
-                    </Select>
-                ) : field.config.type === 'Radio' ? (
-                    <VStack align="start">
-                        {field.config.choices.map((choice) => {
-                            const isNumberValue =
-                                typeof choice.value === 'number';
-                            const checked = isNumberValue
-                                ? Number(inputValue) === choice.value
-                                : inputValue === choice.value.toString();
-
-                            return (
-                                <Radio
-                                    key={choice.value}
-                                    value={choice.value}
-                                    isChecked={checked}
-                                    onChange={(e) =>
-                                        handleInputChange(
-                                            field.path,
-                                            isNumberValue
-                                                ? Number(e.target.value)
-                                                : e.target.value
-                                        )
-                                    }
-                                >
+                    <NativeSelect.Root>
+                        <NativeSelect.Field
+                            value={inputValue}
+                            onChange={(e) =>
+                                handleInputChange(field.path, e.target.value)
+                            }
+                        >
+                            {field.config.choices.map((choice) => (
+                                <option key={choice.value} value={choice.value}>
                                     {choice.displayName}
-                                </Radio>
+                                </option>
+                            ))}
+                        </NativeSelect.Field>
+                        <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                ) : field.config.type === 'Radio' ? (
+                    <RadioGroup.Root
+                        value={String(inputValue)}
+                        onValueChange={({ value }) => {
+                            const choice = field.config.choices.find(
+                                (item) => String(item.value) === value
+                            );
+                            handleInputChange(field.path, choice?.value ?? value);
+                        }}
+                    >
+                    <VStack align="start" gap={2}>
+                        {field.config.choices.map((choice) => {
+                            return (
+                                <RadioGroup.Item
+                                    key={choice.value}
+                                    value={String(choice.value)}
+                                >
+                                    <RadioGroup.ItemHiddenInput />
+                                    <RadioGroup.ItemIndicator />
+                                    <RadioGroup.ItemText>
+                                        {choice.displayName}
+                                    </RadioGroup.ItemText>
+                                </RadioGroup.Item>
                             );
                         })}
                     </VStack>
+                    </RadioGroup.Root>
                 ) : field.config.type === 'Textarea' ? (
                     <Textarea
                         placeholder={field.config.placeholder || ''}
@@ -415,9 +420,9 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                     />
                 )}
                 {isError && (
-                    <FormErrorMessage>This field is required.</FormErrorMessage>
+                    <Field.ErrorText>This field is required.</Field.ErrorText>
                 )}
-            </FormControl>
+            </Field.Root>
         );
     };
 
@@ -427,11 +432,12 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                 pos="absolute"
                 right={5}
                 top="64px"
-                icon={isVisible ? <ViewOffIcon /> : <ViewIcon />}
                 onClick={handleToggleVisibility}
                 variant="ghost"
                 zIndex={1}
-            />
+            >
+                {isVisible ? <FiEyeOff /> : <FiEye />}
+            </IconButton>
             {isVisible && (
                 <Box
                     w="20rem"
@@ -445,36 +451,22 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                             <Text pb={4} fontWeight="bold">
                                 Dev Tools
                             </Text>
-                            <Checkbox
-                                isChecked={displayJson}
-                                onChange={() => setDisplayJson(!displayJson)}
-                            >
+                            <SettingsCheckbox checked={displayJson} onCheckedChange={setDisplayJson}>
                                 Json
-                            </Checkbox>
-                            <Checkbox
-                                isChecked={displayIndex}
-                                onChange={() => setDisplayIndex(!displayIndex)}
-                            >
+                            </SettingsCheckbox>
+                            <SettingsCheckbox checked={displayIndex} onCheckedChange={setDisplayIndex}>
                                 Group Index
-                            </Checkbox>
-                            <Checkbox
-                                isChecked={displayPaths}
-                                onChange={() => setDisplayPaths(!displayPaths)}
-                            >
+                            </SettingsCheckbox>
+                            <SettingsCheckbox checked={displayPaths} onCheckedChange={setDisplayPaths}>
                                 Paths
-                            </Checkbox>
-                            <Checkbox
-                                isChecked={displayIsArray}
-                                onChange={() =>
-                                    setDisplayIsArray(!displayIsArray)
-                                }
-                            >
+                            </SettingsCheckbox>
+                            <SettingsCheckbox checked={displayIsArray} onCheckedChange={setDisplayIsArray}>
                                 isArray
-                            </Checkbox>
+                            </SettingsCheckbox>
                         </Flex>
                         <Box>
                             <Box p={4}>
-                                <VStack spacing={4}>
+                                <VStack gap={4}>
                                     {visibleFields.map((field) => {
                                         return renderField(field);
                                     })}

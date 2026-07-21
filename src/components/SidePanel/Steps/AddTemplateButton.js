@@ -1,5 +1,5 @@
 import { Flex, Button } from '@chakra-ui/react';
-import { SmallAddIcon } from '@chakra-ui/icons';
+import { FiPlus } from 'react-icons/fi';
 import { useRef } from 'react'; // Import useRef to access the input element
 
 const AddTemplateButton = ({ onUpload }) => {
@@ -43,7 +43,7 @@ const AddTemplateButton = ({ onUpload }) => {
                     _hover={{ backgroundColor: '#2d2d2d' }}
                     cursor="pointer"
                 >
-                    <SmallAddIcon /> Upload Template
+                    <FiPlus /> Upload Template
                 </Button>
                 <input
                     ref={fileInputRef}

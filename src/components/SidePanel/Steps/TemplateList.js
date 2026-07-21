@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from 'react';
+import { useSyncExternalStore, memo } from 'react';
 import {
     Grid,
     GridItem,
@@ -6,51 +6,58 @@ import {
     Text,
     Box,
     Checkbox,
-    Tooltip,
     IconButton,
     CloseButton,
+    Tooltip,
 } from '@chakra-ui/react';
 import Step from './Step';
 import Search from '../Search';
 import AddTemplateButton from './AddTemplateButton';
 import { useNode } from '../../../contexts/NodeContext';
-import { InfoIcon } from '@chakra-ui/icons';
+import { FiInfo } from 'react-icons/fi';
+
+const templateStorageKey = 'templates';
+const templateChangeEvent = 'templates-changed';
+const getTemplatesSnapshot = () =>
+    localStorage.getItem(templateStorageKey) ?? '[]';
+const getServerTemplatesSnapshot = () => '[]';
+const subscribeToTemplates = (callback) => {
+    window.addEventListener('storage', callback);
+    window.addEventListener(templateChangeEvent, callback);
+    return () => {
+        window.removeEventListener('storage', callback);
+        window.removeEventListener(templateChangeEvent, callback);
+    };
+};
 
 const TemplateList = () => {
     const { iterateVars, setIterateVars } = useNode();
-    const [templateLists, setTemplateLists] = useState([]);
+    const storedTemplates = useSyncExternalStore(
+        subscribeToTemplates,
+        getTemplatesSnapshot,
+        getServerTemplatesSnapshot
+    );
+    const templateLists = JSON.parse(storedTemplates);
 
-    // Load items from local storage on page load
-    useEffect(() => {
-        const storedTemplates =
-            JSON.parse(localStorage.getItem('templates')) || [];
-        setTemplateLists(storedTemplates);
-    }, []);
+    const saveTemplates = (templates) => {
+        localStorage.setItem(templateStorageKey, JSON.stringify(templates));
+        window.dispatchEvent(new Event(templateChangeEvent));
+    };
 
     // Function to remove a template by name from state and local storage
     const removeTemplate = (templateName) => {
         const updatedTemplates = templateLists.filter(
             (template) => template.name !== templateName
         );
-        setTemplateLists(updatedTemplates);
-        localStorage.setItem('templates', JSON.stringify(updatedTemplates));
+        saveTemplates(updatedTemplates);
     };
 
     const handleUpload = (jsonData, fileName) => {
-        // Add the uploaded data to the template list
-        setTemplateLists((prevList) => [
-            ...prevList,
-            { name: fileName, data: jsonData },
-        ]);
-
-        // Save the uploaded data to local storage
-        const storedTemplates =
-            JSON.parse(localStorage.getItem('templates')) || [];
         const updatedTemplates = [
-            ...storedTemplates,
+            ...templateLists,
             { name: fileName, data: jsonData },
         ];
-        localStorage.setItem('templates', JSON.stringify(updatedTemplates));
+        saveTemplates(updatedTemplates);
     };
 
     return (
@@ -175,19 +182,29 @@ const TemplateList = () => {
             >
                 <AddTemplateButton onUpload={handleUpload} />
                 <Flex alignItems="center" mt={2}>
-                    <Checkbox
+                    <Checkbox.Root
                         name="iterateVars"
-                        isChecked={iterateVars}
-                        onChange={() => setIterateVars(!iterateVars)}
+                        checked={iterateVars}
+                        onCheckedChange={({ checked }) =>
+                            setIterateVars(checked === true)
+                        }
                     >
-                        Unique Variables
-                    </Checkbox>
-                    <Tooltip
-                        label="Make merged variable names unique"
-                        placement="top"
-                    >
-                        <InfoIcon ml={2} cursor="help" />
-                    </Tooltip>
+                        <Checkbox.HiddenInput />
+                        <Checkbox.Control />
+                        <Checkbox.Label>Unique Variables</Checkbox.Label>
+                    </Checkbox.Root>
+                    <Tooltip.Root positioning={{ placement: 'top' }}>
+                        <Tooltip.Trigger asChild>
+                            <IconButton ml={2} cursor="help" variant="ghost" size="xs">
+                                <FiInfo />
+                            </IconButton>
+                        </Tooltip.Trigger>
+                        <Tooltip.Positioner>
+                            <Tooltip.Content>
+                                Make merged variable names unique
+                            </Tooltip.Content>
+                        </Tooltip.Positioner>
+                    </Tooltip.Root>
                 </Flex>
             </Flex>
         </Box>

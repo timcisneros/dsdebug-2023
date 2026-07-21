@@ -2,10 +2,6 @@ import { useState, useEffect, useMemo, memo } from 'react';
 import {
     Box,
     Tabs,
-    TabList,
-    Tab,
-    TabPanels,
-    TabPanel,
     IconButton,
 } from '@chakra-ui/react';
 import { Resizable } from 'react-resizable';
@@ -13,7 +9,7 @@ import StepList from './Steps/StepList';
 import CollapsibleTree from './Variables/CollapsibleTree';
 import Search from './Search';
 import TemplateList from './Steps/TemplateList';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 // import { useNode } from '../../contexts/NodeContext';
 // import { findVariables } from '../../utils/jsonUtils';
 
@@ -21,7 +17,6 @@ const SidePanel = ({
     definedVariables,
     data,
     setData,
-    setDefinedVariables,
 }) => {
     // State to control the width of the SidePanel
     const [panelWidth, setPanelWidth] = useState(350);
@@ -65,7 +60,6 @@ const SidePanel = ({
                                 data={data}
                                 setData={setData}
                                 definedVariables={definedVariables}
-                                setDefinedVariables={setDefinedVariables}
                             />
                         </div>
                     ))
@@ -74,7 +68,7 @@ const SidePanel = ({
                 )}
             </>
         );
-    }, [definedVariables, data]);
+    }, [definedVariables, data, setData]);
 
     return (
         <>
@@ -91,11 +85,10 @@ const SidePanel = ({
                     borderRadius="0"
                     borderBottomRightRadius={20}
                     zIndex="1"
-                    icon={
-                        isPanelOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />
-                    }
                     onClick={handleToggleResize}
-                />
+                >
+                    {isPanelOpen ? <FiChevronLeft /> : <FiChevronRight />}
+                </IconButton>
                 {/* {isPanelOpen && ( */}
                 <Resizable
                     width={isPanelOpen ? panelWidth : 0}
@@ -110,30 +103,40 @@ const SidePanel = ({
                         width={`${panelWidth}px`}
                         borderRight={isPanelOpen ? '1px solid #ccc' : 0}
                     >
-                        <Tabs isFitted overflow="hidden">
-                            <TabList>
-                                <Tab>Steps</Tab>
-                                <Tab>Variables</Tab>
-                            </TabList>
-                            <TabPanels
+                        <Tabs.Root defaultValue="steps" fitted overflow="hidden">
+                            <Tabs.List>
+                                <Tabs.Trigger value="steps">Steps</Tabs.Trigger>
+                                <Tabs.Trigger value="variables">
+                                    Variables
+                                </Tabs.Trigger>
+                            </Tabs.List>
+                            <Box
                                 flex="1"
                                 display="flex"
                                 flexDirection="column"
                                 height="calc(100vh - 90px)"
                             >
-                                <TabPanel overflowY="scroll" height="100vh">
+                                <Tabs.Content
+                                    value="steps"
+                                    overflowY="scroll"
+                                    height="100vh"
+                                >
                                     <TemplateList />
                                     <StepList />
-                                </TabPanel>
-                                <TabPanel overflowY="scroll" height="100vh">
+                                </Tabs.Content>
+                                <Tabs.Content
+                                    value="variables"
+                                    overflowY="scroll"
+                                    height="100vh"
+                                >
                                     <Search
                                         definedVariables={definedVariables}
                                     />
                                     <p>Variables: {definedVariables?.length}</p>
                                     {collapsibleTreeComponent}
-                                </TabPanel>
-                            </TabPanels>
-                        </Tabs>
+                                </Tabs.Content>
+                            </Box>
+                        </Tabs.Root>
                     </Box>
                 </Resizable>
                 {/* )} */}
