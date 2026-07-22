@@ -1,5 +1,6 @@
-import { Handle, Position } from 'reactflow';
-import { ReactSVG } from 'react-svg';
+import { memo } from 'react';
+import { Handle, Position } from '@xyflow/react';
+import SvgIcon from '../ui/SvgIcon';
 
 const StepNode = ({ data, selected }) => {
     const { id, name, size, attrs, icon, errorState } = data;
@@ -53,12 +54,8 @@ const StepNode = ({ data, selected }) => {
                         id={`${id}-left`}
                     />
                 </div>
-                <ReactSVG
-                    beforeInjection={(svg) => {
-                        svg.setAttribute('width', '24px');
-                        svg.setAttribute('height', '24px');
-                        svg.setAttribute('color', icon.color);
-                    }}
+                <SvgIcon
+                    color={icon.color}
                     src={svgPath}
                 />
                 <div>{displayName}</div> {/* Use the displayName variable */}
@@ -84,4 +81,4 @@ const StepNode = ({ data, selected }) => {
     );
 };
 
-export default StepNode;
+export default memo(StepNode);

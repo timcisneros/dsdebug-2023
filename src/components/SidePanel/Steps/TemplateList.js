@@ -13,7 +13,7 @@ import {
 import Step from './Step';
 import Search from '../Search';
 import AddTemplateButton from './AddTemplateButton';
-import { useNode } from '../../../contexts/NodeContext';
+import { useTemplateOptions } from '../../../contexts/NodeContext';
 import { FiInfo } from 'react-icons/fi';
 
 const templateStorageKey = 'templates';
@@ -31,7 +31,7 @@ const subscribeToTemplates = (callback) => {
 };
 
 const TemplateList = () => {
-    const { iterateVars, setIterateVars } = useNode();
+    const { iterateVars, setIterateVars } = useTemplateOptions();
     const storedTemplates = useSyncExternalStore(
         subscribeToTemplates,
         getTemplatesSnapshot,

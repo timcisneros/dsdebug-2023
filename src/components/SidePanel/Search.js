@@ -13,8 +13,8 @@ import {
 } from '@chakra-ui/react';
 import { FiSearch } from 'react-icons/fi';
 import { varDataMapping } from './Variables/varData';
-import { useNode } from '../../contexts/NodeContext';
-import { ReactSVG } from 'react-svg';
+import { useWorkflowActions } from '../../contexts/NodeContext';
+import SvgIcon from '../ui/SvgIcon';
 
 const Search = ({ definedVariables }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +25,7 @@ const Search = ({ definedVariables }) => {
     const [error, setError] = useState('');
     const [submittedAfterSelect, setSubmittedAfterSelect] = useState(false);
 
-    const { data, setData } = useNode();
+    const { createDefinedVariable } = useWorkflowActions();
 
     const [selectedIndex, setSelectedIndex] = useState(-1); // To keep track of the selected ListItem index
     const inputRef = useRef(null); // Ref for the Input element
@@ -87,64 +87,29 @@ const Search = ({ definedVariables }) => {
                         setError('Variable already exists.'); // Display an error message if the variable already exists
                         return; // Return early to prevent further execution
                     } else {
-                        setSearchTerm('');
-                        setError(''); // Clear the error message
+                        const newVariable = {
+                            type: varDataMapping[variableType].value.type,
+                            value: {
+                                name: searchTerm,
+                                displayName: searchTerm,
+                                displayType: variableType,
+                                ...varDataMapping[variableType].value.value,
+                            },
+                        };
 
-                        // Find the cell with activityName 'StartActivity'
-                        const startActivityCellIndex = data.cells.findIndex(
-                            (cell) => cell.activityName === 'StartActivity'
+                        console.log(
+                            'dsdebug-log',
+                            '- Variable Created:',
+                            newVariable
                         );
-
-                        if (startActivityCellIndex !== -1) {
-                            // Create a new definedVariables array with the existing variables and add the new variable to it
-                            const newVariable = {
-                                type: varDataMapping[variableType].value.type,
-                                value: {
-                                    name: searchTerm,
-                                    displayName: searchTerm,
-                                    displayType: variableType,
-                                    ...varDataMapping[variableType].value.value,
-                                },
-                            };
-
-                            // Create a new definedVariables array with the existing variables and add the new variable to it
-                            const newDefinedVariables = [
-                                ...data.cells[startActivityCellIndex]
-                                    .definedVariables.value,
-                                newVariable,
-                            ];
-
-                            // Create a new cell object with the updated definedVariables array
-                            const updatedCell = {
-                                ...data.cells[startActivityCellIndex],
-                                definedVariables: {
-                                    type: 'Variable',
-                                    value: newDefinedVariables,
-                                },
-                            };
-
-                            // Create a new array of cells with the updated cell object
-                            const updatedCells = data.cells.map((cell, index) =>
-                                index === startActivityCellIndex
-                                    ? updatedCell
-                                    : cell
-                            );
-
-                            // Create the final updatedData object
-                            const updatedData = {
-                                ...data,
-                                cells: updatedCells,
-                            };
-
-                            console.log(
-                                'dsdebug-log',
-                                '- Variable Created:',
-                                newVariable
-                            );
-
-                            // Use setData to update the data object in the context
-                            setData(updatedData);
+                        const result = createDefinedVariable(newVariable);
+                        if (!result.ok) {
+                            setError(result.error);
+                            return;
                         }
+
+                        setSearchTerm('');
+                        setError('');
                     }
                 }
                 setSubmittedAfterSelect(false);
@@ -223,14 +188,7 @@ const Search = ({ definedVariables }) => {
                         zIndex={1}
                         startElement={
                             definedVariables ? (
-                                <ReactSVG
-                                    beforeInjection={(svg) => {
-                                        svg.setAttribute('width', '24px');
-                                        svg.setAttribute('height', '24px');
-                                        svg.setAttribute('color', '#ccc');
-                                    }}
-                                    src="var.svg"
-                                />
+                                <SvgIcon color="#ccc" src="var.svg" />
                             ) : (
                                 <FiSearch color="var(--chakra-colors-gray-300)" />
                             )

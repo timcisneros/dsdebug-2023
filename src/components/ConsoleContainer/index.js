@@ -6,17 +6,22 @@ import {
     InputGroup,
 } from '@chakra-ui/react';
 import { Resizable } from 'react-resizable';
-import { ReactSVG } from 'react-svg';
+import SvgIcon from '../ui/SvgIcon';
 import LogsContainer from './LogsContainer';
 import { FiChevronDown, FiChevronRight, FiChevronUp } from 'react-icons/fi';
-import { useNode } from '../../contexts/NodeContext';
+import {
+    useSelection,
+    useWorkflowActions,
+    useWorkflowData,
+    useWorkflowHistory,
+    useWorkflowMetadata,
+} from '../../contexts/NodeContext';
 import { stepDataMapping } from '../SidePanel/Steps/StepData';
 
 const ConsoleContainer = ({
     splitHeight,
     setSplitHeight,
     reactFlowWrapper,
-    reactFlowInstance,
     nodes,
     edges,
     generateId,
@@ -29,15 +34,12 @@ const ConsoleContainer = ({
     const [inputVisible, setInputVisible] = useState(true); // Track input visibility
     const [isExpanded, setIsExpanded] = useState(true); // Track container expansion
 
-    const {
-        setNewNodesAdded,
-        data,
-        setData,
-        setSelectedNodes,
-        startActivity,
-        definedVariables,
-        workflowName,
-    } = useNode();
+    const { data } = useWorkflowData();
+    const { setData } = useWorkflowActions();
+    const { startActivity, definedVariables, workflowName } =
+        useWorkflowMetadata();
+    const { setNewNodesAdded } = useWorkflowHistory();
+    const { setSelectedNodes } = useSelection();
 
     // Function to handle input submission
     // const handleInputSubmit = (event) => {
@@ -276,9 +278,7 @@ const ConsoleContainer = ({
     const handleStartCommand = () => {
         // Check if the "StartActivity" already exists in the nodes array
         const startActivityNode = nodes.find(
-            (node) =>
-                node.type === 'StepNode' &&
-                node.data.name?.value === 'StartActivity'
+            (node) => node.data.activityName === 'StartActivity'
         );
 
         // If the "StartActivity" doesn't exist, create it directly in this function
@@ -300,9 +300,13 @@ const ConsoleContainer = ({
                         name: { type: 'String', value: 'Start' },
                         definedVariables: {
                             type: 'Variable',
-                            value: definedVariables,
+                            value: definedVariables ?? [],
                         },
-                        workflowName,
+                        workflowName:
+                            workflowName ?? {
+                                type: 'String',
+                                value: 'New Workflow',
+                            },
                         sendNotification: { type: 'Bool', value: false },
                         trackActivity: { type: 'Bool', value: true },
                         attrs: {
@@ -985,9 +989,16 @@ const ConsoleContainer = ({
                                 setLogs={setLogs}
                             />
                         </Box>
-                        <Box position="absolute" bottom="0" width="100%">
+                        <Box
+                            position="absolute"
+                            bottom="0"
+                            width="100%"
+                            backgroundColor="#212121"
+                            borderTop="1px solid #2c2c2c"
+                        >
                             <form onSubmit={handleInputSubmit}>
                                 <InputGroup
+                                    backgroundColor="#212121"
                                     startElement={
                                         <FiChevronRight color="var(--chakra-colors-gray-300)" />
                                     }
@@ -998,6 +1009,7 @@ const ConsoleContainer = ({
                                         fontFamily="Consolas,Lucida Console,Courier New,monospace"
                                         fontSize="12px"
                                         color="#fff"
+                                        backgroundColor="transparent"
                                         variant="unstyled"
                                         width="100%"
                                         px={35}
@@ -1006,6 +1018,7 @@ const ConsoleContainer = ({
                                         onKeyDown={handleKeyDown}
                                         onChange={handleInputChange}
                                         onSubmit={handleInputSubmit}
+                                        _placeholder={{ color: 'gray.500' }}
                                     />
                                 </InputGroup>
                             </form>
@@ -1021,15 +1034,10 @@ const ConsoleContainer = ({
                     h="24px"
                     background="none"
                 >
-                    <ReactSVG
+                    <SvgIcon
                         className="console-handle"
+                        color="#fff"
                         src="step-images/more-horizontal.svg"
-                        beforeInjection={(svg) => {
-                            svg.setAttribute('width', '24px');
-                            svg.setAttribute('height', '24px');
-                            svg.setAttribute('color', '#fff');
-                            svg.setAttribute('position', 'absolute');
-                        }}
                     />
                 </Box>
             </Box>

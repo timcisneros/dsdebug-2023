@@ -11,15 +11,28 @@ import {
     IconButton,
     Portal,
 } from '@chakra-ui/react';
-import { ReactSVG } from 'react-svg';
+import SvgIcon from '../../ui/SvgIcon';
 import { FiChevronDown } from 'react-icons/fi';
-import { useNode } from '../../../contexts/NodeContext';
+import { useWorkflowMetadata } from '../../../contexts/NodeContext';
+
+const updateValueAtPath = (currentValue, pathParts, newValue) => {
+    if (pathParts.length === 0) return newValue;
+
+    const [currentPart, ...remainingParts] = pathParts;
+    const source = currentValue ?? {};
+    const updatedValue = Array.isArray(source) ? [...source] : { ...source };
+    updatedValue[currentPart] = updateValueAtPath(
+        source[currentPart],
+        remainingParts,
+        newValue
+    );
+    return updatedValue;
+};
 
 function TagInput({
     field,
     variableName,
     editedNode,
-    setEditedNode,
     path,
     handleUpdateNode,
     isArray,
@@ -47,9 +60,10 @@ function TagInput({
     );
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
+    const controlRef = useRef(null);
     const [error, setError] = useState('');
 
-    const { definedVariables } = useNode();
+    const { definedVariables } = useWorkflowMetadata();
 
     const handleSearch = (event) => {
         const inputText = event.target.value;
@@ -144,18 +158,11 @@ function TagInput({
             }
         }
 
-        // Update the editedNode with the new value
-        let updatedNode = { ...editedNode };
-        const pathParts = currentPath.split('.');
-        let target = updatedNode;
-        for (let i = 0; i < pathParts.length - 1; i++) {
-            if (!target[pathParts[i]]) target[pathParts[i]] = {};
-            target = target[pathParts[i]];
-        }
-
-        target[pathParts[pathParts.length - 1]] = updatedNodeValue;
-
-        setEditedNode(updatedNode);
+        const updatedNode = updateValueAtPath(
+            editedNode,
+            currentPath.split('.'),
+            updatedNodeValue
+        );
         handleUpdateNode(updatedNode);
     };
 
@@ -164,9 +171,9 @@ function TagInput({
     );
 
     return (
-        <Box position="relative">
-            <form onSubmit={handleTagSubmit}>
-                <Field.Root invalid={!!error}>
+        <Box position="relative" width="100%">
+            <Box as="form" width="100%" onSubmit={handleTagSubmit}>
+                <Field.Root invalid={!!error} width="100%">
                     {error && (
                         <Text
                             position="absolute"
@@ -178,18 +185,14 @@ function TagInput({
                         </Text>
                     )}
                     <InputGroup
+                        ref={controlRef}
+                        width="100%"
                         startElement={
-                            <ReactSVG
-                                beforeInjection={(svg) => {
-                                    svg.setAttribute('width', '24px');
-                                    svg.setAttribute('height', '24px');
-                                    svg.setAttribute('color', '#ccc');
-                                }}
-                                src="var.svg"
-                            />
+                            <SvgIcon color="#ccc" src="var.svg" />
                         }
                     >
                         <Input
+                            width="100%"
                             value={searchTerm}
                             onChange={handleSearch}
                             backgroundColor="#fff"
@@ -223,7 +226,15 @@ function TagInput({
                         ))}
                     </div>
                     {/* Dropdown menu */}
-                    <Menu.Root lazyMount positioning={{ gutter: 5 }}>
+                    <Menu.Root
+                        lazyMount
+                        positioning={{
+                            gutter: 5,
+                            placement: 'bottom-start',
+                            sameWidth: true,
+                            getAnchorElement: () => controlRef.current,
+                        }}
+                    >
                         {!tags.length && !searchTerm && (
                             <Menu.Trigger asChild>
                                 <IconButton
@@ -241,6 +252,7 @@ function TagInput({
                         <Portal>
                             <Menu.Positioner>
                                 <Menu.Content
+                                    width="100%"
                                     zIndex={1}
                                     p={0}
                                     maxH="20rem"
@@ -308,7 +320,7 @@ function TagInput({
                         </List.Root>
                     )}
                 </Field.Root>
-            </form>
+            </Box>
         </Box>
     );
 }

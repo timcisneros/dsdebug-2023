@@ -1,4 +1,4 @@
-import { Position, getSmoothStepPath } from 'reactflow';
+import { Position, getSmoothStepPath } from '@xyflow/react';
 
 const ConnectionLine = ({ fromX, fromY, toX, toY }) => {
     const [path] = getSmoothStepPath({

@@ -1,10 +1,11 @@
-import { NodeResizer } from 'reactflow';
-import { useNode } from '../../contexts/NodeContext';
+import { NodeResizer } from '@xyflow/react';
+import { memo } from 'react';
+import { useWorkflowActions } from '../../contexts/NodeContext';
 
 const LaneNode = ({ id, data, selected }) => {
     const { name, size, attrs, color } = data;
     const displayName = name?.value || '';
-    const { setData } = useNode();
+    const { setData } = useWorkflowActions();
 
     const handleResizeEnd = (event, params) => {
         setData((prevData) => ({
@@ -91,4 +92,4 @@ const LaneNode = ({ id, data, selected }) => {
     );
 };
 
-export default LaneNode;
+export default memo(LaneNode);

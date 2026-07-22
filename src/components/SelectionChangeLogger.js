@@ -1,8 +1,8 @@
-import { useOnSelectionChange } from 'reactflow';
-import { useNode } from '../contexts/NodeContext';
+import { useOnSelectionChange } from '@xyflow/react';
+import { useSelection } from '../contexts/NodeContext';
 
 export function SelectionChangeLogger() {
-    const { setSelectedNodes } = useNode();
+    const { setSelectedNodes } = useSelection();
     useOnSelectionChange({
         onChange: ({ nodes, edges }) => {
             // Check if nodes array is empty

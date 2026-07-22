@@ -9,8 +9,9 @@ import {
     Portal,
 } from '@chakra-ui/react';
 import { FiSettings } from 'react-icons/fi';
-import { useNode } from '../../../contexts/NodeContext';
 import { varDataMapping } from './varData';
+import { useWorkflowActions } from '../../../contexts/NodeContext';
+import { toaster } from '../../ui/toaster';
 
 const TreeItem = memo(
     ({
@@ -36,7 +37,14 @@ const TreeItem = memo(
                 border="none"
             >
                 <Flex alignItems="center" position="relative">
-                    <Accordion.ItemTrigger>
+                    <Accordion.ItemTrigger
+                        width="100%"
+                        minHeight="36px"
+                        px={2}
+                        py={1.5}
+                        paddingEnd={deletable ? 10 : 2}
+                        gap={2}
+                    >
                         <Accordion.ItemIndicator />
                         <Box>{icon}</Box>
                         {isEditing ? (
@@ -52,8 +60,13 @@ const TreeItem = memo(
                                 onClick={(e) => e.stopPropagation()}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
-                                        onRename?.(label, newName);
-                                        setIsEditing?.(false);
+                                        const renamed = onRename?.(
+                                            label,
+                                            newName
+                                        );
+                                        if (renamed !== false) {
+                                            setIsEditing?.(false);
+                                        }
                                     }
                                 }}
                             />
@@ -77,6 +90,10 @@ const TreeItem = memo(
                                     size="xs"
                                     mx={2}
                                     cursor="pointer"
+                                    variant="ghost"
+                                    color="gray.400"
+                                    background="transparent"
+                                    _hover={{ color: 'gray.600', background: 'gray.100' }}
                                     aria-label={`Options for ${label}`}
                                     onClick={(e) => e.stopPropagation()}
                                 >
@@ -112,9 +129,9 @@ const TreeItem = memo(
                     )}
                 </Flex>
                 <Accordion.ItemContent>
-                    <Accordion.ItemBody pl={4} pb={2} minWidth="200px">
+                    <Accordion.ItemBody pl={3} pr={0} pb={1} width="100%">
                         {hasChildren && (
-                            <Accordion.Root multiple>
+                            <Accordion.Root multiple width="100%">
                                 {childNodes.map((child) => (
                                     <TreeItem
                                         key={`child-${child.name}`}
@@ -136,15 +153,12 @@ const TreeItem = memo(
 
 TreeItem.displayName = 'TreeItem';
 
-const CollapsibleTree = ({
-    definedVariable,
-    data,
-    setData,
-    definedVariables,
-}) => {
+const CollapsibleTree = ({ definedVariable }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
     const inputRef = useRef(null); // Create a ref for the Input element
+    const { deleteDefinedVariable, renameDefinedVariable } =
+        useWorkflowActions();
 
     const icon = varDataMapping[definedVariable.value.displayType].icon;
 
@@ -176,95 +190,35 @@ const CollapsibleTree = ({
     // Function to handle variable deletion
     const handleDeleteVariable = useCallback(
         (variableName) => {
-            const updatedVariables = definedVariables.filter(
-                (variable) => variable.value.name !== variableName
-            );
-
-            // Find the cell with activityName 'StartActivity'
-            const startActivityCellIndex = data.cells.findIndex(
-                (cell) => cell.activityName === 'StartActivity'
-            );
-
-            if (startActivityCellIndex !== -1) {
-                // Create a new data object with the updated list of variables
-                const updatedData = {
-                    ...data,
-                    cells: data.cells.map((cell, index) =>
-                        index === startActivityCellIndex
-                            ? {
-                                  ...cell,
-                                  definedVariables: {
-                                      type: 'Variable',
-                                      value: updatedVariables,
-                                  },
-                              }
-                            : cell
-                    ),
-                };
-
-                // Use setData to update the data object in the context
-                setData(updatedData);
-
+            const result = deleteDefinedVariable(variableName);
+            if (!result.ok) {
+                toaster.create({
+                    title: 'Variable is still in use',
+                    description: result.error,
+                    type: 'warning',
+                    duration: 7000,
+                    closable: true,
+                });
             }
         },
-        [definedVariables, data, setData]
+        [deleteDefinedVariable]
     );
 
     const handleRenameVariable = useCallback(
         (oldName, newName) => {
-            // Validate the new name to disallow spaces and symbols other than underscores
-            const isValidName = /^[A-Za-z0-9_]+$/.test(newName);
-
-            if (!isValidName) {
-                // Show an error message or handle the validation error in your preferred way
-                console.error(
-                    'Invalid variable name. Only letters, numbers, and underscores are allowed.'
-                );
-                return;
+            const result = renameDefinedVariable(oldName, newName);
+            if (!result.ok) {
+                toaster.create({
+                    title: 'Unable to rename variable',
+                    description: result.error,
+                    type: 'error',
+                    duration: 5000,
+                    closable: true,
+                });
             }
-
-            // Update the variable name in the definedVariables array
-            const updatedVariables = definedVariables.map((variable) =>
-                variable.value.name === oldName
-                    ? {
-                          ...variable,
-                          value: {
-                              ...variable.value,
-                              name: newName,
-                              displayName: newName,
-                          },
-                      }
-                    : variable
-            );
-
-            // Find the cell with activityName 'StartActivity'
-            const startActivityCellIndex = data.cells.findIndex(
-                (cell) => cell.activityName === 'StartActivity'
-            );
-
-            if (startActivityCellIndex !== -1) {
-                // Create a new data object with the updated list of variables
-                const updatedData = {
-                    ...data,
-                    cells: data.cells.map((cell, index) =>
-                        index === startActivityCellIndex
-                            ? {
-                                  ...cell,
-                                  definedVariables: {
-                                      type: 'Variable',
-                                      value: updatedVariables,
-                                  },
-                              }
-                            : cell
-                    ),
-                };
-
-                // Use setData to update the data object in the context
-                setData(updatedData);
-
-            }
+            return result.ok;
         },
-        [definedVariables, data, setData]
+        [renameDefinedVariable]
     );
 
     const treeItemComponent = (
@@ -301,7 +255,16 @@ const CollapsibleTree = ({
                         width="100%"
                     >
                         <Flex alignItems="center" position="relative">
-                            <Accordion.ItemTrigger>
+                            <Accordion.ItemTrigger
+                                width="100%"
+                                minHeight="36px"
+                                px={2}
+                                py={1.5}
+                                paddingEnd={
+                                    definedVariable.value.deletable ? 10 : 2
+                                }
+                                gap={2}
+                            >
                                 <Box>{icon}</Box>
                                 {isEditing ? (
                                     <Input
@@ -320,11 +283,14 @@ const CollapsibleTree = ({
                                         }}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
-                                                handleRenameVariable(
+                                                const renamed =
+                                                    handleRenameVariable(
                                                     definedVariable.value.name,
                                                     newName
-                                                ); // Pass the previous name and the new name
-                                                setIsEditing(false);
+                                                );
+                                                if (renamed) {
+                                                    setIsEditing(false);
+                                                }
                                             }
                                         }}
                                     />
@@ -347,6 +313,10 @@ const CollapsibleTree = ({
                                             right="0"
                                             mx={2}
                                             size="xs"
+                                            variant="ghost"
+                                            color="gray.400"
+                                            background="transparent"
+                                            _hover={{ color: 'gray.600', background: 'gray.100' }}
                                             aria-label={`Options for ${definedVariable.value.name}`}
                                             onClick={(e) => e.stopPropagation()}
                                         >

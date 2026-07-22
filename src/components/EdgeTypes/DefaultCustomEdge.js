@@ -1,11 +1,11 @@
 // DefaultCustomEdge.js
-import React from 'react';
+import { memo } from 'react';
 import {
     BaseEdge,
     EdgeLabelRenderer,
     getSmoothStepPath,
     getStraightPath,
-} from 'reactflow';
+} from '@xyflow/react';
 
 const DefaultCustomEdge = ({
     sourceX,
@@ -57,4 +57,4 @@ const DefaultCustomEdge = ({
     );
 };
 
-export default DefaultCustomEdge;
+export default memo(DefaultCustomEdge);

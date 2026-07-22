@@ -1,5 +1,6 @@
-import { Handle, Position } from 'reactflow';
-import { ReactSVG } from 'react-svg';
+import { memo } from 'react';
+import { Handle, Position } from '@xyflow/react';
+import SvgIcon from '../ui/SvgIcon';
 
 const DiamondNode = ({ data, selected }) => {
     const { id, name, size, attrs, icon, errorState } = data;
@@ -55,12 +56,8 @@ const DiamondNode = ({ data, selected }) => {
                         alignItems: 'center',
                     }}
                 >
-                    <ReactSVG
-                        beforeInjection={(svg) => {
-                            svg.setAttribute('width', '24px');
-                            svg.setAttribute('height', '24px');
-                            svg.setAttribute('color', icon.color);
-                        }}
+                    <SvgIcon
+                        color={icon.color}
                         src={svgPath}
                     />
                     {displayName} {/* Use the displayName variable */}
@@ -89,4 +86,4 @@ const DiamondNode = ({ data, selected }) => {
     );
 };
 
-export default DiamondNode;
+export default memo(DiamondNode);

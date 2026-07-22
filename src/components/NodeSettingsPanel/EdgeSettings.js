@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { Box, Field, NativeSelect } from '@chakra-ui/react';
-import { useNode } from '../../contexts/NodeContext';
+import {
+    useSelection,
+    useWorkflowActions,
+    useWorkflowData,
+} from '../../contexts/NodeContext';
 import { stepDataMapping } from '../SidePanel/Steps/StepData';
 
 const EdgeSettings = () => {
-    const { selectedEdge, data, setData } = useNode();
+    const { selectedEdge } = useSelection();
+    const { data } = useWorkflowData();
+    const { setData } = useWorkflowActions();
     const [editedLabel, setEditedLabel] = useState(selectedEdge?.label ?? '');
     const sourceStep = data.cells.find(
         (step) => selectedEdge?.source === step.id

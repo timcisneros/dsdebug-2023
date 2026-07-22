@@ -1,17 +1,20 @@
 import React, {
+    useEffect,
     useState,
     useMemo,
     useRef,
     useCallback,
 } from 'react';
-import ReactFlow, {
+import {
+    ReactFlow,
     MarkerType,
     Controls,
     ControlButton,
     MiniMap,
     Background,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+    useNodesState,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import StepNode from './NodeTypes/StepNode';
 import GroupNode from './NodeTypes/GroupNode';
 import CircleNode from './NodeTypes/CircleNode';
@@ -20,17 +23,24 @@ import { Box, Flex, Grid } from '@chakra-ui/react';
 import { toaster } from './ui/toaster';
 import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import DefaultCustomEdge from './EdgeTypes/DefaultCustomEdge';
-import { useNode } from '../contexts/NodeContext';
+import {
+    useSelection,
+    useTemplateOptions,
+    useWorkflowActions,
+    useWorkflowData,
+    useWorkflowHistory,
+    useWorkflowMetadata,
+} from '../contexts/NodeContext';
 import SidePanel from './SidePanel';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4 to generate unique IDs
-import { SelectionChangeLogger } from './SelectionChangeLogger';
 import LaneNode from './NodeTypes/LaneNode';
 import { stepDataMapping } from './SidePanel/Steps/StepData';
-import { templateDataMapping } from './SidePanel/Steps/templateData';
 import ConsoleContainer from './ConsoleContainer';
 import 'react-resizable/css/styles.css';
 import DeepFieldExplorer from './NodeSettingsPanel';
 import ConnectionLine from './EdgeTypes/ConnectionLine';
+import { rewriteVariableReferences } from '../utils/variableMerge';
+import { loadTemplateDataMapping } from '../utils/templateLoader';
 
 const proOptions = { hideAttribution: true };
 
@@ -48,8 +58,13 @@ const edgeTypes = {
 }; // Define the edge types as strings
 
 const snapGrid = [25, 25];
+const snapToCanvasGrid = ({ x, y }) => ({
+    x: Math.round(x / snapGrid[0]) * snapGrid[0],
+    y: Math.round(y / snapGrid[1]) * snapGrid[1],
+});
 
 const deleteKeyCode = ['Backspace', 'Delete'];
+const flowStyle = { width: '100%', height: '100%' };
 
 const getItemLabel = (itemLabel, sourceNodeId, nodes) => {
     if (itemLabel?.type !== 'Reference') {
@@ -84,7 +99,7 @@ const getItemLabel = (itemLabel, sourceNodeId, nodes) => {
     );
 };
 
-const createFlowNodes = (data, selectedNodes) => {
+const createFlowNodes = (data) => {
     const unwantedProperties = ['id', 'type', 'position', 'selected'];
     const customNodeTypes = {
         'springcm.Step': 'StepNode',
@@ -113,11 +128,10 @@ const createFlowNodes = (data, selectedNodes) => {
             position: item.position || { x: 0, y: 0 },
             type: customNodeTypes[item.type] || 'default',
             selectable: true,
-            selected: !!selectedNodes?.some((node) => node.id === item.id),
         }));
 };
 
-const createFlowEdges = (data, nodes) =>
+const createFlowEdges = (data, nodes, selectedEdge) =>
     data.cells
         .filter((item) => item.type === 'springcm.Link')
         .map((item) => ({
@@ -128,6 +142,7 @@ const createFlowEdges = (data, nodes) =>
                 getItemLabel(item.output, item.source.id, nodes) ||
                 item.output?.value,
             type: 'defaultCustomEdge',
+            selected: selectedEdge?.id === item.id,
             animated: false,
             markerEnd: {
                 type: MarkerType.ArrowClosed,
@@ -136,42 +151,234 @@ const createFlowEdges = (data, nodes) =>
             },
         }));
 
+const FlowCanvas = React.memo(
+    ({
+        externalNodes,
+        edges,
+        onNodeSelectionChanges,
+        onNodeDragStop,
+        onEdgesChange,
+        onEdgeClick,
+        onInit,
+        onDragOver,
+        onDrop,
+        onConnect,
+        onNodesDelete,
+        onEdgesDelete,
+        onPaneClick,
+        onReset,
+        minimapVisible,
+        onMinimapVisible,
+        reactFlowWrapper,
+    }) => {
+        const [nodes, setNodes, applyNodesChange] = useNodesState(externalNodes);
+        const isNodeDraggingRef = useRef(false);
+        const pendingSelectionChangesRef = useRef([]);
+        const selectionFlushScheduledRef = useRef(false);
+
+        useEffect(() => {
+            setNodes((currentNodes) => {
+                const currentNodesById = new Map(
+                    currentNodes.map((node) => [node.id, node])
+                );
+
+                return externalNodes.map((externalNode) => ({
+                    ...currentNodesById.get(externalNode.id),
+                    ...externalNode,
+                }));
+            });
+        }, [externalNodes, setNodes]);
+
+        const flushPendingSelectionChanges = useCallback(() => {
+            selectionFlushScheduledRef.current = false;
+            if (
+                isNodeDraggingRef.current ||
+                pendingSelectionChangesRef.current.length === 0
+            ) {
+                return;
+            }
+
+            const selectionChanges = pendingSelectionChangesRef.current;
+            pendingSelectionChangesRef.current = [];
+            onNodeSelectionChanges(selectionChanges);
+        }, [onNodeSelectionChanges]);
+
+        const handleNodesChange = useCallback(
+            (changes) => {
+                applyNodesChange(changes);
+
+                const selectionChanges = changes.filter(
+                    (change) => change.type === 'select'
+                );
+                if (selectionChanges.length === 0) return;
+
+                pendingSelectionChangesRef.current.push(...selectionChanges);
+                if (!selectionFlushScheduledRef.current) {
+                    selectionFlushScheduledRef.current = true;
+                    queueMicrotask(flushPendingSelectionChanges);
+                }
+            },
+            [applyNodesChange, flushPendingSelectionChanges]
+        );
+
+        const handleNodeDragStart = useCallback(() => {
+            isNodeDraggingRef.current = true;
+        }, []);
+
+        const handleNodeDragStop = useCallback(
+            (event, draggedNode, draggedNodes) => {
+                isNodeDraggingRef.current = false;
+                flushPendingSelectionChanges();
+                onNodeDragStop(event, draggedNode, draggedNodes);
+            },
+            [flushPendingSelectionChanges, onNodeDragStop]
+        );
+
+        return (
+            <Flex h="100%" ref={reactFlowWrapper}>
+                <ReactFlow
+                    deleteKeyCode={deleteKeyCode}
+                    proOptions={proOptions}
+                    minZoom={0.1}
+                    nodes={nodes}
+                    edges={edges}
+                    nodeTypes={nodeTypes}
+                    edgeTypes={edgeTypes}
+                    onNodesChange={handleNodesChange}
+                    onNodeDragStart={handleNodeDragStart}
+                    onNodeDragStop={handleNodeDragStop}
+                    onEdgesChange={onEdgesChange}
+                    onEdgeClick={onEdgeClick}
+                    onInit={onInit}
+                    onDragOver={onDragOver}
+                    onDrop={onDrop}
+                    onConnect={onConnect}
+                    onNodesDelete={onNodesDelete}
+                    onEdgesDelete={onEdgesDelete}
+                    onPaneClick={onPaneClick}
+                    fitView
+                    elevateEdgesOnSelect
+                    nodesFocusable
+                    onlyRenderVisibleElements
+                    style={flowStyle}
+                    snapToGrid
+                    snapGrid={snapGrid}
+                    connectionLineComponent={ConnectionLine}
+                >
+                    <Background variant="cross" gap={25} />
+                    <Controls>
+                        <ControlButton
+                            onClick={onReset}
+                            title="reset node positions"
+                        >
+                            <div>⟳</div>
+                        </ControlButton>
+                        <ControlButton
+                            title="toggle minimap"
+                            onClick={onMinimapVisible}
+                        >
+                            <svg
+                                className="icon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                                icon="map"
+                                namespace="ux"
+                            >
+                                <g fillRule="evenodd" transform="translate(6 1)">
+                                    <path d="M10.678 9.757L6.001 20.67 1.328 9.765a6 6 0 119.35-.008z"></path>
+                                    <circle
+                                        fill="#FFF"
+                                        cx="6"
+                                        cy="6"
+                                        r="3"
+                                    ></circle>
+                                </g>
+                            </svg>
+                        </ControlButton>
+                    </Controls>
+                    {minimapVisible && <MiniMap />}
+                </ReactFlow>
+            </Flex>
+        );
+    }
+);
+
+FlowCanvas.displayName = 'FlowCanvas';
+
 const WorkflowDiagram = () => {
+    const { data } = useWorkflowData();
+    const { setData, generateUniqueName } = useWorkflowActions();
+    const { definedVariables, startActivity } = useWorkflowMetadata();
+    const { mergeDefinedVariables } = useTemplateOptions();
     const {
-        data,
-        setData,
+        newNodesAdded,
+        setNewNodesAdded,
+        defaultNodePositions,
+    } = useWorkflowHistory();
+    const {
         selectedNodes,
         setSelectedNodes,
         selectedEdge,
         setSelectedEdge,
-        definedVariables,
-        mergeDefinedVariables,
-        startActivity,
-        newNodesAdded,
-        setNewNodesAdded,
-        defaultNodePositions,
-        generateUniqueName,
-    } = useNode();
+    } = useSelection();
 
-    const nodes = useMemo(
-        () => createFlowNodes(data, selectedNodes),
-        [data, selectedNodes]
+    const externalNodes = useMemo(
+        () => createFlowNodes(data),
+        [data]
     );
-    const edges = useMemo(() => createFlowEdges(data, nodes), [data, nodes]);
+    const edges = useMemo(
+        () => createFlowEdges(data, externalNodes, selectedEdge),
+        [data, externalNodes, selectedEdge]
+    );
 
-    const onNodesChange = useCallback(
+    const handleNodeSelectionChanges = useCallback(
         (changes) => {
-            const positions = new Map(
-                changes
-                    .filter((change) => change.type === 'position' && change.position)
-                    .map((change) => [change.id, change.position])
+            const selectionChanges = changes.filter(
+                (change) => change.type === 'select'
             );
-            if (positions.size === 0) return;
+            if (selectionChanges.length > 0) {
+                if (selectionChanges.some((change) => change.selected)) {
+                    setSelectedEdge(null);
+                }
+
+                setSelectedNodes((currentSelection) => {
+                    const selectedIds = new Set(
+                        currentSelection?.map((node) => node.id) ?? []
+                    );
+                    selectionChanges.forEach(({ id, selected }) => {
+                        if (selected) selectedIds.add(id);
+                        else selectedIds.delete(id);
+                    });
+
+                    const nextSelection = externalNodes
+                        .filter((node) => selectedIds.has(node.id))
+                        .map((node) => ({ ...node, selected: true }));
+                    return nextSelection.length > 0 ? nextSelection : null;
+                });
+            }
+
+        },
+        [externalNodes, setSelectedEdge, setSelectedNodes]
+    );
+
+    const handleNodeDragStop = useCallback(
+        (_event, draggedNode, draggedNodes = [draggedNode]) => {
+            const finalPositions = new Map(
+                draggedNodes.map((node) => [
+                    node.id,
+                    snapToCanvasGrid(node.position),
+                ])
+            );
+            finalPositions.set(
+                draggedNode.id,
+                snapToCanvasGrid(draggedNode.position)
+            );
+
             setData((currentData) => ({
                 ...currentData,
                 cells: currentData.cells.map((cell) =>
-                    positions.has(cell.id)
-                        ? { ...cell, position: positions.get(cell.id) }
+                    finalPositions.has(cell.id)
+                        ? { ...cell, position: finalPositions.get(cell.id) }
                         : cell
                 ),
             }));
@@ -179,9 +386,47 @@ const WorkflowDiagram = () => {
         [setData]
     );
 
-    const onEdgesChange = useCallback(() => {}, []);
+    const onEdgesChange = useCallback(
+        (changes) => {
+            const selectionChanges = changes.filter(
+                (change) => change.type === 'select'
+            );
+            if (selectionChanges.length === 0) return;
 
-    const handleReset = () => {
+            if (selectionChanges.some((change) => change.selected)) {
+                setSelectedNodes(null);
+            }
+
+            setSelectedEdge((currentSelection) => {
+                let nextSelection = currentSelection;
+                selectionChanges.forEach(({ id, selected }) => {
+                    if (selected) {
+                        nextSelection = edges.find((edge) => edge.id === id) ?? null;
+                    } else if (nextSelection?.id === id) {
+                        nextSelection = null;
+                    }
+                });
+                return nextSelection;
+            });
+        },
+        [edges, setSelectedEdge, setSelectedNodes]
+    );
+
+    const handlePaneClick = useCallback(() => {
+        setSelectedNodes(null);
+        setSelectedEdge(null);
+    }, [setSelectedEdge, setSelectedNodes]);
+
+    const handleEdgeClick = useCallback(
+        (event, edge) => {
+            event.stopPropagation();
+            setSelectedNodes(null);
+            setSelectedEdge(edge);
+        },
+        [setSelectedEdge, setSelectedNodes]
+    );
+
+    const handleReset = useCallback(() => {
         const id = 'not allowed';
         // Check if new nodes have been added
         if (!newNodesAdded) {
@@ -205,11 +450,11 @@ const WorkflowDiagram = () => {
                 });
             }
         }
-    };
+    }, [defaultNodePositions, newNodesAdded, setData]);
 
-    const generateId = () => {
+    const generateId = useCallback(() => {
         return uuidv4(); // Generate a random UUID as the node ID
-    };
+    }, []);
 
     const reactFlowWrapper = useRef(null);
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
@@ -219,11 +464,9 @@ const WorkflowDiagram = () => {
     }, []);
 
     const handleDrop = useCallback(
-        (event) => {
+        async (event) => {
             if (data) {
                 event.preventDefault();
-                const reactFlowBounds =
-                    reactFlowWrapper.current.getBoundingClientRect();
                 const nodeData = JSON.parse(
                     event.dataTransfer.getData('application/json')
                 );
@@ -231,13 +474,14 @@ const WorkflowDiagram = () => {
                 // const zoomLevel = reactFlowInstance.getZoom();
                 // console.log('dsdebug-log', zoomLevel);
 
-                const position = reactFlowInstance.project({
-                    x: event.clientX - reactFlowBounds.left,
-                    y: event.clientY - reactFlowBounds.top,
+                const flowPosition = reactFlowInstance.screenToFlowPosition({
+                    x: event.clientX,
+                    y: event.clientY,
                 });
-
-                position.x -= 50;
-                position.y -= 50;
+                const position = snapToCanvasGrid({
+                    x: flowPosition.x - 50,
+                    y: flowPosition.y - 50,
+                });
 
                 const existingStepNames = data.cells.map(
                     (node) => node.name.value
@@ -271,19 +515,16 @@ const WorkflowDiagram = () => {
                     }));
                 }
 
-                if (
-                    (nodeData.stepType === 'Template' &&
-                        nodeData.activityName in templateDataMapping) ||
-                    (nodeData.stepType === 'Template' &&
-                        typeof nodeData.stepData === 'object')
-                ) {
+                if (nodeData.stepType === 'Template') {
                     setNewNodesAdded(true);
 
                     // Get the drop position
-                    const dropPosition = reactFlowInstance.project({
-                        x: event.clientX - reactFlowBounds.left,
-                        y: event.clientY - reactFlowBounds.top,
-                    });
+                    const dropPosition = snapToCanvasGrid(
+                        reactFlowInstance.screenToFlowPosition({
+                            x: event.clientX,
+                            y: event.clientY,
+                        })
+                    );
 
                     const newNodes = [];
                     const newLinks = [];
@@ -295,20 +536,33 @@ const WorkflowDiagram = () => {
                     if (typeof nodeData.stepData === 'object') {
                         templateData = nodeData.stepData.cells;
                     } else {
-                        templateData =
-                            templateDataMapping[nodeData.activityName];
+                        const templateDataMapping =
+                            await loadTemplateDataMapping();
+                        templateData = templateDataMapping[nodeData.activityName];
                     }
+
+                    if (!templateData) return;
 
                     const templateStartActivity = templateData.find(
                         (step) => step.activityName === 'StartActivity'
                     );
 
-                    const mergedVariables = mergeDefinedVariables(
-                        startActivity.definedVariables?.value ?? [],
-                        templateStartActivity.definedVariables?.value ?? []
+                    const { variables: mergedVariables, renamedVariables } =
+                        mergeDefinedVariables(
+                            startActivity.definedVariables?.value ?? [],
+                            templateStartActivity.definedVariables?.value ?? []
+                        );
+
+                    const rewrittenTemplateData = templateData.map((cell) =>
+                        cell.activityName === 'StartActivity'
+                            ? cell
+                            : rewriteVariableReferences(
+                                  cell,
+                                  renamedVariables
+                              )
                     );
 
-                    templateData.forEach((step) => {
+                    rewrittenTemplateData.forEach((step) => {
                         if (
                             step.type !== 'springcm.Link' &&
                             step.activityName !== 'StartActivity'
@@ -340,7 +594,7 @@ const WorkflowDiagram = () => {
                         }
                     });
 
-                    templateData.forEach((step) => {
+                    rewrittenTemplateData.forEach((step) => {
                         if (step.type === 'springcm.Link') {
                             // Handle link nodes
                             const oldSourceStepId = step.source.id;
@@ -400,6 +654,7 @@ const WorkflowDiagram = () => {
         },
         [
             data,
+            generateId,
             generateUniqueName,
             mergeDefinedVariables,
             reactFlowInstance,
@@ -415,17 +670,28 @@ const WorkflowDiagram = () => {
     // );
 
     const sidePanelComponent = useMemo(
-        () => (
-            <SidePanel
-                definedVariables={definedVariables}
-                data={data}
-                setData={setData}
-            />
-        ),
-        [definedVariables, data, setData]
+        () => <SidePanel definedVariables={definedVariables} />,
+        [definedVariables]
     );
 
     const [splitHeight, setSplitHeight] = useState(150); // Initial height of the bottom resizable box
+
+    const settingsPanelComponent = useMemo(() => {
+        if (selectedNodes) {
+            return (
+                <DeepFieldExplorer
+                    key={`${selectedNodes[0]?.id}:${selectedNodes[0]?.variableRevision ?? 0}`}
+                    selectedNode={selectedNodes[0]}
+                />
+            );
+        }
+
+        return selectedEdge ? (
+            <EdgeSettings
+                key={`${selectedEdge.id}:${selectedEdge.variableRevision ?? 0}`}
+            />
+        ) : null;
+    }, [selectedEdge, selectedNodes]);
 
     const handleNodeDelete = useCallback((nodes) => {
         const isNodeSelected = (cell) =>
@@ -462,9 +728,15 @@ const WorkflowDiagram = () => {
                 ),
             }));
 
+            setSelectedEdge((currentSelection) =>
+                edgesToDelete.has(currentSelection?.id)
+                    ? null
+                    : currentSelection
+            );
+
             console.log('dsdebug-log', '- Link(s) Deleted:', edges);
         },
-        [setData]
+        [setData, setSelectedEdge]
     );
 
     const onConnect = useCallback((params) => {
@@ -515,24 +787,11 @@ const WorkflowDiagram = () => {
         console.log('dsdebug-log', '- Link Added:', { source, target });
     }, [setData]);
 
-    const handleSelectionChange = useCallback((params) => {
-        if (params.nodes.length === 0) {
-            setSelectedNodes(null);
-        } else {
-            setSelectedNodes(params.nodes);
-        }
-        if (params.edges.length === 0) {
-            setSelectedEdge(null);
-        } else {
-            setSelectedEdge(params.edges[0]);
-        }
-    }, [setSelectedEdge, setSelectedNodes]);
-
     const [minimapVisible, setMinimapVisible] = useState(false);
 
-    const handleMinimapVisible = () => {
+    const handleMinimapVisible = useCallback(() => {
         setMinimapVisible((prevVisible) => !prevVisible);
-    };
+    }, []);
 
     return (
         <>
@@ -559,81 +818,33 @@ const WorkflowDiagram = () => {
                             templateRows={`1fr 
                                 ${splitHeight}px`} // Set two rows, the first will adjust automatically, and the second will be controlled by the splitHeight state
                         >
-                            {/* ReactFlow */}
-                            <Flex h="100%" ref={reactFlowWrapper}>
-                                <ReactFlow
-                                    deleteKeyCode={deleteKeyCode}
-                                    proOptions={proOptions}
-                                    minZoom={0.1}
-                                    nodes={nodes}
-                                    edges={edges}
-                                    nodeTypes={nodeTypes}
-                                    edgeTypes={edgeTypes}
-                                    onNodesChange={onNodesChange}
-                                    onEdgesChange={onEdgesChange}
-                                    onInit={setReactFlowInstance}
-                                    onDragOver={handleDragOver}
-                                    onDrop={handleDrop}
-                                    onConnect={onConnect}
-                                    onNodesDelete={handleNodeDelete}
-                                    onEdgesDelete={handleEdgesDelete}
-                                    onSelectionChange={handleSelectionChange}
-                                    fitView
-                                    elevateEdgesOnSelect
-                                    nodesFocusable
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                    }}
-                                    snapToGrid
-                                    snapGrid={snapGrid}
-                                    connectionLineComponent={ConnectionLine}
-                                >
-                                    <Background variant="cross" gap={25} />
-                                    <Controls>
-                                        <ControlButton
-                                            onClick={handleReset}
-                                            title="reset node positions"
-                                        >
-                                            <div>⟳</div>
-                                        </ControlButton>
-                                        <ControlButton
-                                            title="toggle minimap"
-                                            onClick={handleMinimapVisible}
-                                        >
-                                            <svg
-                                                className="icon"
-                                                focusable="false"
-                                                viewBox="0 0 24 24"
-                                                icon="map"
-                                                namespace="ux"
-                                            >
-                                                <g
-                                                    fillRule="evenodd"
-                                                    transform="translate(6 1)"
-                                                >
-                                                    <path d="M10.678 9.757L6.001 20.67 1.328 9.765a6 6 0 119.35-.008z"></path>
-                                                    <circle
-                                                        fill="#FFF"
-                                                        cx="6"
-                                                        cy="6"
-                                                        r="3"
-                                                    ></circle>
-                                                </g>
-                                            </svg>
-                                        </ControlButton>
-                                    </Controls>
-                                    {/* <SelectionChangeLogger /> */}
-                                    {minimapVisible && <MiniMap />}
-                                </ReactFlow>
-                            </Flex>
+                            <FlowCanvas
+                                externalNodes={externalNodes}
+                                edges={edges}
+                                onNodeSelectionChanges={
+                                    handleNodeSelectionChanges
+                                }
+                                onNodeDragStop={handleNodeDragStop}
+                                onEdgesChange={onEdgesChange}
+                                onEdgeClick={handleEdgeClick}
+                                onInit={setReactFlowInstance}
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop}
+                                onConnect={onConnect}
+                                onNodesDelete={handleNodeDelete}
+                                onEdgesDelete={handleEdgesDelete}
+                                onPaneClick={handlePaneClick}
+                                onReset={handleReset}
+                                minimapVisible={minimapVisible}
+                                onMinimapVisible={handleMinimapVisible}
+                                reactFlowWrapper={reactFlowWrapper}
+                            />
 
                             <ConsoleContainer
                                 splitHeight={splitHeight}
                                 setSplitHeight={setSplitHeight}
                                 reactFlowWrapper={reactFlowWrapper}
-                                reactFlowInstance={reactFlowInstance}
-                                nodes={nodes}
+                                nodes={externalNodes}
                                 edges={edges}
                                 generateId={generateId}
                                 generateUniqueName={generateUniqueName}
@@ -642,15 +853,7 @@ const WorkflowDiagram = () => {
                     </Flex>
 
                     {/* NodeSettingsPanel */}
-                    {selectedNodes && (
-                        <DeepFieldExplorer
-                            key={selectedNodes[0]?.id}
-                            selectedNode={selectedNodes[0]}
-                        />
-                    )}
-                    {selectedEdge && !selectedNodes && (
-                        <EdgeSettings key={selectedEdge.id} />
-                    )}
+                    {settingsPanelComponent}
                 </Flex>
             </Box>
         </>

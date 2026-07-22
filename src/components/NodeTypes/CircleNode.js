@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
-import React from 'react';
-import { Handle, Position } from 'reactflow';
-import { ReactSVG } from 'react-svg';
+import { memo } from 'react';
+import { Handle, Position } from '@xyflow/react';
+import SvgIcon from '../ui/SvgIcon';
 
 const CircleNode = ({ data, selected }) => {
     const { id, name, size, attrs, icon, activityName } = data;
@@ -57,12 +57,8 @@ const CircleNode = ({ data, selected }) => {
                     alignItems="center"
                     height="100%"
                 >
-                    <ReactSVG
-                        beforeInjection={(svg) => {
-                            svg.setAttribute('width', '24px');
-                            svg.setAttribute('height', '24px');
-                            svg.setAttribute('color', icon.color);
-                        }}
+                    <SvgIcon
+                        color={icon.color}
                         src={svgPath}
                     />
                     {displayName} {/* Use the displayName variable */}
@@ -89,4 +85,4 @@ const CircleNode = ({ data, selected }) => {
     );
 };
 
-export default CircleNode;
+export default memo(CircleNode);

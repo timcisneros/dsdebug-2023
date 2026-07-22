@@ -1,11 +1,12 @@
 import { Box } from '@chakra-ui/react';
-import { NodeResizer } from 'reactflow';
-import { useNode } from '../../contexts/NodeContext';
+import { memo } from 'react';
+import { NodeResizer } from '@xyflow/react';
+import { useWorkflowActions } from '../../contexts/NodeContext';
 
 const GroupNode = ({ id, data, selected }) => {
     const { name, attrs } = data;
     const displayName = name?.value || '';
-    const { setData } = useNode();
+    const { setData } = useWorkflowActions();
 
     const handleResizeEnd = (event, params) => {
         setData((prevData) => ({
@@ -64,4 +65,4 @@ const GroupNode = ({ id, data, selected }) => {
     );
 };
 
-export default GroupNode;
+export default memo(GroupNode);

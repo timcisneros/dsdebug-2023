@@ -1,18 +1,21 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Box, IconButton, Input } from '@chakra-ui/react';
 import { AiOutlineUpload, AiOutlineDownload } from 'react-icons/ai';
-import { useNode } from '../contexts/NodeContext';
+import {
+    useSelection,
+    useWorkflowActions,
+    useWorkflowData,
+    useWorkflowHistory,
+    useWorkflowMetadata,
+} from '../contexts/NodeContext';
 
 const Header = () => {
     const [errorMessage, setErrorMessage] = useState(null);
-    const {
-        data,
-        setData,
-        workflowName,
-        setNewNodesAdded,
-        setSelectedNodes,
-        setDefaultNodePositions,
-    } = useNode();
+    const { data } = useWorkflowData();
+    const { setData } = useWorkflowActions();
+    const { workflowName } = useWorkflowMetadata();
+    const { setNewNodesAdded, setDefaultNodePositions } = useWorkflowHistory();
+    const { setSelectedNodes } = useSelection();
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
 
@@ -87,12 +90,12 @@ const Header = () => {
     // useEffect to focus the Input when isEditing is set to true
     useEffect(() => {
         if (isEditing) {
-            inputRef.current.focus();
+            inputRef.current?.focus();
         }
     }, [isEditing]);
 
     const handleRenameWorkflow = useCallback(
-        (oldName, newName) => {
+        (nextName) => {
             // Validate the new name to disallow spaces and symbols other than underscores
             // const isValidName = /^[A-Za-z0-9_]+$/.test(newName);
 
@@ -105,38 +108,22 @@ const Header = () => {
             // }
 
             // Find the cell with activityName 'StartActivity'
-            const startActivityCellIndex = data.cells.findIndex(
-                (cell) => cell.activityName === 'StartActivity'
-            );
-
-            if (startActivityCellIndex !== -1) {
-                // Create a new data object with the updated list of variables
-                const updatedData = {
-                    ...data,
-                    cells: data.cells.map((cell, index) =>
-                        index === startActivityCellIndex
-                            ? {
-                                  ...cell,
-                                  workflowName: {
-                                      type: 'String',
-                                      value: newName,
-                                  },
-                              }
-                            : cell
-                    ),
-                };
-
-                // Update the definedVariables array in the context
-                // setWorkflowName({
-                //     type: 'String',
-                //     value: newName,
-                // });
-
-                // Use setData to update the data object in the context
-                setData(updatedData);
-            }
+            setData((currentData) => ({
+                ...currentData,
+                cells: currentData.cells.map((cell) =>
+                    cell.activityName === 'StartActivity'
+                        ? {
+                              ...cell,
+                              workflowName: {
+                                  type: 'String',
+                                  value: nextName,
+                              },
+                          }
+                        : cell
+                ),
+            }));
         },
-        [data, setData]
+        [setData]
     );
 
     return (
@@ -156,9 +143,9 @@ const Header = () => {
             zIndex={1}
         >
             <Box
-                onClick={(e) => {
+                onClick={() => {
                     // Always set the Input value back to the original name when Box is clicked
-                    setNewName(workflowName.value);
+                    setNewName(workflowName?.value ?? '');
                     setIsEditing(true);
                 }}
                 width="100%"
@@ -177,10 +164,7 @@ const Header = () => {
                             onChange={(e) => setNewName(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    handleRenameWorkflow(
-                                        workflowName.value,
-                                        newName
-                                    ); // Pass the previous name and the new name
+                                    handleRenameWorkflow(newName);
                                     setIsEditing(false);
                                 }
                             }}

@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import {
     Input,
     VStack,
@@ -14,12 +14,120 @@ import {
     Badge,
 } from '@chakra-ui/react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { useNode } from '../../contexts/NodeContext';
+import {
+    usePanelVisibility,
+    useWorkflowActions,
+    useWorkflowMetadata,
+} from '../../contexts/NodeContext';
 import CustomCheckbox from './CustomInputs/CustomCheckbox';
 import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 import TagInput from './CustomInputs/TagInput';
 import { displayNameMapping } from './InputData';
+
+const updateValueAtPath = (currentValue, pathParts, newValue) => {
+    if (pathParts.length === 0) return newValue;
+
+    const [currentPart, ...remainingParts] = pathParts;
+    if (currentPart === '*') {
+        if (Array.isArray(currentValue)) {
+            return currentValue.map((item) =>
+                updateValueAtPath(item, remainingParts, newValue)
+            );
+        }
+
+        return Object.fromEntries(
+            Object.entries(currentValue ?? {}).map(([key, item]) => [
+                key,
+                updateValueAtPath(item, remainingParts, newValue),
+            ])
+        );
+    }
+
+    const source = currentValue ?? {};
+    const updatedValue = Array.isArray(source) ? [...source] : { ...source };
+    updatedValue[currentPart] = updateValueAtPath(
+        source[currentPart],
+        remainingParts,
+        newValue
+    );
+    return updatedValue;
+};
+
+const getValueAtPath = (currentValue, pathParts) => {
+    if (pathParts.length === 0) return currentValue;
+    if (currentValue === null || currentValue === undefined) return undefined;
+
+    const [currentPart, ...remainingParts] = pathParts;
+    if (currentPart === '*') {
+        const values = Array.isArray(currentValue)
+            ? currentValue
+            : Object.values(currentValue);
+        for (const value of values) {
+            const result = getValueAtPath(value, remainingParts);
+            if (result !== undefined) return result;
+        }
+        return undefined;
+    }
+
+    return getValueAtPath(currentValue[currentPart], remainingParts);
+};
+
+const hasRequiredValue = (value) => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    if (Array.isArray(value)) {
+        return value.length > 0 && value.some(hasRequiredValue);
+    }
+    if (typeof value === 'object') {
+        if (Object.hasOwn(value, 'value')) {
+            return hasRequiredValue(value.value);
+        }
+        return Object.values(value).some(hasRequiredValue);
+    }
+    return true;
+};
+
+const getVisibleFieldConfigs = (node) => {
+    const activityName = node?.data?.activityName || 'default';
+    const fieldConfigs =
+        displayNameMapping[activityName] || displayNameMapping.default;
+
+    return fieldConfigs.filter((fieldConfig) => {
+        const dependencies = fieldConfig.config?.dependsOn;
+        if (!dependencies) return true;
+
+        const dependencyList = Array.isArray(dependencies)
+            ? dependencies
+            : [dependencies];
+        return dependencyList.every((dependency) => {
+            const dependencyValue = getValueAtPath(
+                node,
+                dependency.path.split('.')
+            );
+            const actualValue = dependencyValue?.value ?? dependencyValue;
+            return actualValue === dependency.value;
+        });
+    });
+};
+
+const withValidationState = (node) => {
+    const hasMissingRequiredField = getVisibleFieldConfigs(node).some(
+        (field) =>
+            field.config?.required &&
+            !hasRequiredValue(
+                getValueAtPath(node, field.path.split('.'))
+            )
+    );
+
+    return {
+        ...node,
+        data: {
+            ...node.data,
+            errorState: hasMissingRequiredField,
+        },
+    };
+};
 
 const SettingsCheckbox = ({ checked, onCheckedChange, children }) => (
     <Checkbox.Root
@@ -35,19 +143,39 @@ const SettingsCheckbox = ({ checked, onCheckedChange, children }) => (
 );
 
 const DeepFieldExplorer = ({ selectedNode }) => {
-    const {
-        handleUpdateNode,
-        definedVariables,
-        isVisible,
-        handleToggleVisibility,
-    } = useNode();
-    const fields = [];
-    const [editedNode, setEditedNode] = useState(selectedNode);
+    const { handleUpdateNode } = useWorkflowActions();
+    const { definedVariables } = useWorkflowMetadata();
+    const { isVisible, handleToggleVisibility } = usePanelVisibility();
+    const [editedNode, setEditedNode] = useState(() =>
+        withValidationState(selectedNode)
+    );
+    const editedNodeRef = useRef(withValidationState(selectedNode));
+    const pendingNodeRef = useRef(null);
+    const persistenceTimerRef = useRef(null);
     const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
     const [displayJson, setDisplayJson] = useState(false);
     const [displayIndex, setDisplayIndex] = useState(false);
     const [displayPaths, setDisplayPaths] = useState(false);
     const [displayIsArray, setDisplayIsArray] = useState(false);
+    const [fieldsReady, setFieldsReady] = useState(false);
+
+    useEffect(() => {
+        editedNodeRef.current = editedNode;
+    }, [editedNode]);
+
+    useEffect(() => {
+        const frameId = requestAnimationFrame(() => setFieldsReady(true));
+        return () => cancelAnimationFrame(frameId);
+    }, []);
+
+    useEffect(() => {
+        if (selectedNode.data.errorState !== editedNode.data.errorState) {
+            const frameId = requestAnimationFrame(() =>
+                handleUpdateNode(editedNode)
+            );
+            return () => cancelAnimationFrame(frameId);
+        }
+    }, [editedNode, handleUpdateNode, selectedNode]);
     // const [displayOptions, setDisplayOptions] = useState({
     //     json: false, index: false, paths: false,
     // });
@@ -174,133 +302,64 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return currentObj;
     };
 
-    // Get the configured fields for the current activity
-    const currentActivityName = editedNode?.data?.activityName || 'default';
-    const activityFieldsConfig =
-        displayNameMapping[currentActivityName] ||
-        displayNameMapping['default'];
+    const visibleFields = getVisibleFieldConfigs(editedNode);
 
-    const checkDependenciesMet = (dependencies, editedNode) => {
-        // Convert dependencies to an array if it's not already one
-        const depsArray = Array.isArray(dependencies)
-            ? dependencies
-            : [dependencies];
+    const scheduleNodePersistence = useCallback(
+        (updatedNode) => {
+            pendingNodeRef.current = updatedNode;
+            clearTimeout(persistenceTimerRef.current);
+            persistenceTimerRef.current = setTimeout(() => {
+                pendingNodeRef.current = null;
+                setEditedNode(updatedNode);
+                handleUpdateNode(updatedNode);
+            }, 180);
+        },
+        [handleUpdateNode]
+    );
 
-        return depsArray.every((dependency) => {
-            const actualValue = getNestedValue(
-                editedNode,
-                dependency.path
-            )?.value;
-            return actualValue === dependency.value;
-        });
-    };
+    useEffect(
+        () => () => {
+            clearTimeout(persistenceTimerRef.current);
+            if (pendingNodeRef.current) {
+                handleUpdateNode(pendingNodeRef.current);
+            }
+        },
+        [handleUpdateNode]
+    );
 
-    // Filter out hidden fields based on the activity type
-    const visibleFields = activityFieldsConfig.filter((fieldConfig) => {
-        // If there are dependencies, check if all are met
-        if (fieldConfig.config && fieldConfig.config.dependsOn) {
-            return checkDependenciesMet(
-                fieldConfig.config.dependsOn,
-                editedNode
+    const handleInputChange = useCallback(
+        (path, newValue, { deferRender = false } = {}) => {
+            const updatedNode = withValidationState(
+                updateValueAtPath(
+                    editedNodeRef.current,
+                    path.split('.'),
+                    newValue
+                )
             );
-        }
-        // No dependencies, include field
-        return true;
-    });
+            editedNodeRef.current = updatedNode;
 
-    const handleInputChange = (path, newValue) => {
-        // Update only the relevant part of the node state to improve performance
-        setEditedNode((prevNode) => {
-            // Navigate to the correct property in the node
-            const pathParts = path.split('.');
-            let currentPart = { ...prevNode }; // Create a shallow copy of the node
-            for (let i = 0; i < pathParts.length - 1; i++) {
-                const part = pathParts[i];
-                if (!currentPart[part]) currentPart[part] = {};
-                currentPart[part] = { ...currentPart[part] }; // Shallow copy each nested level
-                currentPart = currentPart[part];
-            }
+            if (!deferRender) setEditedNode(updatedNode);
+            scheduleNodePersistence(updatedNode);
+        },
+        [scheduleNodePersistence]
+    );
 
-            // Update the value
-            currentPart[pathParts[pathParts.length - 1]] = newValue;
-
-            // Return the updated node
-            return prevNode;
-        });
-
-        // Call updateNodeData to handle node update separately
-        updateNodeData(path, newValue);
-    };
-
-    const updateNodeData = (path, newValue) => {
-        // Create a copy of the current node
-        const updatedNode = { ...editedNode };
-
-        // Function to recursively update the value
-        const updateNestedValue = (currentObj, pathParts, value) => {
-            // Base case: If we're at the last part of the path
-            if (pathParts.length === 1) {
-                currentObj[pathParts[0]] = value;
-                return;
-            }
-
-            // Handle wildcard
-            if (pathParts[0] === '*') {
-                // Iterate over all keys if the current part is a wildcard
-                Object.keys(currentObj).forEach((key) => {
-                    updateNestedValue(
-                        currentObj[key],
-                        pathParts.slice(1),
-                        value
-                    );
-                });
-            } else {
-                // Make sure the next part of the path is an object
-                if (
-                    typeof currentObj[pathParts[0]] !== 'object' ||
-                    currentObj[pathParts[0]] === null
-                ) {
-                    currentObj[pathParts[0]] = {};
-                }
-                // Recursive call for the next part of the path
-                updateNestedValue(
-                    currentObj[pathParts[0]],
-                    pathParts.slice(1),
-                    value
-                );
-            }
-        };
-
-        // Split the path and call the recursive function
-        const pathParts = path.split('.');
-        updateNestedValue(updatedNode, pathParts, newValue);
-
-        // Perform validation (if necessary)
-        const isValid = validateNode(updatedNode);
-        updatedNode.errorState = !isValid;
-
-        // Call handleUpdateNode to persist the changes
-        handleUpdateNode(updatedNode);
-    };
-
-    const validateNode = (node) => {
-        // Add your validation logic here
-        // For example, checking if required fields are non-empty
-        // Assuming 'fields' is an array of field configurations
-        return fields.every((field) => {
-            if (field.config.required) {
-                const fieldValue = getNestedValue(node, field.path);
-                return fieldValue && fieldValue.trim() !== '';
-            }
-            return true;
-        });
-    };
+    const handleStructuredNodeUpdate = useCallback(
+        (updatedNode) => {
+            const validatedNode = withValidationState(updatedNode);
+            editedNodeRef.current = validatedNode;
+            setEditedNode(validatedNode);
+            scheduleNodePersistence(validatedNode);
+        },
+        [scheduleNodePersistence]
+    );
 
     // Function to render a single field
     const renderField = (field) => {
         const inputValue = getNestedValue(editedNode, field.path);
         const currentActivityName = editedNode?.data?.activityName || 'default';
-        const isError = field.config?.required && inputValue === '';
+        const isError =
+            field.config?.required && !hasRequiredValue(inputValue);
 
         // console.log('dsdebug-log', field.path);
 
@@ -309,6 +368,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                 required={field.config.required}
                 key={field.path}
                 invalid={isError}
+                width="100%"
             >
                 {displayPaths && (
                     <Text color="blue.400" mb={2}>
@@ -340,7 +400,7 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                         inputValue={inputValue}
                     />
                 ) : field.config.type === 'Choice' ? (
-                    <NativeSelect.Root>
+                    <NativeSelect.Root width="100%">
                         <NativeSelect.Field
                             value={inputValue}
                             onChange={(e) =>
@@ -386,9 +446,11 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                     <Textarea
                         placeholder={field.config.placeholder || ''}
                         onChange={(e) =>
-                            handleInputChange(field.path, e.target.value)
+                            handleInputChange(field.path, e.target.value, {
+                                deferRender: true,
+                            })
                         }
-                        value={inputValue}
+                        defaultValue={inputValue}
                         size="md"
                     />
                 ) : field.config.type === 'Variable' ? (
@@ -401,10 +463,9 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                 inputValue?.[0]?.value
                             }
                             editedNode={editedNode}
-                            setEditedNode={setEditedNode}
                             path={field.path}
                             definedVariables={definedVariables}
-                            handleUpdateNode={handleUpdateNode}
+                            handleUpdateNode={handleStructuredNodeUpdate}
                             isArray={field.config.isArray}
                             getNestedValue={getNestedValue}
                         />
@@ -413,9 +474,11 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                     <Input
                         placeholder={field.config.placeholder || ''}
                         onChange={(e) =>
-                            handleInputChange(field.path, e.target.value)
+                            handleInputChange(field.path, e.target.value, {
+                                deferRender: true,
+                            })
                         }
-                        value={inputValue}
+                        defaultValue={inputValue}
                         size="md"
                     />
                 )}
@@ -447,8 +510,8 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                     paddingTop={50}
                 >
                     <Box marginTop="-3rem">
-                        <Flex direction="column" bg="#FAFAFA" p={4}>
-                            <Text pb={4} fontWeight="bold">
+                        <Flex direction="column" gap={3} bg="#FAFAFA" p={4}>
+                            <Text pb={1} fontWeight="bold">
                                 Dev Tools
                             </Text>
                             <SettingsCheckbox checked={displayJson} onCheckedChange={setDisplayJson}>
@@ -467,9 +530,10 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                         <Box>
                             <Box p={4}>
                                 <VStack gap={4}>
-                                    {visibleFields.map((field) => {
-                                        return renderField(field);
-                                    })}
+                                    {fieldsReady &&
+                                        visibleFields.map((field) => {
+                                            return renderField(field);
+                                        })}
                                 </VStack>
                             </Box>
                         </Box>

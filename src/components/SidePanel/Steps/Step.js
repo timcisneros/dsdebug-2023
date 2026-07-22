@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react';
-import { ReactSVG } from 'react-svg';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import SvgIcon from '../../ui/SvgIcon';
+import { preloadTemplateData } from '../../../utils/templateLoader';
 
 const Step = ({
     stepName,
@@ -10,11 +12,47 @@ const Step = ({
     stepData,
 }) => {
     const dragImageRef = useRef(null);
+    const dragPreviewRef = useRef(null);
+    const animationFrameRef = useRef(null);
+    const dragPositionRef = useRef({ x: 0, y: 0 });
+    const nativeDragImageRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [dragImageX, setDragImageX] = useState(0);
-    const [dragImageY, setDragImageY] = useState(0);
+
+    const updateDragPreviewPosition = () => {
+        animationFrameRef.current = null;
+        if (!dragPreviewRef.current) return;
+
+        const { x, y } = dragPositionRef.current;
+        dragPreviewRef.current.style.transform = `translate3d(${x - 50}px, ${y - 50}px, 0)`;
+    };
+
+    const scheduleDragPreviewPosition = (x, y) => {
+        if (x === 0 && y === 0) return;
+        dragPositionRef.current = { x, y };
+        if (animationFrameRef.current === null) {
+            animationFrameRef.current = requestAnimationFrame(
+                updateDragPreviewPosition
+            );
+        }
+    };
+
+    useEffect(() => {
+        if (isDragging) {
+            updateDragPreviewPosition();
+        }
+
+        return () => {
+            if (animationFrameRef.current !== null) {
+                cancelAnimationFrame(animationFrameRef.current);
+                animationFrameRef.current = null;
+            }
+        };
+    }, [isDragging]);
 
     const onDragStart = (event) => {
+        if (stepType === 'Template' && typeof stepData !== 'object') {
+            preloadTemplateData();
+        }
         event.dataTransfer.setData(
             'application/json',
             JSON.stringify({
@@ -23,18 +61,27 @@ const Step = ({
                 stepData,
             })
         ); // Use 'application/json' as the data type
+        if (!nativeDragImageRef.current) {
+            const transparentImage = document.createElement('canvas');
+            transparentImage.width = 1;
+            transparentImage.height = 1;
+            nativeDragImageRef.current = transparentImage;
+        }
+        event.dataTransfer.setDragImage(nativeDragImageRef.current, 0, 0);
+        scheduleDragPreviewPosition(event.clientX, event.clientY);
         setIsDragging(true);
     };
 
     const onDragEnd = () => {
         setIsDragging(false);
-        setDragImageX(0);
-        setDragImageY(0);
+        if (animationFrameRef.current !== null) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+        }
     };
 
     const onDrag = (event) => {
-        setDragImageX(event.clientX - 50); // Adjust the offset here if necessary
-        setDragImageY(event.clientY - 50); // Adjust the offset here if necessary
+        scheduleDragPreviewPosition(event.clientX, event.clientY);
     };
 
     return (
@@ -68,26 +115,24 @@ const Step = ({
                     opacity: isDragging ? 0 : 1, // Hide the original component during drag
                 }}
             >
-                <ReactSVG
-                    beforeInjection={(svg) => {
-                        svg.setAttribute('width', '24px');
-                        svg.setAttribute('height', '24px');
-                        svg.setAttribute('color', stepImageColor);
-                    }}
+                <SvgIcon
+                    color={stepImageColor}
                     src={`step-images/${stepImage}`}
                 />
                 <div>{stepName}</div>
             </div>
 
             {/* Create the custom drag image */}
-            {isDragging && dragImageX && dragImageY ? (
-                <>
+            {isDragging &&
+                typeof document !== 'undefined' &&
+                createPortal(
                     <div
+                        ref={dragPreviewRef}
                         style={{
-                            zIndex: 1,
+                            zIndex: 2147483647,
                             position: 'fixed',
-                            top: dragImageY,
-                            left: dragImageX,
+                            top: 0,
+                            left: 0,
                             width: '100px',
                             height: '100px',
                             borderRadius: '3px',
@@ -106,60 +151,17 @@ const Step = ({
                             justifyContent: 'space-around',
                             backgroundColor: '#fff',
                             pointerEvents: 'none', // Disable pointer events for the custom drag image
+                            willChange: 'transform',
                         }}
                     >
-                        <ReactSVG
-                            beforeInjection={(svg) => {
-                                svg.setAttribute('width', '24px');
-                                svg.setAttribute('height', '24px');
-                                svg.setAttribute('color', stepImageColor);
-                            }}
+                        <SvgIcon
+                            color={stepImageColor}
                             src={`step-images/${stepImage}`}
                         />
                         <div>{stepName}</div>
-                    </div>
-                    {/* <div
-                        onDragStart={onDragStart}
-                        onDragEnd={onDragEnd}
-                        onDrag={onDrag}
-                        ref={dragImageRef}
-                        style={{
-                            position: 'relative',
-                            transform: 'translateY(-100%)',
-                            width: '100px',
-                            height: '100px',
-                            borderRadius: '3px',
-                            border:
-                                stepType === 'Template'
-                                    ? '2px dashed #757575'
-                                    : '2px solid #757575',
-                            color: '#000',
-                            fontSize: '11px',
-                            lineHeight: '1.5',
-                            textAlign: 'center',
-                            fontFamily: 'Indigo, Arial, sans-serif',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'space-around',
-                            cursor: 'move', // Add a cursor move on hover to indicate it's movable
-                            backgroundColor: '#fff',
-                        }}
-                    >
-                        <ReactSVG
-                            beforeInjection={(svg) => {
-                                svg.setAttribute('width', '24px');
-                                svg.setAttribute('height', '24px');
-                                svg.setAttribute('color', stepImageColor);
-                            }}
-                            src={`step-images/${stepImage}`}
-                        />
-                        <div>{stepName}</div>
-                    </div> */}
-                </>
-            ) : (
-                <div />
-            )}
+                    </div>,
+                    document.body
+                )}
         </>
     );
 };

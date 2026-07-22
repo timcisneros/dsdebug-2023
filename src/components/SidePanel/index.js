@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import {
     Box,
     Tabs,
@@ -13,11 +13,7 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 // import { useNode } from '../../contexts/NodeContext';
 // import { findVariables } from '../../utils/jsonUtils';
 
-const SidePanel = ({
-    definedVariables,
-    data,
-    setData,
-}) => {
+const SidePanel = ({ definedVariables }) => {
     // State to control the width of the SidePanel
     const [panelWidth, setPanelWidth] = useState(350);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
@@ -57,9 +53,6 @@ const SidePanel = ({
                         <div key={index}>
                             <CollapsibleTree
                                 definedVariable={definedVariable}
-                                data={data}
-                                setData={setData}
-                                definedVariables={definedVariables}
                             />
                         </div>
                     ))
@@ -68,7 +61,7 @@ const SidePanel = ({
                 )}
             </>
         );
-    }, [definedVariables, data, setData]);
+    }, [definedVariables]);
 
     return (
         <>
@@ -103,7 +96,13 @@ const SidePanel = ({
                         width={`${panelWidth}px`}
                         borderRight={isPanelOpen ? '1px solid #ccc' : 0}
                     >
-                        <Tabs.Root defaultValue="steps" fitted overflow="hidden">
+                        <Tabs.Root
+                            defaultValue="steps"
+                            fitted
+                            overflow="hidden"
+                            lazyMount
+                            unmountOnExit
+                        >
                             <Tabs.List>
                                 <Tabs.Trigger value="steps">Steps</Tabs.Trigger>
                                 <Tabs.Trigger value="variables">
@@ -120,6 +119,8 @@ const SidePanel = ({
                                     value="steps"
                                     overflowY="scroll"
                                     height="100vh"
+                                    px={4}
+                                    py={3}
                                 >
                                     <TemplateList />
                                     <StepList />
@@ -128,6 +129,8 @@ const SidePanel = ({
                                     value="variables"
                                     overflowY="scroll"
                                     height="100vh"
+                                    px={4}
+                                    py={3}
                                 >
                                     <Search
                                         definedVariables={definedVariables}
