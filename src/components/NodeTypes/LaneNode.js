@@ -109,25 +109,6 @@ const LaneNode = ({ id, data, selected }) => {
                         pointerEvents: 'none',
                     }}
                 >
-                    {/* <div
-                    style={{
-                        padding: '50% 0',
-                        height: 0,
-                    }}
-                >
-                    <div
-                        id="testLabel"
-                        style={{
-                            display: 'block',
-                            transformOrigin: '0 0',
-                            transform: 'rotate(-90deg) translate(-100%)',
-                            marginTop: '-50%',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        Test Label that is very Long
-                    </div>
-                </div> */}
                 </div>
                 <div style={topResizeTargetStyle} />
                 <div style={bottomResizeTargetStyle} />

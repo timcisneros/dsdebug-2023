@@ -98,17 +98,18 @@ function TagInput({
         const isFolderPathTag = termToCheck.startsWith('/');
 
         // If it's a custom tag or an existing variable, process it
-        const isTagValid =
-            isFolderPathTag ||
-            definedVariables.some(
-                (variable) =>
-                    variable.value.name.toLowerCase() ===
-                    termToCheck.toLowerCase()
-            );
+        const matchingVariable = definedVariables.find(
+            (variable) =>
+                variable.value.name.toLowerCase() ===
+                termToCheck.toLowerCase()
+        );
+        const isTagValid = isFolderPathTag || Boolean(matchingVariable);
 
         if (isTagValid) {
-            // Replace existing tag with the new one
-            const newTags = [termToCheck];
+            const normalizedTag = isFolderPathTag
+                ? termToCheck
+                : matchingVariable.value.name;
+            const newTags = [normalizedTag];
             setTags(newTags);
             setInputDisabled(true); // Disable input after adding a tag
             setSearchTerm('');
@@ -126,9 +127,9 @@ function TagInput({
     };
 
     const findVariableType = (tag) => {
-        // TODO: make sure this matches variable types coming out of ds
         return definedVariables?.find(
-            (definedVariable) => definedVariable.value.name === tag
+            (definedVariable) =>
+                definedVariable.value.name.toLowerCase() === tag.toLowerCase()
         )?.type;
     };
 

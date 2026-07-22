@@ -98,39 +98,6 @@ const ConsoleContainer = ({
     const { setNewNodesAdded } = useWorkflowHistory();
     const { setSelectedNodeIds, setSelectedEdgeId } = useSelection();
 
-    // Function to handle input submission
-    // const handleInputSubmit = (event) => {
-    //     event.preventDefault();
-    //     if (inputValue.trim() !== '') {
-    //         // Split the input into command and arguments (if any)
-    //         const [command, ...args] = inputValue.trim().split(' ');
-
-    //         // Check if the input is a command and execute the corresponding function
-    //         const commandFunctions = {
-    //             help: showHelp,
-    //             clear: clearLogs,
-    //             list: handleListCommand,
-    //             create: handleCreateCommand,
-    //             delete: handleDeleteCommand,
-    //             move: handleMoveCommand,
-    //             connect: handleConnectCommand,
-    //             // Add more commands and their corresponding functions here
-    //         };
-
-    //         if (commandFunctions[command]) {
-    //             commandFunctions[command](...args);
-    //         } else {
-    //             console.log(
-    //                 'dsdebug-log',
-    //                 'Invalid command. Type "help" for available commands.'
-    //             );
-    //         }
-
-    //         // Clear the input value after submission
-    //         setInputValue('');
-    //     }
-    // };
-
     const handleCommandSubmit = async (inputValue) => {
         if (inputValue.trim() !== '') {
             // Split the input into command and arguments (if any)
@@ -249,11 +216,6 @@ const ConsoleContainer = ({
             'dsdebug-log',
             'start - Recreate the start activity in case accidentally deleted'
         );
-        // console.log(
-        //     'dsdebug-log',
-        //     'select <item> - Select items on the canvas'
-        // );
-        // Add more help information for other commands
     };
 
     // Function to clear all logs
@@ -422,7 +384,7 @@ const ConsoleContainer = ({
 
         // Create a new edge to connect the source and target nodes
         const newEdge = {
-            type: 'springcm.Link', // Replace with the actual edge type
+            type: 'springcm.Link',
             source: { id: sourceId, port: 'e' },
             target: { id: targetId, port: 'w' },
             router: {
@@ -643,7 +605,6 @@ const ConsoleContainer = ({
         }
     };
 
-    // Example of parsing the command and calling the appropriate function
     const handleListCommand = (itemType, ...propertyNames) => {
         const getProperty = (item, property) => {
             return property !== undefined ? item[property] : item;
@@ -948,7 +909,7 @@ const ConsoleContainer = ({
         setInputVisible(isExpanded ? false : true);
     };
 
-    // Function to update the width of ReactFlow when the Test div is resized
+    // Keep the console controls in sync with the resized panel height.
     const handleResize = (e, { size }) => {
         setSplitHeight(size.height); // Add "px" to the height value
 
@@ -957,7 +918,6 @@ const ConsoleContainer = ({
         setIsExpanded(size.height > 24);
     };
 
-    // console.log('running');
     return (
         <Resizable
             height={splitHeight}

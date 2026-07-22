@@ -32,9 +32,12 @@ workbench. Both versions remain available above.
 
 ## Stack
 
-Next.js 13 · React 18 · React Flow · Chakra UI · JSONPath Plus · React DnD
+Next.js 16 · React 19 · React Flow 12 (`@xyflow/react`) · Chakra UI 3 ·
+native HTML Drag and Drop API
 
 ## Run locally
+
+Requires Node.js 24 LTS and npm.
 
 ```sh
 npm ci

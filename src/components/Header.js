@@ -95,17 +95,6 @@ const Header = () => {
 
     const handleRenameWorkflow = useCallback(
         (nextName) => {
-            // Validate the new name to disallow spaces and symbols other than underscores
-            // const isValidName = /^[A-Za-z0-9_]+$/.test(newName);
-
-            // if (!isValidName) {
-            //     // Show an error message or handle the validation error in your preferred way
-            //     console.error(
-            //         'Invalid variable name. Only letters, numbers, and underscores are allowed.'
-            //     );
-            //     return;
-            // }
-
             // Find the cell with activityName 'StartActivity'
             setData((currentData) => ({
                 ...currentData,

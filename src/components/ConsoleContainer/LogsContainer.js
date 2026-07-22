@@ -249,7 +249,7 @@ const LogsContainer = memo(forwardRef(({ logs, setLogs }, ref) => {
             };
         });
 
-        window.console.log('dsdebug-log', 'dsdebug console version 1.0');
+        window.console.log('dsdebug-log', 'DSDebug console ready.');
 
         return () => {
             consoleMethods.forEach((method) => {

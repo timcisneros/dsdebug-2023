@@ -529,9 +529,6 @@ const WorkflowDiagram = () => {
                     event.dataTransfer.getData('application/json')
                 );
 
-                // const zoomLevel = reactFlowInstance.getZoom();
-                // console.log('dsdebug-log', zoomLevel);
-
                 const flowPosition = reactFlowInstance.screenToFlowPosition({
                     x: event.clientX,
                     y: event.clientY,
@@ -726,11 +723,6 @@ const WorkflowDiagram = () => {
         ]
     );
 
-    // const memoizedDefinedVariables = useMemo(
-    //     () => definedVariables,
-    //     [definedVariables]
-    // );
-
     const sidePanelComponent = useMemo(
         () => <SidePanel definedVariables={definedVariables} />,
         [definedVariables]
@@ -842,25 +834,23 @@ const WorkflowDiagram = () => {
             type: 'springcm.Link',
             source: {
                 id: source,
-                port: 'e', // Assuming the source port is always 'e'
+                port: 'e',
             },
             target: {
                 id: target,
-                port: 'w', // Assuming the target port is always 'w'
-                // selector:
-                //     '> g:nth-child(1) > g:nth-child(3) > circle:nth-child(5)', // Replace this with the actual selector if needed
+                port: 'w',
             },
             router: {
                 name: 'manhattan',
                 args: { excludeTypes: ['springcm.Group', 'springcm.Lane'] },
             },
-            id: linkId, // Generate a unique ID for the new link (you can use your own method for generating IDs)
+            id: linkId,
             z: 1000004,
-            name: { type: 'String', value: `link-${linkId}` }, // Replace with the desired name value
-            vertices: [], // You can add vertices if needed
-            description: { type: 'String', value: '' }, // Replace with the desired description value
-            output: { type: 'String', value: '' }, // Replace with the desired output value
-            attrs: {}, // You can add attributes if needed
+            name: { type: 'String', value: `link-${linkId}` },
+            vertices: [],
+            description: { type: 'String', value: '' },
+            output: { type: 'String', value: '' },
+            attrs: {},
         };
 
         // Update the data with the new link
@@ -900,7 +890,7 @@ const WorkflowDiagram = () => {
                     {/* SidePanel */}
                     {sidePanelComponent}
 
-                    {/* Flex container for ReactFlow and Test div */}
+                    {/* Workflow canvas and resizable console */}
                     <Flex
                         flex="1"
                         position="relative"

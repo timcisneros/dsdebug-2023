@@ -10,30 +10,11 @@ import CollapsibleTree from './Variables/CollapsibleTree';
 import Search from './Search';
 import TemplateList from './Steps/TemplateList';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-// import { useNode } from '../../contexts/NodeContext';
-// import { findVariables } from '../../utils/jsonUtils';
 
 const SidePanel = ({ definedVariables }) => {
     // State to control the width of the SidePanel
     const [panelWidth, setPanelWidth] = useState(350);
     const [isPanelOpen, setIsPanelOpen] = useState(true);
-
-    // const [variables, setVariables] = useState([]);
-
-    // useEffect(() => {
-    //     try {
-    //         const jsonData = data.cells;
-    //         const foundVariables = findVariables(jsonData);
-    //         setVariables(foundVariables);
-    //         // Rest of your code
-    //     } catch (error) {
-    //         console.error('dsdebug-log', 'Invalid JSON data:', error);
-    //     }
-    // }, [data]);
-
-    // useEffect(() => {
-    //     console.log('dsdebug-log', 'variables', variables);
-    // }, [variables]);
 
     // Function to handle the resizing of the SidePanel
     const handleResize = (e, { size }) => {

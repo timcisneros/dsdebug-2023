@@ -2,6 +2,9 @@
   "name": "dsdebug-2023",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,11 +15,8 @@
     "@chakra-ui/react": "^3.36.1",
     "@emotion/react": "^11.14.0",
     "@xyflow/react": "^12.11.2",
-    "jsonpath-plus": "^10.4.0",
     "next": "^16.2.11",
     "react": "19.2.8",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "19.2.8",
     "react-icons": "^5.7.0",
     "react-json-view-lite": "^2.5.0",
@@ -24,7 +24,7 @@
     "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@types/node": "26.1.1",
+    "@types/node": "^24.13.3",
     "@types/react": "19.2.17",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.11"
