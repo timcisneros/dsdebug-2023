@@ -12,34 +12,91 @@ import { FiChevronDown, FiChevronRight, FiChevronUp } from 'react-icons/fi';
 import {
     useSelection,
     useWorkflowActions,
-    useWorkflowData,
     useWorkflowHistory,
     useWorkflowMetadata,
 } from '../../contexts/NodeContext';
 import { stepDataMapping } from '../SidePanel/Steps/StepData';
 
+const ConsoleCommandLine = memo(({ onSubmitCommand }) => {
+    const [inputValue, setInputValue] = useState('');
+    const [commandHistory, setCommandHistory] = useState([]);
+    const [commandIndex, setCommandIndex] = useState(-1);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (!inputValue.trim()) return;
+
+        const submittedCommand = inputValue;
+        setCommandHistory((currentHistory) => {
+            const nextHistory = [...currentHistory, submittedCommand];
+            setCommandIndex(nextHistory.length);
+            return nextHistory;
+        });
+        setInputValue('');
+        await onSubmitCommand(submittedCommand);
+    };
+
+    const handleKeyDown = (event) => {
+        if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+
+        event.preventDefault();
+        if (commandHistory.length === 0) return;
+
+        const nextIndex =
+            event.key === 'ArrowUp'
+                ? Math.max(commandIndex - 1, 0)
+                : Math.min(commandIndex + 1, commandHistory.length);
+        setCommandIndex(nextIndex);
+        setInputValue(commandHistory[nextIndex] || '');
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <InputGroup
+                backgroundColor="#212121"
+                startElement={
+                    <FiChevronRight color="var(--chakra-colors-gray-300)" />
+                }
+            >
+                <Input
+                    spellCheck="false"
+                    placeholder="command line"
+                    fontFamily="Consolas,Lucida Console,Courier New,monospace"
+                    fontSize="12px"
+                    color="#fff"
+                    backgroundColor="transparent"
+                    variant="unstyled"
+                    width="100%"
+                    px={35}
+                    py="10px"
+                    value={inputValue}
+                    onKeyDown={handleKeyDown}
+                    onChange={(event) => setInputValue(event.target.value)}
+                    _placeholder={{ color: 'gray.500' }}
+                />
+            </InputGroup>
+        </form>
+    );
+});
+
+ConsoleCommandLine.displayName = 'ConsoleCommandLine';
+
 const ConsoleContainer = ({
     splitHeight,
     setSplitHeight,
-    reactFlowWrapper,
-    nodes,
-    edges,
+    getWorkflowProjection,
     generateId,
     generateUniqueName,
 }) => {
     const [logs, setLogs] = useState([]);
-    const [inputValue, setInputValue] = useState('');
-    const [commandHistory, setCommandHistory] = useState([]);
-    const [commandIndex, setCommandIndex] = useState(-1); // -1 means no command is currently displayed
     const [inputVisible, setInputVisible] = useState(true); // Track input visibility
     const [isExpanded, setIsExpanded] = useState(true); // Track container expansion
 
-    const { data } = useWorkflowData();
-    const { setData } = useWorkflowActions();
+    const { getData, getWorkflowIndex, setData } = useWorkflowActions();
     const { startActivity, definedVariables, workflowName } =
         useWorkflowMetadata();
     const { setNewNodesAdded } = useWorkflowHistory();
-    const { setSelectedNodes } = useSelection();
+    const { setSelectedNodeIds, setSelectedEdgeId } = useSelection();
 
     // Function to handle input submission
     // const handleInputSubmit = (event) => {
@@ -74,12 +131,8 @@ const ConsoleContainer = ({
     //     }
     // };
 
-    const handleInputSubmit = (event) => {
-        event.preventDefault();
+    const handleCommandSubmit = async (inputValue) => {
         if (inputValue.trim() !== '') {
-            setCommandHistory((prevHistory) => [...prevHistory, inputValue]);
-            setCommandIndex(commandHistory.length + 1); // Reset command index to the latest command (+ 1 to account for the blank input state)
-
             // Split the input into command and arguments (if any)
             const args = inputValue.trim().split(' ');
 
@@ -146,16 +199,13 @@ const ConsoleContainer = ({
             };
 
             if (commandFunctions[command]) {
-                commandFunctions[command](...argsWithoutCommand);
+                await commandFunctions[command](...argsWithoutCommand);
             } else {
                 console.log(
                     'dsdebug-log',
                     'Invalid command. Type "help" for available commands.'
                 );
             }
-
-            // Clear the input value after submission
-            setInputValue('');
         }
     };
 
@@ -224,7 +274,7 @@ const ConsoleContainer = ({
         }
 
         // Find the item based on the provided itemId
-        const itemToUpdate = data.cells.find((item) => item.id === itemId);
+        const itemToUpdate = getWorkflowIndex().cellsById.get(itemId);
 
         if (!itemToUpdate) {
             console.log('dsdebug-log', `Item with id '${itemId}' not found.`);
@@ -276,10 +326,7 @@ const ConsoleContainer = ({
 
     // Function to handle the "start" command
     const handleStartCommand = () => {
-        // Check if the "StartActivity" already exists in the nodes array
-        const startActivityNode = nodes.find(
-            (node) => node.data.activityName === 'StartActivity'
-        );
+        const startActivityNode = getWorkflowIndex().startActivity;
 
         // If the "StartActivity" doesn't exist, create it directly in this function
         if (!startActivityNode) {
@@ -333,9 +380,9 @@ const ConsoleContainer = ({
         const sourceId = resolveAlias(sourceIdOrAlias);
         const targetId = resolveAlias(targetIdOrAlias);
 
-        // Find the source and target nodes based on the provided ids
-        const sourceNode = data.cells.find((node) => node.id === sourceId);
-        const targetNode = data.cells.find((node) => node.id === targetId);
+        const workflowIndex = getWorkflowIndex();
+        const sourceNode = workflowIndex.cellsById.get(sourceId);
+        const targetNode = workflowIndex.cellsById.get(targetId);
 
         if (!sourceNode || !targetNode) {
             if (sourceNode !== undefined) {
@@ -356,7 +403,7 @@ const ConsoleContainer = ({
         }
 
         // Check if an edge already exists between the source and target nodes
-        const existingEdge = data.cells.find(
+        const existingEdge = workflowIndex.edgeCells.find(
             (cell) =>
                 cell.type === 'springcm.Link' &&
                 cell.source?.id === sourceId &&
@@ -409,27 +456,20 @@ const ConsoleContainer = ({
         const itemId = resolveAlias(id);
 
         // Find the item based on the provided ID
-        const selectedItem = data.cells.find((item) => item.id === itemId);
+        const selectedItem = getWorkflowIndex().cellsById.get(itemId);
 
         if (!selectedItem) {
             console.log('dsdebug-log', `Item with id '${itemId}' not found.`);
             return;
         }
 
-        // Create a new array with updated selected items
-        const updatedItems = data.cells.map((item) =>
-            item.id === itemId
-                ? { ...item, selected: true }
-                : { ...item, selected: false }
-        );
-
-        setData((prevData) => ({
-            ...prevData,
-            cells: updatedItems,
-        }));
-
-        // Set the selected nodes to the filtered array containing only the selected items
-        setSelectedNodes(updatedItems.filter((item) => item.selected));
+        if (selectedItem.type === 'springcm.Link') {
+            setSelectedNodeIds(null);
+            setSelectedEdgeId(itemId);
+        } else {
+            setSelectedEdgeId(null);
+            setSelectedNodeIds([itemId]);
+        }
 
         console.log('dsdebug-log', `Item with id '${itemId}' selected.`);
     };
@@ -461,7 +501,7 @@ const ConsoleContainer = ({
                 stepDataMapping[activityName]?.type?.name?.value ||
                 activityName;
 
-            const existingStepNames = nodes.map(
+            const existingStepNames = getWorkflowProjection().externalNodes.map(
                 (node) => node.data.name?.value
             );
 
@@ -481,7 +521,6 @@ const ConsoleContainer = ({
                 id: nodeId,
                 size: { width: 100, height: 100 },
                 position: { x: parseFloat(x), y: parseFloat(y) },
-                selected: true,
                 name: {
                     type: 'String',
                     value: uniqueName,
@@ -543,7 +582,8 @@ const ConsoleContainer = ({
         const resolvedItemId = resolveAlias(nodeNameOrId);
 
         // Find the node based on the provided nodeNameOrId
-        const nodeToDelete = data.cells.find((node) => {
+        const currentData = getData();
+        const nodeToDelete = currentData.cells.find((node) => {
             if (node.id === resolvedItemId) {
                 return true;
             }
@@ -569,7 +609,7 @@ const ConsoleContainer = ({
 
         // Filter out the selected node and its connected links from the data.cells array
         const linksToDelete = [];
-        const filteredCells = data.cells.filter((cell) => {
+        const filteredCells = currentData.cells.filter((cell) => {
             if (cell.type === 'springcm.Link') {
                 if (
                     cell.source?.id === nodeToDelete.id ||
@@ -617,7 +657,7 @@ const ConsoleContainer = ({
                     console.log('dsdebug-log', aliasMap);
                     return;
                 }
-                const itemList = nodes;
+                const itemList = getWorkflowProjection().externalNodes;
                 if (propertyNames.length === 0) {
                     console.log('dsdebug-log', 'List of all nodes:');
                     console.log(
@@ -653,7 +693,7 @@ const ConsoleContainer = ({
                     );
                 }
             } else if (itemType === 'edges' || itemType === 'links') {
-                const itemList = edges;
+                const itemList = getWorkflowProjection().edges;
                 if (propertyNames.length === 0) {
                     console.log('dsdebug-log', 'List of all edges (links):');
                     console.log(
@@ -734,17 +774,16 @@ const ConsoleContainer = ({
         }
 
         // Find the item based on the provided ID
-        const itemToUpdate = data.cells.find(
-            (item) => item.id === resolvedItemId
-        );
+        const currentItem = getWorkflowIndex().cellsById.get(resolvedItemId);
 
-        if (!itemToUpdate) {
+        if (!currentItem) {
             console.log(
                 'dsdebug-log',
                 `Item with id '${resolvedItemId}' not found.`
             );
             return;
         }
+        const itemToUpdate = structuredClone(currentItem);
 
         const updateNestedProperty = (item, nestedPath, value) => {
             const path = nestedPath.split('.');
@@ -824,6 +863,7 @@ const ConsoleContainer = ({
             return;
         } else {
             itemToUpdate[propertyToUpdate] = parsedValue;
+            updateSuccessful = true;
         }
 
         // Only update data and log success if update was successful
@@ -845,9 +885,7 @@ const ConsoleContainer = ({
         const resolvedItemId = resolveAlias(id);
 
         // Find the node based on the provided id
-        const nodeToMove = data.cells.find(
-            (node) => node.id === resolvedItemId
-        );
+        const nodeToMove = getWorkflowIndex().cellsById.get(resolvedItemId);
 
         if (!nodeToMove) {
             if (resolvedItemId) {
@@ -872,10 +910,10 @@ const ConsoleContainer = ({
         };
 
         if (!isNaN(newPosition.x) && !isNaN(newPosition.y)) {
-            nodeToMove.position = newPosition;
+            const updatedNode = { ...nodeToMove, position: newPosition };
             setData((prevData) => ({
                 cells: prevData.cells.map((cell) =>
-                    cell.id === resolvedItemId ? nodeToMove : cell
+                    cell.id === resolvedItemId ? updatedNode : cell
                 ),
             }));
             console.log(
@@ -891,7 +929,6 @@ const ConsoleContainer = ({
     };
 
     const logsEndRef = useRef(null);
-    const inputRef = useRef(null);
 
     const scrollToBottom = () => {
         logsEndRef.current?.scrollIntoView({
@@ -920,29 +957,6 @@ const ConsoleContainer = ({
         setIsExpanded(size.height > 24);
     };
 
-    const handleInputChange = (e) => {
-        setInputValue(e.target.value);
-    };
-
-    const handleKeyDown = (event) => {
-        // Handle up and down arrow key press for command history navigation
-        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-            event.preventDefault();
-            if (commandHistory.length > 0) {
-                let newIndex;
-                if (event.key === 'ArrowUp') {
-                    newIndex = commandIndex > 0 ? commandIndex - 1 : 0;
-                } else {
-                    newIndex =
-                        commandIndex < commandHistory.length - 1
-                            ? commandIndex + 1
-                            : commandHistory.length;
-                }
-                setCommandIndex(newIndex);
-                setInputValue(commandHistory[newIndex] || '');
-            }
-        }
-    };
     // console.log('running');
     return (
         <Resizable
@@ -996,32 +1010,9 @@ const ConsoleContainer = ({
                             backgroundColor="#212121"
                             borderTop="1px solid #2c2c2c"
                         >
-                            <form onSubmit={handleInputSubmit}>
-                                <InputGroup
-                                    backgroundColor="#212121"
-                                    startElement={
-                                        <FiChevronRight color="var(--chakra-colors-gray-300)" />
-                                    }
-                                >
-                                    <Input
-                                        spellCheck="false"
-                                        placeholder="command line"
-                                        fontFamily="Consolas,Lucida Console,Courier New,monospace"
-                                        fontSize="12px"
-                                        color="#fff"
-                                        backgroundColor="transparent"
-                                        variant="unstyled"
-                                        width="100%"
-                                        px={35}
-                                        py="10px"
-                                        value={inputValue}
-                                        onKeyDown={handleKeyDown}
-                                        onChange={handleInputChange}
-                                        onSubmit={handleInputSubmit}
-                                        _placeholder={{ color: 'gray.500' }}
-                                    />
-                                </InputGroup>
-                            </form>
+                            <ConsoleCommandLine
+                                onSubmitCommand={handleCommandSubmit}
+                            />
                         </Box>
                     </>
                 )}

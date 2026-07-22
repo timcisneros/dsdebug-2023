@@ -2,8 +2,54 @@ import { NodeResizer } from '@xyflow/react';
 import { memo } from 'react';
 import { useWorkflowActions } from '../../contexts/NodeContext';
 
+const resizeHandleStyle = { pointerEvents: 'all', zIndex: 1001 };
+const resizeLineStyle = { pointerEvents: 'all', zIndex: 1000 };
+const laneRootStyle = {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    pointerEvents: 'none',
+};
+const laneLabelStyle = {
+    position: 'absolute',
+    color: '#fff',
+    inset: '14px 0',
+    width: 25,
+    maxHeight: 'calc(100% - 28px)',
+    boxSizing: 'border-box',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    textAlign: 'center',
+    lineHeight: '25px',
+    writingMode: 'vertical-rl',
+    textOrientation: 'mixed',
+    transform: 'rotate(180deg)',
+};
+const topResizeTargetStyle = {
+    position: 'absolute',
+    top: -6,
+    left: 25,
+    right: 0,
+    height: 12,
+    pointerEvents: 'all',
+};
+const bottomResizeTargetStyle = {
+    ...topResizeTargetStyle,
+    top: undefined,
+    bottom: -6,
+};
+const rightResizeTargetStyle = {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: -6,
+    width: 12,
+    pointerEvents: 'all',
+};
+
 const LaneNode = ({ id, data, selected }) => {
-    const { name, size, attrs, color } = data;
+    const { name, attrs } = data;
     const displayName = name?.value || '';
     const { setData } = useWorkflowActions();
 
@@ -34,29 +80,24 @@ const LaneNode = ({ id, data, selected }) => {
                 onResizeEnd={handleResizeEnd}
                 handleClassName="node-resizer-handle"
                 lineClassName="node-resizer-line"
+                handleStyle={resizeHandleStyle}
+                lineStyle={resizeLineStyle}
             />
-            <div
-                style={{ width: '100%', height: '100%', position: 'relative' }}
-            >
+            <div style={laneRootStyle}>
                 <div
                     style={{
                         width: '25px',
                         height: '100%',
                         position: 'absolute',
                         backgroundColor: attrs.rect.fill,
+                        pointerEvents: 'all',
+                        overflow: 'hidden',
+                        contain: 'paint',
                     }}
                 >
                     <div
-                        style={{
-                            position: 'absolute',
-                            color: '#fff',
-                            transformOrigin: '0 0',
-                            top: '50%',
-                            transform:
-                                'rotate(-90deg) translateY(0) translateX(-50%)',
-                            whiteSpace: 'nowrap',
-                            // transform: 'rotate(-90deg) translateX(-100%)',
-                        }}
+                        title={displayName}
+                        style={laneLabelStyle}
                     >
                         {displayName}
                     </div>
@@ -65,6 +106,7 @@ const LaneNode = ({ id, data, selected }) => {
                     style={{
                         border: `1px solid ${attrs.rect.fill}`,
                         height: '100%',
+                        pointerEvents: 'none',
                     }}
                 >
                     {/* <div
@@ -87,6 +129,9 @@ const LaneNode = ({ id, data, selected }) => {
                     </div>
                 </div> */}
                 </div>
+                <div style={topResizeTargetStyle} />
+                <div style={bottomResizeTargetStyle} />
+                <div style={rightResizeTargetStyle} />
             </div>
         </>
     );

@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, memo } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    memo,
+} from 'react';
 import {
     Input,
     VStack,
@@ -17,7 +24,6 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 import {
     usePanelVisibility,
     useWorkflowActions,
-    useWorkflowMetadata,
 } from '../../contexts/NodeContext';
 import CustomCheckbox from './CustomInputs/CustomCheckbox';
 import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
@@ -25,21 +31,75 @@ import 'react-json-view-lite/dist/index.css';
 import TagInput from './CustomInputs/TagInput';
 import { displayNameMapping } from './InputData';
 
-const updateValueAtPath = (currentValue, pathParts, newValue) => {
-    if (pathParts.length === 0) return newValue;
+const pathPartsCache = new Map();
+const getPathParts = (path) => {
+    let pathParts = pathPartsCache.get(path);
+    if (!pathParts) {
+        pathParts = path.split('.');
+        pathPartsCache.set(path, pathParts);
+    }
+    return pathParts;
+};
 
-    const [currentPart, ...remainingParts] = pathParts;
+const compiledDisplayNameMapping = Object.fromEntries(
+    Object.entries(displayNameMapping).map(([activityName, fieldConfigs]) => [
+        activityName,
+        fieldConfigs.map((fieldConfig) => ({
+            ...fieldConfig,
+            pathParts: getPathParts(fieldConfig.path),
+            dependencyConfigs: (
+                Array.isArray(fieldConfig.config?.dependsOn)
+                    ? fieldConfig.config.dependsOn
+                    : fieldConfig.config?.dependsOn
+                      ? [fieldConfig.config.dependsOn]
+                      : []
+            ).map((dependency) => ({
+                ...dependency,
+                pathParts: getPathParts(dependency.path),
+            })),
+        })),
+    ])
+);
+
+const getActivityFieldConfigs = (activityName) =>
+    compiledDisplayNameMapping[activityName] ||
+    compiledDisplayNameMapping.default;
+
+const doesPathMatchPattern = (patternParts, pathParts) =>
+    patternParts.length === pathParts.length &&
+    patternParts.every(
+        (patternPart, index) =>
+            patternPart === '*' || patternPart === pathParts[index]
+    );
+
+const getDisplayName = (path, activityName) => {
+    const pathParts = getPathParts(path);
+    const matchingConfig = getActivityFieldConfigs(activityName).find(
+        (config) => doesPathMatchPattern(config.pathParts, pathParts)
+    );
+    return matchingConfig?.config?.displayName || path;
+};
+
+const updateValueAtPath = (
+    currentValue,
+    pathParts,
+    newValue,
+    pathIndex = 0
+) => {
+    if (pathIndex === pathParts.length) return newValue;
+
+    const currentPart = pathParts[pathIndex];
     if (currentPart === '*') {
         if (Array.isArray(currentValue)) {
             return currentValue.map((item) =>
-                updateValueAtPath(item, remainingParts, newValue)
+                updateValueAtPath(item, pathParts, newValue, pathIndex + 1)
             );
         }
 
         return Object.fromEntries(
             Object.entries(currentValue ?? {}).map(([key, item]) => [
                 key,
-                updateValueAtPath(item, remainingParts, newValue),
+                updateValueAtPath(item, pathParts, newValue, pathIndex + 1),
             ])
         );
     }
@@ -48,29 +108,34 @@ const updateValueAtPath = (currentValue, pathParts, newValue) => {
     const updatedValue = Array.isArray(source) ? [...source] : { ...source };
     updatedValue[currentPart] = updateValueAtPath(
         source[currentPart],
-        remainingParts,
-        newValue
+        pathParts,
+        newValue,
+        pathIndex + 1
     );
     return updatedValue;
 };
 
-const getValueAtPath = (currentValue, pathParts) => {
-    if (pathParts.length === 0) return currentValue;
+const getValueAtPath = (currentValue, pathParts, pathIndex = 0) => {
+    if (pathIndex === pathParts.length) return currentValue;
     if (currentValue === null || currentValue === undefined) return undefined;
 
-    const [currentPart, ...remainingParts] = pathParts;
+    const currentPart = pathParts[pathIndex];
     if (currentPart === '*') {
         const values = Array.isArray(currentValue)
             ? currentValue
             : Object.values(currentValue);
         for (const value of values) {
-            const result = getValueAtPath(value, remainingParts);
+            const result = getValueAtPath(value, pathParts, pathIndex + 1);
             if (result !== undefined) return result;
         }
         return undefined;
     }
 
-    return getValueAtPath(currentValue[currentPart], remainingParts);
+    return getValueAtPath(
+        currentValue[currentPart],
+        pathParts,
+        pathIndex + 1
+    );
 };
 
 const hasRequiredValue = (value) => {
@@ -90,21 +155,11 @@ const hasRequiredValue = (value) => {
 
 const getVisibleFieldConfigs = (node) => {
     const activityName = node?.data?.activityName || 'default';
-    const fieldConfigs =
-        displayNameMapping[activityName] || displayNameMapping.default;
+    const fieldConfigs = getActivityFieldConfigs(activityName);
 
     return fieldConfigs.filter((fieldConfig) => {
-        const dependencies = fieldConfig.config?.dependsOn;
-        if (!dependencies) return true;
-
-        const dependencyList = Array.isArray(dependencies)
-            ? dependencies
-            : [dependencies];
-        return dependencyList.every((dependency) => {
-            const dependencyValue = getValueAtPath(
-                node,
-                dependency.path.split('.')
-            );
+        return fieldConfig.dependencyConfigs.every((dependency) => {
+            const dependencyValue = getValueAtPath(node, dependency.pathParts);
             const actualValue = dependencyValue?.value ?? dependencyValue;
             return actualValue === dependency.value;
         });
@@ -116,7 +171,7 @@ const withValidationState = (node) => {
         (field) =>
             field.config?.required &&
             !hasRequiredValue(
-                getValueAtPath(node, field.path.split('.'))
+                getValueAtPath(node, field.pathParts)
             )
     );
 
@@ -142,9 +197,158 @@ const SettingsCheckbox = ({ checked, onCheckedChange, children }) => (
     </Checkbox.Root>
 );
 
+const SettingsField = memo(function SettingsField({
+    field,
+    inputValue,
+    editedNode,
+    currentActivityName,
+    displayPaths,
+    displayIsArray,
+    handleInputChange,
+    handleStructuredNodeUpdate,
+    getNestedValue,
+}) {
+    const isError =
+        field.config?.required && !hasRequiredValue(inputValue);
+
+    return (
+        <Field.Root
+            required={field.config.required}
+            invalid={isError}
+            width="100%"
+        >
+            {displayPaths && (
+                <Text color="blue.400" mb={2}>
+                    {field.path}
+                </Text>
+            )}
+            {displayIsArray && field.config.isArray && (
+                <Badge color="blue.400" mb={2}>
+                    isArray
+                </Badge>
+            )}
+            {field.config.displayName !== null &&
+                field.config.type !== 'Bool' && (
+                    <Field.Label>
+                        {getDisplayName(field.path, currentActivityName)}
+                        {field.config.required && (
+                            <Field.RequiredIndicator />
+                        )}
+                    </Field.Label>
+                )}
+            {field.config.type === 'Bool' ? (
+                <CustomCheckbox
+                    editedNode={editedNode}
+                    handleInputChange={handleInputChange}
+                    getNestedValue={getNestedValue}
+                    field={field}
+                    getDisplayName={getDisplayName}
+                    currentActivityName={currentActivityName}
+                    inputValue={inputValue}
+                />
+            ) : field.config.type === 'Choice' ? (
+                <NativeSelect.Root width="100%">
+                    <NativeSelect.Field
+                        value={inputValue}
+                        onChange={(event) =>
+                            handleInputChange(field.path, event.target.value)
+                        }
+                    >
+                        {field.config.choices.map((choice) => (
+                            <option key={choice.value} value={choice.value}>
+                                {choice.displayName}
+                            </option>
+                        ))}
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                </NativeSelect.Root>
+            ) : field.config.type === 'Radio' ? (
+                <RadioGroup.Root
+                    value={String(inputValue)}
+                    onValueChange={({ value }) => {
+                        const choice = field.config.choices.find(
+                            (item) => String(item.value) === value
+                        );
+                        handleInputChange(
+                            field.path,
+                            choice?.value ?? value
+                        );
+                    }}
+                >
+                    <VStack align="start" gap={2}>
+                        {field.config.choices.map((choice) => (
+                            <RadioGroup.Item
+                                key={choice.value}
+                                value={String(choice.value)}
+                            >
+                                <RadioGroup.ItemHiddenInput />
+                                <RadioGroup.ItemIndicator />
+                                <RadioGroup.ItemText>
+                                    {choice.displayName}
+                                </RadioGroup.ItemText>
+                            </RadioGroup.Item>
+                        ))}
+                    </VStack>
+                </RadioGroup.Root>
+            ) : field.config.type === 'Textarea' ? (
+                <Textarea
+                    placeholder={field.config.placeholder || ''}
+                    onChange={(event) =>
+                        handleInputChange(field.path, event.target.value)
+                    }
+                    defaultValue={inputValue}
+                    size="md"
+                />
+            ) : field.config.type === 'Variable' ? (
+                <TagInput
+                    field={field}
+                    variableName={
+                        inputValue?.[0]?.value?.value ||
+                        inputValue?.value ||
+                        inputValue?.[0]?.value
+                    }
+                    editedNode={editedNode}
+                    path={field.path}
+                    handleUpdateNode={handleStructuredNodeUpdate}
+                    isArray={field.config.isArray}
+                    getNestedValue={getNestedValue}
+                />
+            ) : (
+                <Input
+                    placeholder={field.config.placeholder || ''}
+                    onChange={(event) =>
+                        handleInputChange(field.path, event.target.value)
+                    }
+                    defaultValue={inputValue}
+                    size="md"
+                />
+            )}
+            {isError && (
+                <Field.ErrorText>This field is required.</Field.ErrorText>
+            )}
+        </Field.Root>
+    );
+}, (previousProps, nextProps) => {
+    const fieldType = nextProps.field.config.type;
+    const needsCompleteNode = fieldType === 'Bool' || fieldType === 'Variable';
+
+    return (
+        previousProps.field === nextProps.field &&
+        previousProps.inputValue === nextProps.inputValue &&
+        previousProps.currentActivityName === nextProps.currentActivityName &&
+        previousProps.displayPaths === nextProps.displayPaths &&
+        previousProps.displayIsArray === nextProps.displayIsArray &&
+        previousProps.handleInputChange === nextProps.handleInputChange &&
+        previousProps.handleStructuredNodeUpdate ===
+            nextProps.handleStructuredNodeUpdate &&
+        previousProps.getNestedValue === nextProps.getNestedValue &&
+        (!needsCompleteNode ||
+            previousProps.editedNode === nextProps.editedNode)
+    );
+});
+
 const DeepFieldExplorer = ({ selectedNode }) => {
     const { handleUpdateNode } = useWorkflowActions();
-    const { definedVariables } = useWorkflowMetadata();
     const { isVisible, handleToggleVisibility } = usePanelVisibility();
     const [editedNode, setEditedNode] = useState(() =>
         withValidationState(selectedNode)
@@ -157,16 +361,10 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     const [displayIndex, setDisplayIndex] = useState(false);
     const [displayPaths, setDisplayPaths] = useState(false);
     const [displayIsArray, setDisplayIsArray] = useState(false);
-    const [fieldsReady, setFieldsReady] = useState(false);
 
     useEffect(() => {
         editedNodeRef.current = editedNode;
     }, [editedNode]);
-
-    useEffect(() => {
-        const frameId = requestAnimationFrame(() => setFieldsReady(true));
-        return () => cancelAnimationFrame(frameId);
-    }, []);
 
     useEffect(() => {
         if (selectedNode.data.errorState !== editedNode.data.errorState) {
@@ -203,106 +401,15 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         return obj && (obj[key] === true || obj === true);
     };
 
-    const findDeepestFields = (obj, currentPath = []) => {
-        console.log('dsdebug-log', '-dev', 'deepest fields run');
-        let deepestFields = [];
+    const getNestedValue = useCallback(
+        (object, path) => getValueAtPath(object, getPathParts(path)),
+        []
+    );
 
-        for (const key in obj) {
-            if (!displayHiddenFields && isFiltered(key, currentPath)) {
-                continue;
-            }
-
-            const newPath = currentPath.concat(key);
-
-            if (typeof obj[key] === 'object' && obj[key] !== null) {
-                if (
-                    obj[key].hasOwnProperty('value') &&
-                    Array.isArray(obj[key].value) &&
-                    obj[key].value.length === 0
-                ) {
-                    // Add a blank string value for the "value" key
-                    deepestFields.push({
-                        path: newPath.join('.') + '.value',
-                        value: '', // Set a blank string as the default value
-                    });
-                } else {
-                    // Continue exploring deeper fields
-                    deepestFields = deepestFields.concat(
-                        findDeepestFields(obj[key], newPath)
-                    );
-                }
-            } else {
-                const path = newPath.join('.');
-                deepestFields.push({ path, value: obj[key] });
-            }
-        }
-
-        return deepestFields;
-    };
-
-    const getDisplayName = (path, activityName) => {
-        const activityFieldsConfig =
-            displayNameMapping[activityName] || displayNameMapping['default'];
-
-        // Find the first configuration that matches the path using the wildcard matcher
-        const matchingConfig = activityFieldsConfig.find((config) =>
-            doesPathMatchPattern(config.path, path)
-        );
-
-        // If a matching configuration is found, return its display name; otherwise, return the path
-        return matchingConfig?.config?.displayName || path;
-    };
-
-    // Function to check if a path matches a pattern with wildcards
-    const doesPathMatchPattern = (pattern, path) => {
-        const patternParts = pattern.split('.');
-        const pathParts = path.split('.');
-
-        if (patternParts.length !== pathParts.length) {
-            return false;
-        }
-
-        for (let i = 0; i < patternParts.length; i++) {
-            if (patternParts[i] !== '*' && patternParts[i] !== pathParts[i]) {
-                return false;
-            }
-        }
-        return true;
-    };
-
-    const getNestedValue = (obj, path) => {
-        const pathParts = path.split('.');
-        let currentObj = obj;
-
-        for (let i = 0; i < pathParts.length; i++) {
-            if (pathParts[i] === '*') {
-                // If a wildcard is encountered, iterate through all properties of the current object
-                const keys = Object.keys(currentObj);
-                for (let key of keys) {
-                    // Recursively call getNestedValue for each key with the remaining path
-                    const remainingPath = pathParts.slice(i + 1).join('.');
-                    const result = getNestedValue(
-                        currentObj[key],
-                        remainingPath
-                    );
-                    if (result !== undefined) {
-                        return result;
-                    }
-                }
-                // If no match is found after checking all keys, return undefined
-                return undefined;
-            } else if (currentObj && currentObj.hasOwnProperty(pathParts[i])) {
-                // Continue traversing the object structure if the current part matches
-                currentObj = currentObj[pathParts[i]];
-            } else {
-                // If the current part does not exist in the object, return undefined
-                return undefined;
-            }
-        }
-        return currentObj;
-    };
-
-    const visibleFields = getVisibleFieldConfigs(editedNode);
+    const visibleFields = useMemo(
+        () => getVisibleFieldConfigs(editedNode),
+        [editedNode]
+    );
 
     const scheduleNodePersistence = useCallback(
         (updatedNode) => {
@@ -310,7 +417,6 @@ const DeepFieldExplorer = ({ selectedNode }) => {
             clearTimeout(persistenceTimerRef.current);
             persistenceTimerRef.current = setTimeout(() => {
                 pendingNodeRef.current = null;
-                setEditedNode(updatedNode);
                 handleUpdateNode(updatedNode);
             }, 180);
         },
@@ -328,17 +434,16 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     );
 
     const handleInputChange = useCallback(
-        (path, newValue, { deferRender = false } = {}) => {
+        (path, newValue) => {
             const updatedNode = withValidationState(
                 updateValueAtPath(
                     editedNodeRef.current,
-                    path.split('.'),
+                    getPathParts(path),
                     newValue
                 )
             );
             editedNodeRef.current = updatedNode;
-
-            if (!deferRender) setEditedNode(updatedNode);
+            setEditedNode(updatedNode);
             scheduleNodePersistence(updatedNode);
         },
         [scheduleNodePersistence]
@@ -347,147 +452,14 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     const handleStructuredNodeUpdate = useCallback(
         (updatedNode) => {
             const validatedNode = withValidationState(updatedNode);
+            clearTimeout(persistenceTimerRef.current);
+            pendingNodeRef.current = null;
             editedNodeRef.current = validatedNode;
             setEditedNode(validatedNode);
-            scheduleNodePersistence(validatedNode);
+            handleUpdateNode(validatedNode);
         },
-        [scheduleNodePersistence]
+        [handleUpdateNode]
     );
-
-    // Function to render a single field
-    const renderField = (field) => {
-        const inputValue = getNestedValue(editedNode, field.path);
-        const currentActivityName = editedNode?.data?.activityName || 'default';
-        const isError =
-            field.config?.required && !hasRequiredValue(inputValue);
-
-        // console.log('dsdebug-log', field.path);
-
-        return (
-            <Field.Root
-                required={field.config.required}
-                key={field.path}
-                invalid={isError}
-                width="100%"
-            >
-                {displayPaths && (
-                    <Text color="blue.400" mb={2}>
-                        {field.path}
-                    </Text>
-                )}
-                {displayIsArray && field.config.isArray && (
-                    <Badge color="blue.400" mb={2}>
-                        isArray
-                    </Badge>
-                )}
-                {field.config.displayName !== null &&
-                    field.config.type !== 'Bool' && (
-                        <Field.Label>
-                            {getDisplayName(field.path, currentActivityName)}
-                            {field.config.required && (
-                                <Field.RequiredIndicator />
-                            )}
-                        </Field.Label>
-                    )}
-                {field.config.type === 'Bool' ? (
-                    <CustomCheckbox
-                        editedNode={editedNode}
-                        handleInputChange={handleInputChange}
-                        getNestedValue={getNestedValue}
-                        field={field}
-                        getDisplayName={getDisplayName}
-                        currentActivityName={currentActivityName}
-                        inputValue={inputValue}
-                    />
-                ) : field.config.type === 'Choice' ? (
-                    <NativeSelect.Root width="100%">
-                        <NativeSelect.Field
-                            value={inputValue}
-                            onChange={(e) =>
-                                handleInputChange(field.path, e.target.value)
-                            }
-                        >
-                            {field.config.choices.map((choice) => (
-                                <option key={choice.value} value={choice.value}>
-                                    {choice.displayName}
-                                </option>
-                            ))}
-                        </NativeSelect.Field>
-                        <NativeSelect.Indicator />
-                    </NativeSelect.Root>
-                ) : field.config.type === 'Radio' ? (
-                    <RadioGroup.Root
-                        value={String(inputValue)}
-                        onValueChange={({ value }) => {
-                            const choice = field.config.choices.find(
-                                (item) => String(item.value) === value
-                            );
-                            handleInputChange(field.path, choice?.value ?? value);
-                        }}
-                    >
-                    <VStack align="start" gap={2}>
-                        {field.config.choices.map((choice) => {
-                            return (
-                                <RadioGroup.Item
-                                    key={choice.value}
-                                    value={String(choice.value)}
-                                >
-                                    <RadioGroup.ItemHiddenInput />
-                                    <RadioGroup.ItemIndicator />
-                                    <RadioGroup.ItemText>
-                                        {choice.displayName}
-                                    </RadioGroup.ItemText>
-                                </RadioGroup.Item>
-                            );
-                        })}
-                    </VStack>
-                    </RadioGroup.Root>
-                ) : field.config.type === 'Textarea' ? (
-                    <Textarea
-                        placeholder={field.config.placeholder || ''}
-                        onChange={(e) =>
-                            handleInputChange(field.path, e.target.value, {
-                                deferRender: true,
-                            })
-                        }
-                        defaultValue={inputValue}
-                        size="md"
-                    />
-                ) : field.config.type === 'Variable' ? (
-                    <>
-                        <TagInput
-                            field={field}
-                            variableName={
-                                inputValue?.[0]?.value?.value ||
-                                inputValue?.value ||
-                                inputValue?.[0]?.value
-                            }
-                            editedNode={editedNode}
-                            path={field.path}
-                            definedVariables={definedVariables}
-                            handleUpdateNode={handleStructuredNodeUpdate}
-                            isArray={field.config.isArray}
-                            getNestedValue={getNestedValue}
-                        />
-                    </>
-                ) : (
-                    <Input
-                        placeholder={field.config.placeholder || ''}
-                        onChange={(e) =>
-                            handleInputChange(field.path, e.target.value, {
-                                deferRender: true,
-                            })
-                        }
-                        defaultValue={inputValue}
-                        size="md"
-                    />
-                )}
-                {isError && (
-                    <Field.ErrorText>This field is required.</Field.ErrorText>
-                )}
-            </Field.Root>
-        );
-    };
 
     return (
         <>
@@ -530,10 +502,35 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                         <Box>
                             <Box p={4}>
                                 <VStack gap={4}>
-                                    {fieldsReady &&
-                                        visibleFields.map((field) => {
-                                            return renderField(field);
-                                        })}
+                                    {visibleFields.map((field) => (
+                                            <SettingsField
+                                                key={field.path}
+                                                field={field}
+                                                inputValue={getValueAtPath(
+                                                    editedNode,
+                                                    field.pathParts
+                                                )}
+                                                editedNode={editedNode}
+                                                currentActivityName={
+                                                    editedNode?.data
+                                                        ?.activityName ||
+                                                    'default'
+                                                }
+                                                displayPaths={displayPaths}
+                                                displayIsArray={
+                                                    displayIsArray
+                                                }
+                                                handleInputChange={
+                                                    handleInputChange
+                                                }
+                                                handleStructuredNodeUpdate={
+                                                    handleStructuredNodeUpdate
+                                                }
+                                                getNestedValue={
+                                                    getNestedValue
+                                                }
+                                            />
+                                        ))}
                                 </VStack>
                             </Box>
                         </Box>

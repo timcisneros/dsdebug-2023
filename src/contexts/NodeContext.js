@@ -23,6 +23,7 @@ const getNodePositions = (data) =>
 
 const WorkflowDataContext = createContext();
 const WorkflowActionsContext = createContext();
+const WorkflowIndexContext = createContext();
 const WorkflowMetadataContext = createContext();
 const TemplateOptionsContext = createContext();
 const WorkflowHistoryContext = createContext();
@@ -41,37 +42,65 @@ const defaultDefinedVariables =
 
 export const useWorkflowData = () => useContext(WorkflowDataContext);
 export const useWorkflowActions = () => useContext(WorkflowActionsContext);
+export const useWorkflowIndex = () => useContext(WorkflowIndexContext);
 export const useWorkflowMetadata = () => useContext(WorkflowMetadataContext);
 export const useTemplateOptions = () => useContext(TemplateOptionsContext);
 export const useWorkflowHistory = () => useContext(WorkflowHistoryContext);
 export const usePanelVisibility = () => useContext(PanelVisibilityContext);
 export const useSelection = () => useContext(SelectionContext);
 
+const createWorkflowIndex = (data) => {
+    const nodeCells = [];
+    const edgeCells = [];
+    const cellsById = new Map();
+    let startActivity = null;
+
+    data.cells.forEach((cell) => {
+        cellsById.set(cell.id, cell);
+        if (cell.type === 'springcm.Link') edgeCells.push(cell);
+        else nodeCells.push(cell);
+        if (cell.activityName === 'StartActivity') startActivity = cell;
+    });
+
+    return { nodeCells, edgeCells, cellsById, startActivity };
+};
+
 export const NodeProvider = ({ children }) => {
-    const [selectedNodes, setSelectedNodes] = useState(null);
-    const [selectedEdge, setSelectedEdge] = useState(null);
+    const [selectedNodeIds, setSelectedNodeIds] = useState(null);
+    const [selectedEdgeId, setSelectedEdgeId] = useState(null);
+    const [selectionRevision, setSelectionRevision] = useState(0);
     const [workflowState, setWorkflowState] = useState(() => ({
         data: initialData,
+        index: createWorkflowIndex(initialData),
         lastWorkflowName: defaultWorkflowName,
         lastDefinedVariables: defaultDefinedVariables,
     }));
-    const { data, lastWorkflowName, lastDefinedVariables } = workflowState;
+    const { data, index, lastWorkflowName, lastDefinedVariables } =
+        workflowState;
     const workflowDataRef = useRef(data);
+    const workflowIndexRef = useRef(index);
+    const variableRenamesRef = useRef(new Map());
     useEffect(() => {
         workflowDataRef.current = data;
-    }, [data]);
+        workflowIndexRef.current = index;
+    }, [data, index]);
     const setData = useCallback((dataOrUpdater) => {
+        if (typeof dataOrUpdater !== 'function') {
+            variableRenamesRef.current.clear();
+        }
         setWorkflowState((currentState) => {
             const nextData =
                 typeof dataOrUpdater === 'function'
                     ? dataOrUpdater(currentState.data)
                     : dataOrUpdater;
-            const nextStartActivity = nextData.cells.find(
-                (cell) => cell.activityName === 'StartActivity'
-            );
+            if (nextData === currentState.data) return currentState;
+
+            const nextIndex = createWorkflowIndex(nextData);
+            const nextStartActivity = nextIndex.startActivity;
 
             return {
                 data: nextData,
+                index: nextIndex,
                 lastWorkflowName:
                     nextStartActivity?.workflowName ??
                     currentState.lastWorkflowName,
@@ -81,6 +110,8 @@ export const NodeProvider = ({ children }) => {
             };
         });
     }, []);
+    const getData = useCallback(() => workflowDataRef.current, []);
+    const getWorkflowIndex = useCallback(() => workflowIndexRef.current, []);
     const [newNodesAdded, setNewNodesAdded] = useState(false);
     const [iterateVars, setIterateVars] = useState(false);
     const [defaultNodePositions, setDefaultNodePositions] = useState(() =>
@@ -92,13 +123,7 @@ export const NodeProvider = ({ children }) => {
         setIsVisible((currentVisibility) => !currentVisibility);
     }, []);
 
-    const startActivity = useMemo(
-        () =>
-            data.cells.find(
-                (cell) => cell.activityName === 'StartActivity'
-            ),
-        [data]
-    );
+    const startActivity = index.startActivity;
 
     const definedVariables =
         startActivity?.definedVariables?.value ?? lastDefinedVariables;
@@ -107,7 +132,11 @@ export const NodeProvider = ({ children }) => {
     const generateUniqueName = useCallback((baseName, existingNames) => {
         let newName = baseName;
         let iterator = 1;
-        while (existingNames.includes(newName)) {
+        const nameExists = (name) =>
+            existingNames instanceof Set
+                ? existingNames.has(name)
+                : existingNames.includes(name);
+        while (nameExists(newName)) {
             newName = `${baseName} ${iterator}`;
             iterator++;
         }
@@ -128,11 +157,16 @@ export const NodeProvider = ({ children }) => {
         (editedNode) => {
             if (!editedNode?.id) return;
 
+            const normalizedNodeData = rewriteVariableReferences(
+                editedNode.data,
+                variableRenamesRef.current
+            );
+
             setData((currentData) => ({
                 ...currentData,
                 cells: currentData.cells.map((cell) =>
                     cell.id === editedNode.id
-                        ? { ...cell, ...editedNode.data }
+                        ? { ...cell, ...normalizedNodeData }
                         : cell
                 ),
             }));
@@ -178,9 +212,8 @@ export const NodeProvider = ({ children }) => {
                 };
             }
 
-            const currentStartActivity = workflowDataRef.current.cells.find(
-                (cell) => cell.activityName === 'StartActivity'
-            );
+            const currentStartActivity =
+                workflowIndexRef.current.startActivity;
             const currentVariables =
                 currentStartActivity?.definedVariables?.value ?? [];
             if (!currentStartActivity) {
@@ -199,6 +232,7 @@ export const NodeProvider = ({ children }) => {
                 return { ok: false, error: 'Variable already exists.' };
             }
 
+            variableRenamesRef.current.delete(variableName);
             updateDefinedVariables((variables) =>
                 variables.some(
                     (variable) =>
@@ -222,9 +256,8 @@ export const NodeProvider = ({ children }) => {
                 };
             }
 
-            const currentStartActivity = workflowDataRef.current.cells.find(
-                (cell) => cell.activityName === 'StartActivity'
-            );
+            const currentStartActivity =
+                workflowIndexRef.current.startActivity;
             const currentVariables =
                 currentStartActivity?.definedVariables?.value ?? [];
             const existingVariable = currentVariables.find(
@@ -254,6 +287,12 @@ export const NodeProvider = ({ children }) => {
             }
 
             const renamedVariables = new Map([[oldName, newName]]);
+            for (const [sourceName, targetName] of variableRenamesRef.current) {
+                if (targetName === oldName) {
+                    variableRenamesRef.current.set(sourceName, newName);
+                }
+            }
+            variableRenamesRef.current.set(oldName, newName);
             setData((currentData) => ({
                 ...currentData,
                 cells: currentData.cells.map((cell) => {
@@ -286,28 +325,7 @@ export const NodeProvider = ({ children }) => {
                 }),
             }));
 
-            setSelectedNodes((currentSelection) =>
-                currentSelection?.map((node) => ({
-                    ...node,
-                    variableRevision: (node.variableRevision ?? 0) + 1,
-                    data: rewriteVariableReferences(
-                        node.data,
-                        renamedVariables
-                    ),
-                })) ?? null
-            );
-            setSelectedEdge((currentEdge) =>
-                currentEdge
-                    ? {
-                          ...rewriteVariableReferences(
-                              currentEdge,
-                              renamedVariables
-                          ),
-                          variableRevision:
-                              (currentEdge.variableRevision ?? 0) + 1,
-                      }
-                    : null
-            );
+            setSelectionRevision((currentRevision) => currentRevision + 1);
 
             return { ok: true };
         },
@@ -316,9 +334,8 @@ export const NodeProvider = ({ children }) => {
 
     const deleteDefinedVariable = useCallback(
         (variableName) => {
-            const currentStartActivity = workflowDataRef.current.cells.find(
-                (cell) => cell.activityName === 'StartActivity'
-            );
+            const currentStartActivity =
+                workflowIndexRef.current.startActivity;
             const existingVariable =
                 currentStartActivity?.definedVariables?.value?.find(
                     (variable) => variable.value.name === variableName
@@ -392,6 +409,8 @@ export const NodeProvider = ({ children }) => {
     const actionsValue = useMemo(
         () => ({
             setData,
+            getData,
+            getWorkflowIndex,
             handleUpdateNode,
             generateUniqueName,
             updateDefinedVariables,
@@ -403,6 +422,8 @@ export const NodeProvider = ({ children }) => {
             createDefinedVariable,
             deleteDefinedVariable,
             generateUniqueName,
+            getData,
+            getWorkflowIndex,
             handleUpdateNode,
             renameDefinedVariable,
             setData,
@@ -433,18 +454,20 @@ export const NodeProvider = ({ children }) => {
 
     const selectionValue = useMemo(
         () => ({
-            selectedNodes,
-            setSelectedNodes,
-            selectedEdge,
-            setSelectedEdge,
+            selectedNodeIds,
+            setSelectedNodeIds,
+            selectedEdgeId,
+            setSelectedEdgeId,
+            selectionRevision,
         }),
-        [selectedEdge, selectedNodes]
+        [selectedEdgeId, selectedNodeIds, selectionRevision]
     );
 
     return (
         <WorkflowDataContext.Provider value={dataValue}>
-            <WorkflowActionsContext.Provider value={actionsValue}>
-                <WorkflowMetadataContext.Provider value={metadataValue}>
+            <WorkflowIndexContext.Provider value={index}>
+                <WorkflowActionsContext.Provider value={actionsValue}>
+                    <WorkflowMetadataContext.Provider value={metadataValue}>
                     <TemplateOptionsContext.Provider
                         value={templateOptionsValue}
                     >
@@ -460,8 +483,9 @@ export const NodeProvider = ({ children }) => {
                             </PanelVisibilityContext.Provider>
                         </WorkflowHistoryContext.Provider>
                     </TemplateOptionsContext.Provider>
-                </WorkflowMetadataContext.Provider>
-            </WorkflowActionsContext.Provider>
+                    </WorkflowMetadataContext.Provider>
+                </WorkflowActionsContext.Provider>
+            </WorkflowIndexContext.Provider>
         </WorkflowDataContext.Provider>
     );
 };

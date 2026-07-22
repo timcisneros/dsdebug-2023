@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import SvgIcon from '../../ui/SvgIcon';
-import { preloadTemplateData } from '../../../utils/templateLoader';
 
 const Step = ({
     stepName,
@@ -50,9 +49,6 @@ const Step = ({
     }, [isDragging]);
 
     const onDragStart = (event) => {
-        if (stepType === 'Template' && typeof stepData !== 'object') {
-            preloadTemplateData();
-        }
         event.dataTransfer.setData(
             'application/json',
             JSON.stringify({
@@ -94,8 +90,11 @@ const Step = ({
                 ref={dragImageRef}
                 style={{
                     position: 'relative',
-                    width: '100px',
-                    height: '100px',
+                    width: '100%',
+                    maxWidth: '100px',
+                    height: 'auto',
+                    aspectRatio: '1 / 1',
+                    boxSizing: 'border-box',
                     borderRadius: '3px',
                     border:
                         stepType === 'Template'

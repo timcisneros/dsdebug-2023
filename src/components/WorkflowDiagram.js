@@ -21,7 +21,6 @@ import CircleNode from './NodeTypes/CircleNode';
 import DiamondNode from './NodeTypes/DiamondNode';
 import { Box, Flex, Grid } from '@chakra-ui/react';
 import { toaster } from './ui/toaster';
-import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import DefaultCustomEdge from './EdgeTypes/DefaultCustomEdge';
 import {
     useSelection,
@@ -29,18 +28,20 @@ import {
     useWorkflowActions,
     useWorkflowData,
     useWorkflowHistory,
+    useWorkflowIndex,
     useWorkflowMetadata,
 } from '../contexts/NodeContext';
 import SidePanel from './SidePanel';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4 to generate unique IDs
 import LaneNode from './NodeTypes/LaneNode';
-import { stepDataMapping } from './SidePanel/Steps/StepData';
 import ConsoleContainer from './ConsoleContainer';
 import 'react-resizable/css/styles.css';
-import DeepFieldExplorer from './NodeSettingsPanel';
 import ConnectionLine from './EdgeTypes/ConnectionLine';
 import { rewriteVariableReferences } from '../utils/variableMerge';
-import { loadTemplateDataMapping } from '../utils/templateLoader';
+import DeepFieldExplorer from './NodeSettingsPanel';
+import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
+import { stepDataMapping } from './SidePanel/Steps/StepData';
+import { templateDataMapping } from './SidePanel/Steps/templateData';
 
 const proOptions = { hideAttribution: true };
 
@@ -65,15 +66,20 @@ const snapToCanvasGrid = ({ x, y }) => ({
 
 const deleteKeyCode = ['Backspace', 'Delete'];
 const flowStyle = { width: '100%', height: '100%' };
-
-const getItemLabel = (itemLabel, sourceNodeId, nodes) => {
+const flowNodeCache = new WeakMap();
+const flowEdgeCache = new WeakMap();
+const edgeMarker = {
+    type: MarkerType.ArrowClosed,
+    width: 20,
+    height: 20,
+};
+const getItemLabel = (itemLabel, sourceNode) => {
     if (itemLabel?.type !== 'Reference') {
         return itemLabel?.value
             ? itemLabel.value.charAt(0).toUpperCase() + itemLabel.value.slice(1)
             : '';
     }
 
-    const sourceNode = nodes.find((node) => node.id === sourceNodeId);
     const decisions = sourceNode?.data?.decisions?.value?.decisions || [];
     const timerOutputs = sourceNode?.data?.timers?.value || [];
     const elseOutput =
@@ -99,57 +105,78 @@ const getItemLabel = (itemLabel, sourceNodeId, nodes) => {
     );
 };
 
-const createFlowNodes = (data) => {
-    const unwantedProperties = ['id', 'type', 'position', 'selected'];
-    const customNodeTypes = {
-        'springcm.Step': 'StepNode',
-        'springcm.Group': 'GroupNode',
-        'springcm.Circle': 'CircleNode',
-        'springcm.Diamond': 'DiamondNode',
-        'springcm.Lane': 'LaneNode',
-    };
-
-    return data.cells
-        .filter((item) => item.type !== 'springcm.Link')
-        .map((item) => ({
-            id: item.id,
-            style: {
-                width: item.size?.width || item.data?.size.width,
-                height: item.size?.height || item.data?.size.height,
-                zIndex: ['springcm.Group', 'springcm.Lane'].includes(item.type)
-                    ? 0
-                    : 1,
-            },
-            data: Object.fromEntries(
-                Object.entries(item).filter(
-                    ([key]) => !unwantedProperties.includes(key)
-                )
-            ),
-            position: item.position || { x: 0, y: 0 },
-            type: customNodeTypes[item.type] || 'default',
-            selectable: true,
-        }));
+const unwantedNodeProperties = new Set([
+    'id',
+    'type',
+    'position',
+    'selected',
+]);
+const customNodeTypes = {
+    'springcm.Step': 'StepNode',
+    'springcm.Group': 'GroupNode',
+    'springcm.Circle': 'CircleNode',
+    'springcm.Diamond': 'DiamondNode',
+    'springcm.Lane': 'LaneNode',
 };
 
-const createFlowEdges = (data, nodes, selectedEdge) =>
-    data.cells
-        .filter((item) => item.type === 'springcm.Link')
-        .map((item) => ({
-            id: item.id,
-            source: item.source.id,
-            target: item.target.id,
-            label:
-                getItemLabel(item.output, item.source.id, nodes) ||
-                item.output?.value,
-            type: 'defaultCustomEdge',
-            selected: selectedEdge?.id === item.id,
-            animated: false,
-            markerEnd: {
-                type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
+const createFlowNode = (item) => {
+    const cachedNode = flowNodeCache.get(item);
+    if (cachedNode) return cachedNode;
+
+    const isContainerNode = ['springcm.Group', 'springcm.Lane'].includes(
+        item.type
+    );
+    const configuredWidth = item.size?.width || item.data?.size?.width;
+    const configuredHeight = item.size?.height || item.data?.size?.height;
+    const node = {
+        id: item.id,
+        style: {
+            width: configuredWidth,
+            height: configuredHeight,
+            pointerEvents: isContainerNode ? 'none' : 'all',
+            cursor: isContainerNode ? 'move' : undefined,
+        },
+        data: Object.fromEntries(
+            Object.entries(item).filter(
+                ([key]) => !unwantedNodeProperties.has(key)
+            )
+        ),
+        position: item.position || { x: 0, y: 0 },
+        type: customNodeTypes[item.type] || 'default',
+        selectable: true,
+        zIndex: isContainerNode ? 0 : 1,
+    };
+    flowNodeCache.set(item, node);
+    return node;
+};
+
+const createFlowEdge = (item, sourceNode, selectedEdgeId) => {
+    let cacheEntry = flowEdgeCache.get(item);
+    if (!cacheEntry || cacheEntry.sourceNode !== sourceNode) {
+        cacheEntry = {
+            sourceNode,
+            variants: new Map(),
+            base: {
+                id: item.id,
+                source: item.source.id,
+                target: item.target.id,
+                label:
+                    getItemLabel(item.output, sourceNode) ||
+                    item.output?.value,
+                type: 'defaultCustomEdge',
+                animated: false,
+                markerEnd: edgeMarker,
             },
-        }));
+        };
+        flowEdgeCache.set(item, cacheEntry);
+    }
+
+    const selected = selectedEdgeId === item.id;
+    if (!cacheEntry.variants.has(selected)) {
+        cacheEntry.variants.set(selected, { ...cacheEntry.base, selected });
+    }
+    return cacheEntry.variants.get(selected);
+};
 
 const FlowCanvas = React.memo(
     ({
@@ -172,36 +199,34 @@ const FlowCanvas = React.memo(
         reactFlowWrapper,
     }) => {
         const [nodes, setNodes, applyNodesChange] = useNodesState(externalNodes);
-        const isNodeDraggingRef = useRef(false);
-        const pendingSelectionChangesRef = useRef([]);
-        const selectionFlushScheduledRef = useRef(false);
+        const previousExternalNodesRef = useRef(
+            new Map(externalNodes.map((node) => [node.id, node]))
+        );
 
         useEffect(() => {
             setNodes((currentNodes) => {
                 const currentNodesById = new Map(
                     currentNodes.map((node) => [node.id, node])
                 );
+                const previousExternalNodes = previousExternalNodesRef.current;
 
-                return externalNodes.map((externalNode) => ({
-                    ...currentNodesById.get(externalNode.id),
-                    ...externalNode,
-                }));
+                return externalNodes.map((externalNode) => {
+                    const currentNode = currentNodesById.get(externalNode.id);
+                    if (
+                        currentNode &&
+                        previousExternalNodes.get(externalNode.id) ===
+                            externalNode
+                    ) {
+                        return currentNode;
+                    }
+
+                    return { ...currentNode, ...externalNode };
+                });
             });
+            previousExternalNodesRef.current = new Map(
+                externalNodes.map((node) => [node.id, node])
+            );
         }, [externalNodes, setNodes]);
-
-        const flushPendingSelectionChanges = useCallback(() => {
-            selectionFlushScheduledRef.current = false;
-            if (
-                isNodeDraggingRef.current ||
-                pendingSelectionChangesRef.current.length === 0
-            ) {
-                return;
-            }
-
-            const selectionChanges = pendingSelectionChangesRef.current;
-            pendingSelectionChangesRef.current = [];
-            onNodeSelectionChanges(selectionChanges);
-        }, [onNodeSelectionChanges]);
 
         const handleNodesChange = useCallback(
             (changes) => {
@@ -212,26 +237,21 @@ const FlowCanvas = React.memo(
                 );
                 if (selectionChanges.length === 0) return;
 
-                pendingSelectionChangesRef.current.push(...selectionChanges);
-                if (!selectionFlushScheduledRef.current) {
-                    selectionFlushScheduledRef.current = true;
-                    queueMicrotask(flushPendingSelectionChanges);
-                }
+                onNodeSelectionChanges(selectionChanges);
             },
-            [applyNodesChange, flushPendingSelectionChanges]
+            [applyNodesChange, onNodeSelectionChanges]
         );
 
-        const handleNodeDragStart = useCallback(() => {
-            isNodeDraggingRef.current = true;
-        }, []);
-
-        const handleNodeDragStop = useCallback(
-            (event, draggedNode, draggedNodes) => {
-                isNodeDraggingRef.current = false;
-                flushPendingSelectionChanges();
-                onNodeDragStop(event, draggedNode, draggedNodes);
+        const handleCanvasPaneClick = useCallback(
+            (event) => {
+                setNodes((currentNodes) =>
+                    currentNodes.map((node) =>
+                        node.selected ? { ...node, selected: false } : node
+                    )
+                );
+                onPaneClick(event);
             },
-            [flushPendingSelectionChanges, onNodeDragStop]
+            [onPaneClick, setNodes]
         );
 
         return (
@@ -245,8 +265,7 @@ const FlowCanvas = React.memo(
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
                     onNodesChange={handleNodesChange}
-                    onNodeDragStart={handleNodeDragStart}
-                    onNodeDragStop={handleNodeDragStop}
+                    onNodeDragStop={onNodeDragStop}
                     onEdgesChange={onEdgesChange}
                     onEdgeClick={onEdgeClick}
                     onInit={onInit}
@@ -255,7 +274,7 @@ const FlowCanvas = React.memo(
                     onConnect={onConnect}
                     onNodesDelete={onNodesDelete}
                     onEdgesDelete={onEdgesDelete}
-                    onPaneClick={onPaneClick}
+                    onPaneClick={handleCanvasPaneClick}
                     fitView
                     elevateEdgesOnSelect
                     nodesFocusable
@@ -307,6 +326,7 @@ FlowCanvas.displayName = 'FlowCanvas';
 
 const WorkflowDiagram = () => {
     const { data } = useWorkflowData();
+    const workflowIndex = useWorkflowIndex();
     const { setData, generateUniqueName } = useWorkflowActions();
     const { definedVariables, startActivity } = useWorkflowMetadata();
     const { mergeDefinedVariables } = useTemplateOptions();
@@ -316,20 +336,58 @@ const WorkflowDiagram = () => {
         defaultNodePositions,
     } = useWorkflowHistory();
     const {
-        selectedNodes,
-        setSelectedNodes,
-        selectedEdge,
-        setSelectedEdge,
+        selectedNodeIds,
+        setSelectedNodeIds,
+        selectedEdgeId,
+        setSelectedEdgeId,
+        selectionRevision,
     } = useSelection();
 
     const externalNodes = useMemo(
-        () => createFlowNodes(data),
-        [data]
+        () => workflowIndex.nodeCells.map(createFlowNode),
+        [workflowIndex.nodeCells]
+    );
+    const flowNodesById = useMemo(
+        () => new Map(externalNodes.map((node) => [node.id, node])),
+        [externalNodes]
     );
     const edges = useMemo(
-        () => createFlowEdges(data, externalNodes, selectedEdge),
-        [data, externalNodes, selectedEdge]
+        () =>
+            workflowIndex.edgeCells.map((cell) =>
+                createFlowEdge(
+                    cell,
+                    flowNodesById.get(cell.source.id),
+                    selectedEdgeId
+                )
+            ),
+        [flowNodesById, selectedEdgeId, workflowIndex.edgeCells]
     );
+    const edgesById = useMemo(
+        () => new Map(edges.map((edge) => [edge.id, edge])),
+        [edges]
+    );
+    const projectedItemsRef = useRef({ externalNodes, edges });
+    useEffect(() => {
+        projectedItemsRef.current = { externalNodes, edges };
+    }, [edges, externalNodes]);
+    const getWorkflowProjection = useCallback(
+        () => projectedItemsRef.current,
+        []
+    );
+    const selectedNodes = useMemo(() => {
+        const matchingNodes =
+            selectedNodeIds
+                ?.map((id) => flowNodesById.get(id))
+                .filter(Boolean) ?? [];
+
+        return matchingNodes.length > 0 ? matchingNodes : null;
+    }, [flowNodesById, selectedNodeIds]);
+    const selectedEdge = selectedEdgeId
+        ? edgesById.get(selectedEdgeId) ?? null
+        : null;
+    const selectedEdgeSourceNode = selectedEdge
+        ? flowNodesById.get(selectedEdge.source) ?? null
+        : null;
 
     const handleNodeSelectionChanges = useCallback(
         (changes) => {
@@ -338,27 +396,27 @@ const WorkflowDiagram = () => {
             );
             if (selectionChanges.length > 0) {
                 if (selectionChanges.some((change) => change.selected)) {
-                    setSelectedEdge(null);
+                    setSelectedEdgeId(null);
                 }
 
-                setSelectedNodes((currentSelection) => {
+                setSelectedNodeIds((currentSelection) => {
                     const selectedIds = new Set(
-                        currentSelection?.map((node) => node.id) ?? []
+                        currentSelection ?? []
                     );
                     selectionChanges.forEach(({ id, selected }) => {
                         if (selected) selectedIds.add(id);
                         else selectedIds.delete(id);
                     });
 
-                    const nextSelection = externalNodes
-                        .filter((node) => selectedIds.has(node.id))
-                        .map((node) => ({ ...node, selected: true }));
+                    const nextSelection = [...selectedIds].filter((id) =>
+                        flowNodesById.has(id)
+                    );
                     return nextSelection.length > 0 ? nextSelection : null;
                 });
             }
 
         },
-        [externalNodes, setSelectedEdge, setSelectedNodes]
+        [flowNodesById, setSelectedEdgeId, setSelectedNodeIds]
     );
 
     const handleNodeDragStop = useCallback(
@@ -394,36 +452,36 @@ const WorkflowDiagram = () => {
             if (selectionChanges.length === 0) return;
 
             if (selectionChanges.some((change) => change.selected)) {
-                setSelectedNodes(null);
+                setSelectedNodeIds(null);
             }
 
-            setSelectedEdge((currentSelection) => {
+            setSelectedEdgeId((currentSelection) => {
                 let nextSelection = currentSelection;
                 selectionChanges.forEach(({ id, selected }) => {
                     if (selected) {
-                        nextSelection = edges.find((edge) => edge.id === id) ?? null;
-                    } else if (nextSelection?.id === id) {
+                        nextSelection = edgesById.has(id) ? id : null;
+                    } else if (nextSelection === id) {
                         nextSelection = null;
                     }
                 });
                 return nextSelection;
             });
         },
-        [edges, setSelectedEdge, setSelectedNodes]
+        [edgesById, setSelectedEdgeId, setSelectedNodeIds]
     );
 
     const handlePaneClick = useCallback(() => {
-        setSelectedNodes(null);
-        setSelectedEdge(null);
-    }, [setSelectedEdge, setSelectedNodes]);
+        setSelectedNodeIds(null);
+        setSelectedEdgeId(null);
+    }, [setSelectedEdgeId, setSelectedNodeIds]);
 
     const handleEdgeClick = useCallback(
         (event, edge) => {
             event.stopPropagation();
-            setSelectedNodes(null);
-            setSelectedEdge(edge);
+            setSelectedNodeIds(null);
+            setSelectedEdgeId(edge.id);
         },
-        [setSelectedEdge, setSelectedNodes]
+        [setSelectedEdgeId, setSelectedNodeIds]
     );
 
     const handleReset = useCallback(() => {
@@ -483,8 +541,10 @@ const WorkflowDiagram = () => {
                     y: flowPosition.y - 50,
                 });
 
-                const existingStepNames = data.cells.map(
-                    (node) => node.name.value
+                const existingStepNames = new Set(
+                    data.cells
+                        .map((node) => node.name?.value)
+                        .filter(Boolean)
                 );
 
                 // Check if the data dropped is a value that exists in nodeTypes
@@ -536,8 +596,6 @@ const WorkflowDiagram = () => {
                     if (typeof nodeData.stepData === 'object') {
                         templateData = nodeData.stepData.cells;
                     } else {
-                        const templateDataMapping =
-                            await loadTemplateDataMapping();
                         templateData = templateDataMapping[nodeData.activityName];
                     }
 
@@ -572,6 +630,11 @@ const WorkflowDiagram = () => {
                             const newStepId = generateId();
                             stepIdMapping[oldStepId] = newStepId;
 
+                            const uniqueStepName = generateUniqueName(
+                                step.name.value,
+                                existingStepNames
+                            );
+                            existingStepNames.add(uniqueStepName);
                             newNodes.push({
                                 ...step,
                                 id: newStepId,
@@ -585,10 +648,7 @@ const WorkflowDiagram = () => {
                                 },
                                 name: {
                                     type: 'String',
-                                    value: generateUniqueName(
-                                        step.name.value,
-                                        existingStepNames
-                                    ),
+                                    value: uniqueStepName,
                                 },
                             });
                         }
@@ -606,14 +666,16 @@ const WorkflowDiagram = () => {
                                 stepIdMapping[oldTargetStepId];
 
                             if (newSourceStepId && newTargetStepId) {
+                                const uniqueLinkName = generateUniqueName(
+                                    step.name?.value,
+                                    existingStepNames
+                                );
+                                existingStepNames.add(uniqueLinkName);
                                 newLinks.push({
                                     ...step,
                                     vertices: [],
                                     id: generateId(),
-                                    name: generateUniqueName(
-                                        step.name?.value,
-                                        existingStepNames
-                                    ),
+                                    name: uniqueLinkName,
                                     source: {
                                         ...step.source,
                                         id: newSourceStepId,
@@ -680,7 +742,7 @@ const WorkflowDiagram = () => {
         if (selectedNodes) {
             return (
                 <DeepFieldExplorer
-                    key={`${selectedNodes[0]?.id}:${selectedNodes[0]?.variableRevision ?? 0}`}
+                    key={`${selectedNodes[0]?.id}:${selectionRevision}`}
                     selectedNode={selectedNodes[0]}
                 />
             );
@@ -688,31 +750,63 @@ const WorkflowDiagram = () => {
 
         return selectedEdge ? (
             <EdgeSettings
-                key={`${selectedEdge.id}:${selectedEdge.variableRevision ?? 0}`}
+                key={`${selectedEdge.id}:${selectionRevision}`}
+                selectedEdge={selectedEdge}
+                sourceNode={selectedEdgeSourceNode}
             />
         ) : null;
-    }, [selectedEdge, selectedNodes]);
+    }, [
+        selectedEdge,
+        selectedEdgeSourceNode,
+        selectedNodes,
+        selectionRevision,
+    ]);
 
-    const handleNodeDelete = useCallback((nodes) => {
-        const isNodeSelected = (cell) =>
-            nodes.some((node) => cell.id === node.id);
-        const isLinkConnectedToSelectedNode = (cell) =>
-            cell.type === 'springcm.Link' &&
-            nodes.some(
-                (node) =>
-                    cell.source?.id === node.id || cell.target?.id === node.id
-            );
-        setData((prevData) => ({
-            ...prevData,
-            cells: prevData.cells.filter(
-                (cell) =>
-                    !isNodeSelected(cell) &&
-                    !isLinkConnectedToSelectedNode(cell)
-            ),
-        }));
+    const handleNodeDelete = useCallback(
+        (nodes) => {
+            const nodeIdsToDelete = new Set(nodes.map((node) => node.id));
+            const isNodeSelected = (cell) => nodeIdsToDelete.has(cell.id);
+            const isLinkConnectedToSelectedNode = (cell) =>
+                cell.type === 'springcm.Link' &&
+                (nodeIdsToDelete.has(cell.source?.id) ||
+                    nodeIdsToDelete.has(cell.target?.id));
 
-        console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
-    }, [setData]);
+            setSelectedNodeIds((currentSelection) => {
+                const remainingSelection = (currentSelection ?? []).filter(
+                    (id) => !nodeIdsToDelete.has(id)
+                );
+                return remainingSelection.length > 0
+                    ? remainingSelection
+                    : null;
+            });
+            setSelectedEdgeId((currentSelection) => {
+                const selectedLink = currentSelection
+                    ? edgesById.get(currentSelection)
+                    : null;
+                return selectedLink &&
+                    (nodeIdsToDelete.has(selectedLink.source) ||
+                        nodeIdsToDelete.has(selectedLink.target))
+                    ? null
+                    : currentSelection;
+            });
+            setData((prevData) => ({
+                ...prevData,
+                cells: prevData.cells.filter(
+                    (cell) =>
+                        !isNodeSelected(cell) &&
+                        !isLinkConnectedToSelectedNode(cell)
+                ),
+            }));
+
+            console.log('dsdebug-log', '- Node(s) Deleted:', nodes);
+        },
+        [
+            edgesById,
+            setData,
+            setSelectedEdgeId,
+            setSelectedNodeIds,
+        ]
+    );
 
     const handleEdgesDelete = useCallback(
         (edges) => {
@@ -728,15 +822,15 @@ const WorkflowDiagram = () => {
                 ),
             }));
 
-            setSelectedEdge((currentSelection) =>
-                edgesToDelete.has(currentSelection?.id)
+            setSelectedEdgeId((currentSelection) =>
+                edgesToDelete.has(currentSelection)
                     ? null
                     : currentSelection
             );
 
             console.log('dsdebug-log', '- Link(s) Deleted:', edges);
         },
-        [setData, setSelectedEdge]
+        [setData, setSelectedEdgeId]
     );
 
     const onConnect = useCallback((params) => {
@@ -843,9 +937,7 @@ const WorkflowDiagram = () => {
                             <ConsoleContainer
                                 splitHeight={splitHeight}
                                 setSplitHeight={setSplitHeight}
-                                reactFlowWrapper={reactFlowWrapper}
-                                nodes={externalNodes}
-                                edges={edges}
+                                getWorkflowProjection={getWorkflowProjection}
                                 generateId={generateId}
                                 generateUniqueName={generateUniqueName}
                             />

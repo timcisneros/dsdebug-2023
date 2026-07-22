@@ -3,6 +3,9 @@ import { memo } from 'react';
 import { NodeResizer } from '@xyflow/react';
 import { useWorkflowActions } from '../../contexts/NodeContext';
 
+const resizeHandleStyle = { pointerEvents: 'all', zIndex: 1001 };
+const resizeLineStyle = { pointerEvents: 'all', zIndex: 1000 };
+
 const GroupNode = ({ id, data, selected }) => {
     const { name, attrs } = data;
     const displayName = name?.value || '';
@@ -35,31 +38,77 @@ const GroupNode = ({ id, data, selected }) => {
                 onResizeEnd={handleResizeEnd}
                 handleClassName="node-resizer-handle"
                 lineClassName="node-resizer-line"
+                handleStyle={resizeHandleStyle}
+                lineStyle={resizeLineStyle}
             />
             <Box
                 background="none"
                 position="relative"
                 width="100%"
                 height="100%"
-                border={selected ? '3px dashed black' : '2px dashed #757575'}
+                border="2px dashed"
+                borderColor={selected ? 'black' : '#757575'}
                 cursor="move"
+                pointerEvents="none"
             >
                 <div
+                    title={displayName}
                     style={{
                         position: 'absolute',
                         top: -25,
-                        left: '50%', // Center the text horizontally
-                        transform: 'translateX(-50%)', // Translate the text back by half of its own width
+                        left: '50%',
+                        width: 'calc(100% - 32px)',
+                        maxWidth: 'calc(100% - 32px)',
+                        height: 25,
+                        transform: 'translateX(-50%)',
+                        boxSizing: 'border-box',
                         fontSize: attrs.text['font-size'] || 14,
                         color: attrs.text.fill || '#000',
                         fontFamily: 'Indigo, Arial, sans-serif',
                         textAlign: 'center',
                         textOverflow: 'ellipsis',
+                        overflow: 'hidden',
                         whiteSpace: 'nowrap',
+                        pointerEvents: 'all',
+                        lineHeight: '20px',
+                        padding: '2px 8px',
+                        contain: 'paint',
                     }}
                 >
                     {displayName} {/* Use the displayName variable */}
                 </div>
+                <Box
+                    position="absolute"
+                    top="-6px"
+                    left="0"
+                    right="0"
+                    height="12px"
+                    pointerEvents="all"
+                />
+                <Box
+                    position="absolute"
+                    bottom="-6px"
+                    left="0"
+                    right="0"
+                    height="12px"
+                    pointerEvents="all"
+                />
+                <Box
+                    position="absolute"
+                    top="0"
+                    bottom="0"
+                    left="-6px"
+                    width="12px"
+                    pointerEvents="all"
+                />
+                <Box
+                    position="absolute"
+                    top="0"
+                    bottom="0"
+                    right="-6px"
+                    width="12px"
+                    pointerEvents="all"
+                />
             </Box>
         </>
     );

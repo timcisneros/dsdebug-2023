@@ -2,14 +2,14 @@ import { useOnSelectionChange } from '@xyflow/react';
 import { useSelection } from '../contexts/NodeContext';
 
 export function SelectionChangeLogger() {
-    const { setSelectedNodes } = useSelection();
+    const { setSelectedNodeIds } = useSelection();
     useOnSelectionChange({
         onChange: ({ nodes, edges }) => {
             // Check if nodes array is empty
             if (nodes.length === 0) {
-                setSelectedNodes(null); // Set selectedNodes to null when nothing is selected
+                setSelectedNodeIds(null);
             } else {
-                setSelectedNodes(nodes);
+                setSelectedNodeIds(nodes.map((node) => node.id));
             }
         },
     });

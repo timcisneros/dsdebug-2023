@@ -3,9 +3,30 @@ import { memo } from 'react';
 import {
     BaseEdge,
     EdgeLabelRenderer,
+    Position,
     getSmoothStepPath,
-    getStraightPath,
 } from '@xyflow/react';
+
+const defaultEdgeOffset = 20;
+const minimumEdgeOffset = 4;
+
+const getEdgeOffset = ({
+    sourceX,
+    targetX,
+    sourcePosition,
+    targetPosition,
+}) => {
+    const usesFacingHorizontalHandles =
+        sourcePosition === Position.Right &&
+        targetPosition === Position.Left &&
+        targetX > sourceX;
+    if (!usesFacingHorizontalHandles) return defaultEdgeOffset;
+
+    return Math.min(
+        defaultEdgeOffset,
+        Math.max(minimumEdgeOffset, (targetX - sourceX) / 4)
+    );
+};
 
 const DefaultCustomEdge = ({
     sourceX,
@@ -19,6 +40,12 @@ const DefaultCustomEdge = ({
     label,
 }) => {
     const edgeColor = '#f0f0f0'; // Customize the color here, or pass it as a prop to the component
+    const offset = getEdgeOffset({
+        sourceX,
+        targetX,
+        sourcePosition,
+        targetPosition,
+    });
     const [edgePath, labelX, labelY] = getSmoothStepPath({
         sourceX,
         sourceY,
@@ -26,6 +53,7 @@ const DefaultCustomEdge = ({
         targetX,
         targetY,
         targetPosition,
+        offset,
     });
 
     return (

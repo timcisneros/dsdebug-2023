@@ -4,18 +4,16 @@ import { AiOutlineUpload, AiOutlineDownload } from 'react-icons/ai';
 import {
     useSelection,
     useWorkflowActions,
-    useWorkflowData,
     useWorkflowHistory,
     useWorkflowMetadata,
 } from '../contexts/NodeContext';
 
 const Header = () => {
     const [errorMessage, setErrorMessage] = useState(null);
-    const { data } = useWorkflowData();
-    const { setData } = useWorkflowActions();
+    const { getData, setData } = useWorkflowActions();
     const { workflowName } = useWorkflowMetadata();
     const { setNewNodesAdded, setDefaultNodePositions } = useWorkflowHistory();
-    const { setSelectedNodes } = useSelection();
+    const { setSelectedNodeIds, setSelectedEdgeId } = useSelection();
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
 
@@ -43,7 +41,8 @@ const Header = () => {
                                 ])
                         )
                     );
-                    setSelectedNodes(null);
+                    setSelectedNodeIds(null);
+                    setSelectedEdgeId(null);
                 } catch (error) {
                     setErrorMessage('Error parsing JSON file.');
                 }
@@ -54,7 +53,7 @@ const Header = () => {
 
     const handleDownload = () => {
         // Convert the data state to JSON string
-        const jsonDataString = JSON.stringify(data);
+        const jsonDataString = JSON.stringify(getData());
 
         // Create a Blob with the JSON data
         const blob = new Blob([jsonDataString], { type: 'application/json' });
