@@ -228,7 +228,7 @@ const Search = ({ definedVariables }) => {
                     overflowY="auto"
                 >
                     {filteredVariables?.map((variable, index) => (
-                        <div key={index}>
+                        <div key={variable.value.name}>
                             {searchTerm.toLowerCase() !==
                                 variable.value.name.toLowerCase() && (
                                 <List.Item

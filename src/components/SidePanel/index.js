@@ -30,8 +30,10 @@ const SidePanel = ({ definedVariables }) => {
         return (
             <>
                 {definedVariables ? (
-                    definedVariables.map((definedVariable, index) => (
-                        <div key={index}>
+                    definedVariables.map((definedVariable) => (
+                        <div
+                            key={`${definedVariable.type}:${definedVariable.value.name}`}
+                        >
                             <CollapsibleTree
                                 definedVariable={definedVariable}
                             />

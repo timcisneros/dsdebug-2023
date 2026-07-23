@@ -18,6 +18,11 @@ import {
     createWorkflowHistory,
     workflowHistoryReducer,
 } from '../utils/workflowHistory';
+import {
+    getActiveSelectedEdgeId,
+    getActiveSelectedNodeIds,
+    updateWorkflowNameInData,
+} from '../utils/workflowSynchronization';
 
 const getNodePositions = (data) =>
     Object.fromEntries(
@@ -76,15 +81,26 @@ export const NodeProvider = ({ children }) => {
     const variableRenamesRef = useRef(new Map());
     const reconcileSelection = useCallback((nextIndex) => {
         setSelectedNodeIds((currentSelection) => {
-            const nextSelection = (currentSelection ?? []).filter((id) =>
-                nextIndex.cellsById.has(id)
+            const nextSelection = getActiveSelectedNodeIds(
+                currentSelection,
+                nextIndex.cellsById
             );
-            return nextSelection.length > 0 ? nextSelection : null;
+            if (!nextSelection) return null;
+            if (
+                currentSelection?.length === nextSelection.length &&
+                currentSelection.every(
+                    (id, index) => id === nextSelection[index]
+                )
+            ) {
+                return currentSelection;
+            }
+            return nextSelection;
         });
         setSelectedEdgeId((currentSelection) =>
-            currentSelection && nextIndex.cellsById.has(currentSelection)
-                ? currentSelection
-                : null
+            getActiveSelectedEdgeId(
+                currentSelection,
+                nextIndex.cellsById
+            )
         );
     }, []);
     useLayoutEffect(() => {
@@ -226,6 +242,23 @@ export const NodeProvider = ({ children }) => {
                     };
                 }),
             }));
+        },
+        [setData]
+    );
+
+    const updateWorkflowName = useCallback(
+        (nextName) => {
+            if (!workflowIndexRef.current.startActivity) {
+                return {
+                    ok: false,
+                    error: 'A Start activity is required to rename the workflow.',
+                };
+            }
+
+            setData((currentData) =>
+                updateWorkflowNameInData(currentData, nextName)
+            );
+            return { ok: true };
         },
         [setData]
     );
@@ -438,6 +471,7 @@ export const NodeProvider = ({ children }) => {
             getWorkflowIndex,
             handleUpdateNode,
             generateUniqueName,
+            updateWorkflowName,
             updateDefinedVariables,
             createDefinedVariable,
             renameDefinedVariable,
@@ -453,6 +487,7 @@ export const NodeProvider = ({ children }) => {
             renameDefinedVariable,
             replaceData,
             setData,
+            updateWorkflowName,
             updateDefinedVariables,
         ]
     );
@@ -493,15 +528,25 @@ export const NodeProvider = ({ children }) => {
         [handleToggleVisibility, isVisible]
     );
 
+    const activeSelectedNodeIds = useMemo(() => {
+        return getActiveSelectedNodeIds(
+            selectedNodeIds,
+            index.cellsById
+        );
+    }, [index.cellsById, selectedNodeIds]);
+    const activeSelectedEdgeId = getActiveSelectedEdgeId(
+        selectedEdgeId,
+        index.cellsById
+    );
     const selectionValue = useMemo(
         () => ({
-            selectedNodeIds,
+            selectedNodeIds: activeSelectedNodeIds,
             setSelectedNodeIds,
-            selectedEdgeId,
+            selectedEdgeId: activeSelectedEdgeId,
             setSelectedEdgeId,
             selectionRevision,
         }),
-        [selectedEdgeId, selectedNodeIds, selectionRevision]
+        [activeSelectedEdgeId, activeSelectedNodeIds, selectionRevision]
     );
 
     return (

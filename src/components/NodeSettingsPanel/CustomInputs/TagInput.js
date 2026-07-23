@@ -1,4 +1,4 @@
-import React, { useState, useRef, memo } from 'react';
+import React, { useMemo, useState, useRef, memo } from 'react';
 import {
     Box,
     Field,
@@ -39,11 +39,11 @@ function TagInput({
     getNestedValue,
 }) {
     const updatedProperty = path.split('.')[1];
-    const getInitialTags = () => {
+    const propertyValue = editedNode.data[updatedProperty]?.value;
+    const synchronizedTags = useMemo(() => {
         if (typeof variableName === 'string' && variableName.trim() !== '') {
             return [variableName];
         }
-        const propertyValue = editedNode.data[updatedProperty]?.value;
         if (isArray && Array.isArray(propertyValue)) {
             return propertyValue
                 .map((tagObject) => tagObject.value)
@@ -52,11 +52,11 @@ function TagInput({
         return typeof propertyValue === 'string' && propertyValue.trim() !== ''
             ? [propertyValue]
             : [];
-    };
+    }, [isArray, propertyValue, variableName]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [tags, setTags] = useState(getInitialTags);
+    const [tags, setTags] = useState(synchronizedTags);
     const [inputDisabled, setInputDisabled] = useState(
-        () => getInitialTags().length > 0
+        () => synchronizedTags.length > 0
     );
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
@@ -205,9 +205,9 @@ function TagInput({
                     </InputGroup>
                     {/* Tags display */}
                     <div className="tag-container">
-                        {tags.map((tag, index) => (
+                        {tags.map((tag) => (
                             <Tag.Root
-                                key={index}
+                                key={tag}
                                 size="md"
                                 variant="solid"
                                 colorPalette="gray"
@@ -288,7 +288,7 @@ function TagInput({
                             overflowY="auto"
                         >
                             {filteredVariables?.map((variable, index) => (
-                                <div key={index}>
+                                <div key={variable.value.name}>
                                     {searchTerm.toLowerCase() !==
                                         variable.value.name.toLowerCase() && (
                                         <List.Item

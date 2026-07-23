@@ -30,6 +30,10 @@ import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 import TagInput from './CustomInputs/TagInput';
 import { displayNameMapping } from './InputData';
+import {
+    applyDraftValues,
+    updateValueAtPath,
+} from '../../utils/nodeDraft';
 
 const pathPartsCache = new Map();
 const getPathParts = (path) => {
@@ -78,41 +82,6 @@ const getDisplayName = (path, activityName) => {
         (config) => doesPathMatchPattern(config.pathParts, pathParts)
     );
     return matchingConfig?.config?.displayName || path;
-};
-
-const updateValueAtPath = (
-    currentValue,
-    pathParts,
-    newValue,
-    pathIndex = 0
-) => {
-    if (pathIndex === pathParts.length) return newValue;
-
-    const currentPart = pathParts[pathIndex];
-    if (currentPart === '*') {
-        if (Array.isArray(currentValue)) {
-            return currentValue.map((item) =>
-                updateValueAtPath(item, pathParts, newValue, pathIndex + 1)
-            );
-        }
-
-        return Object.fromEntries(
-            Object.entries(currentValue ?? {}).map(([key, item]) => [
-                key,
-                updateValueAtPath(item, pathParts, newValue, pathIndex + 1),
-            ])
-        );
-    }
-
-    const source = currentValue ?? {};
-    const updatedValue = Array.isArray(source) ? [...source] : { ...source };
-    updatedValue[currentPart] = updateValueAtPath(
-        source[currentPart],
-        pathParts,
-        newValue,
-        pathIndex + 1
-    );
-    return updatedValue;
 };
 
 const getValueAtPath = (currentValue, pathParts, pathIndex = 0) => {
@@ -192,6 +161,13 @@ const withValidationState = (node) => {
         },
     };
 };
+
+const applyNodeDraftValues = (node, draftValues) =>
+    draftValues.size === 0
+        ? node
+        : withValidationState(
+              applyDraftValues(node, draftValues, getPathParts)
+          );
 
 const SettingsCheckbox = ({ checked, onCheckedChange, children }) => (
     <Checkbox.Root
@@ -307,11 +283,12 @@ const SettingsField = memo(function SettingsField({
                     onChange={(event) =>
                         handleInputChange(field.path, event.target.value)
                     }
-                    defaultValue={inputValue}
+                    value={inputValue ?? ''}
                     size="md"
                 />
             ) : field.config.type === 'Variable' ? (
                 <TagInput
+                    key={JSON.stringify(inputValue)}
                     field={field}
                     variableName={
                         inputValue?.[0]?.value?.value ||
@@ -330,7 +307,7 @@ const SettingsField = memo(function SettingsField({
                     onChange={(event) =>
                         handleInputChange(field.path, event.target.value)
                     }
-                    defaultValue={inputValue}
+                    value={inputValue ?? ''}
                     size="md"
                 />
             )}
@@ -362,11 +339,17 @@ const SettingsField = memo(function SettingsField({
 const DeepFieldExplorer = ({ selectedNode }) => {
     const { handleUpdateNode } = useWorkflowActions();
     const { isVisible, handleToggleVisibility } = usePanelVisibility();
-    const [editedNode, setEditedNode] = useState(() =>
-        withValidationState(selectedNode)
+    const synchronizedNode = useMemo(
+        () => withValidationState(selectedNode),
+        [selectedNode]
     );
-    const editedNodeRef = useRef(withValidationState(selectedNode));
-    const pendingNodeRef = useRef(null);
+    const [draftValues, setDraftValues] = useState(() => new Map());
+    const editedNode = useMemo(
+        () => applyNodeDraftValues(synchronizedNode, draftValues),
+        [draftValues, synchronizedNode]
+    );
+    const synchronizedNodeRef = useRef(synchronizedNode);
+    const pendingDraftValuesRef = useRef(null);
     const persistenceTimerRef = useRef(null);
     const [displayHiddenFields, setDisplayHiddenFields] = useState(false);
     const [displayJson, setDisplayJson] = useState(false);
@@ -375,17 +358,18 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     const [displayIsArray, setDisplayIsArray] = useState(false);
 
     useEffect(() => {
-        editedNodeRef.current = editedNode;
-    }, [editedNode]);
+        synchronizedNodeRef.current = synchronizedNode;
+    }, [synchronizedNode]);
 
     useEffect(() => {
+        if (draftValues.size > 0) return;
         if (selectedNode.data.errorState !== editedNode.data.errorState) {
             const frameId = requestAnimationFrame(() =>
                 handleUpdateNode(editedNode)
             );
             return () => cancelAnimationFrame(frameId);
         }
-    }, [editedNode, handleUpdateNode, selectedNode]);
+    }, [draftValues.size, editedNode, handleUpdateNode, selectedNode]);
     // const [displayOptions, setDisplayOptions] = useState({
     //     json: false, index: false, paths: false,
     // });
@@ -424,55 +408,72 @@ const DeepFieldExplorer = ({ selectedNode }) => {
     );
 
     const scheduleNodePersistence = useCallback(
-        (updatedNode) => {
-            pendingNodeRef.current = updatedNode;
+        (nextDraftValues) => {
+            pendingDraftValuesRef.current = nextDraftValues;
             clearTimeout(persistenceTimerRef.current);
             persistenceTimerRef.current = setTimeout(() => {
-                pendingNodeRef.current = null;
+                if (pendingDraftValuesRef.current !== nextDraftValues) return;
+                pendingDraftValuesRef.current = null;
+                const updatedNode = applyNodeDraftValues(
+                    synchronizedNodeRef.current,
+                    nextDraftValues
+                );
                 handleUpdateNode(updatedNode);
+                setDraftValues((currentDraftValues) =>
+                    currentDraftValues === nextDraftValues
+                        ? new Map()
+                        : currentDraftValues
+                );
             }, 180);
         },
         [handleUpdateNode]
     );
 
-    const flushNodePersistence = useCallback(() => {
+    const persistPendingNode = useCallback((clearDraft) => {
         clearTimeout(persistenceTimerRef.current);
-        const pendingNode = pendingNodeRef.current;
-        if (!pendingNode) return;
-        pendingNodeRef.current = null;
-        handleUpdateNode(pendingNode);
+        const pendingDraftValues = pendingDraftValuesRef.current;
+        if (!pendingDraftValues) return;
+        pendingDraftValuesRef.current = null;
+        handleUpdateNode(
+            applyNodeDraftValues(
+                synchronizedNodeRef.current,
+                pendingDraftValues
+            )
+        );
+        if (clearDraft) setDraftValues(new Map());
     }, [handleUpdateNode]);
+
+    const flushNodePersistence = useCallback(
+        () => persistPendingNode(true),
+        [persistPendingNode]
+    );
 
     useEffect(
         () => () => {
-            flushNodePersistence();
+            persistPendingNode(false);
         },
-        [flushNodePersistence]
+        [persistPendingNode]
     );
 
     const handleInputChange = useCallback(
         (path, newValue) => {
-            const updatedNode = withValidationState(
-                updateValueAtPath(
-                    editedNodeRef.current,
-                    getPathParts(path),
-                    newValue
-                )
+            const nextDraftValues = new Map(
+                pendingDraftValuesRef.current ?? draftValues
             );
-            editedNodeRef.current = updatedNode;
-            setEditedNode(updatedNode);
-            scheduleNodePersistence(updatedNode);
+            nextDraftValues.set(path, newValue);
+            pendingDraftValuesRef.current = nextDraftValues;
+            setDraftValues(nextDraftValues);
+            scheduleNodePersistence(nextDraftValues);
         },
-        [scheduleNodePersistence]
+        [draftValues, scheduleNodePersistence]
     );
 
     const handleStructuredNodeUpdate = useCallback(
         (updatedNode) => {
             const validatedNode = withValidationState(updatedNode);
             clearTimeout(persistenceTimerRef.current);
-            pendingNodeRef.current = null;
-            editedNodeRef.current = validatedNode;
-            setEditedNode(validatedNode);
+            pendingDraftValuesRef.current = null;
+            setDraftValues(new Map());
             handleUpdateNode(validatedNode);
         },
         [handleUpdateNode]

@@ -11,7 +11,7 @@ import {
 
 const Header = () => {
     const [errorMessage, setErrorMessage] = useState(null);
-    const { getData, replaceData, setData } = useWorkflowActions();
+    const { getData, replaceData, updateWorkflowName } = useWorkflowActions();
     const { workflowName } = useWorkflowMetadata();
     const {
         canRedo,
@@ -126,23 +126,11 @@ const Header = () => {
 
     const handleRenameWorkflow = useCallback(
         (nextName) => {
-            // Find the cell with activityName 'StartActivity'
-            setData((currentData) => ({
-                ...currentData,
-                cells: currentData.cells.map((cell) =>
-                    cell.activityName === 'StartActivity'
-                        ? {
-                              ...cell,
-                              workflowName: {
-                                  type: 'String',
-                                  value: nextName,
-                              },
-                          }
-                        : cell
-                ),
-            }));
+            const result = updateWorkflowName(nextName);
+            setErrorMessage(result.ok ? null : result.error);
+            return result.ok;
         },
-        [setData]
+        [updateWorkflowName]
     );
 
     return (
@@ -183,8 +171,9 @@ const Header = () => {
                             onChange={(e) => setNewName(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    handleRenameWorkflow(newName);
-                                    setIsEditing(false);
+                                    if (handleRenameWorkflow(newName)) {
+                                        setIsEditing(false);
+                                    }
                                 }
                             }}
                         />

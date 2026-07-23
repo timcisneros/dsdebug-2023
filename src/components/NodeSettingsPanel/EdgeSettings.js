@@ -1,18 +1,16 @@
-import { useState } from 'react';
 import { Box, Field, NativeSelect } from '@chakra-ui/react';
 import { useWorkflowActions } from '../../contexts/NodeContext';
 import { stepDataMapping } from '../SidePanel/Steps/StepData';
 
 const EdgeSettings = ({ selectedEdge, sourceNode }) => {
     const { setData } = useWorkflowActions();
-    const [editedLabel, setEditedLabel] = useState(selectedEdge?.label ?? '');
     const outputData = sourceNode
         ? stepDataMapping[sourceNode.data.activityName]?.outputData ?? []
         : [];
 
     if (!selectedEdge || outputData.length === 0) return null;
 
-    const handleSaveChanges = () => {
+    const handleLabelChange = (nextLabel) => {
         setData((currentData) => ({
             ...currentData,
             cells: currentData.cells.map((cell) =>
@@ -21,7 +19,7 @@ const EdgeSettings = ({ selectedEdge, sourceNode }) => {
                           ...cell,
                           output: {
                               ...cell.output,
-                              value: editedLabel,
+                              value: nextLabel,
                           },
                       }
                     : cell
@@ -43,11 +41,10 @@ const EdgeSettings = ({ selectedEdge, sourceNode }) => {
                     <NativeSelect.Root backgroundColor="#fff">
                         <NativeSelect.Field
                             name="output"
-                            value={editedLabel}
+                            value={selectedEdge.label ?? ''}
                             onChange={(event) =>
-                                setEditedLabel(event.target.value)
+                                handleLabelChange(event.target.value)
                             }
-                            onBlur={handleSaveChanges}
                         >
                             <option value="" />
                             {outputData.map((output) => (
