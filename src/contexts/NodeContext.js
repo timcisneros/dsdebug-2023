@@ -2,17 +2,22 @@ import {
     createContext,
     useCallback,
     useContext,
-    useEffect,
+    useLayoutEffect,
     useMemo,
+    useReducer,
     useRef,
     useState,
 } from 'react';
 import initialData from '../../data/New Workflow.json';
 import {
-    countVariableReferences,
+    findWorkflowVariableReferences,
     mergeVariableDeclarations,
     rewriteVariableReferences,
 } from '../utils/variableMerge';
+import {
+    createWorkflowHistory,
+    workflowHistoryReducer,
+} from '../utils/workflowHistory';
 
 const getNodePositions = (data) =>
     Object.fromEntries(
@@ -49,75 +54,98 @@ export const useWorkflowHistory = () => useContext(WorkflowHistoryContext);
 export const usePanelVisibility = () => useContext(PanelVisibilityContext);
 export const useSelection = () => useContext(SelectionContext);
 
-const createWorkflowIndex = (data) => {
-    const nodeCells = [];
-    const edgeCells = [];
-    const cellsById = new Map();
-    let startActivity = null;
-
-    data.cells.forEach((cell) => {
-        cellsById.set(cell.id, cell);
-        if (cell.type === 'springcm.Link') edgeCells.push(cell);
-        else nodeCells.push(cell);
-        if (cell.activityName === 'StartActivity') startActivity = cell;
-    });
-
-    return { nodeCells, edgeCells, cellsById, startActivity };
-};
-
 export const NodeProvider = ({ children }) => {
     const [selectedNodeIds, setSelectedNodeIds] = useState(null);
     const [selectedEdgeId, setSelectedEdgeId] = useState(null);
     const [selectionRevision, setSelectionRevision] = useState(0);
-    const [workflowState, setWorkflowState] = useState(() => ({
-        data: initialData,
-        index: createWorkflowIndex(initialData),
-        lastWorkflowName: defaultWorkflowName,
-        lastDefinedVariables: defaultDefinedVariables,
-    }));
-    const { data, index, lastWorkflowName, lastDefinedVariables } =
-        workflowState;
+    const [workflowHistory, dispatchWorkflowHistory] = useReducer(
+        workflowHistoryReducer,
+        null,
+        () =>
+            createWorkflowHistory(
+                initialData,
+                defaultWorkflowName,
+                defaultDefinedVariables
+            )
+    );
+    const { present, past, future } = workflowHistory;
+    const { data, index, lastWorkflowName, lastDefinedVariables } = present;
     const workflowDataRef = useRef(data);
     const workflowIndexRef = useRef(index);
+    const workflowHistoryRef = useRef(workflowHistory);
     const variableRenamesRef = useRef(new Map());
-    useEffect(() => {
+    const reconcileSelection = useCallback((nextIndex) => {
+        setSelectedNodeIds((currentSelection) => {
+            const nextSelection = (currentSelection ?? []).filter((id) =>
+                nextIndex.cellsById.has(id)
+            );
+            return nextSelection.length > 0 ? nextSelection : null;
+        });
+        setSelectedEdgeId((currentSelection) =>
+            currentSelection && nextIndex.cellsById.has(currentSelection)
+                ? currentSelection
+                : null
+        );
+    }, []);
+    useLayoutEffect(() => {
         workflowDataRef.current = data;
         workflowIndexRef.current = index;
-    }, [data, index]);
+        workflowHistoryRef.current = workflowHistory;
+    }, [data, index, workflowHistory]);
     const setData = useCallback((dataOrUpdater) => {
         if (typeof dataOrUpdater !== 'function') {
             variableRenamesRef.current.clear();
         }
-        setWorkflowState((currentState) => {
-            const nextData =
-                typeof dataOrUpdater === 'function'
-                    ? dataOrUpdater(currentState.data)
-                    : dataOrUpdater;
-            if (nextData === currentState.data) return currentState;
-
-            const nextIndex = createWorkflowIndex(nextData);
-            const nextStartActivity = nextIndex.startActivity;
-
-            return {
-                data: nextData,
-                index: nextIndex,
-                lastWorkflowName:
-                    nextStartActivity?.workflowName ??
-                    currentState.lastWorkflowName,
-                lastDefinedVariables:
-                    nextStartActivity?.definedVariables?.value ??
-                    currentState.lastDefinedVariables,
-            };
+        dispatchWorkflowHistory({
+            type: 'apply',
+            dataOrUpdater,
         });
     }, []);
+    const replaceData = useCallback((nextData) => {
+        variableRenamesRef.current.clear();
+        dispatchWorkflowHistory({ type: 'replace', data: nextData });
+    }, []);
+    const undo = useCallback(() => {
+        const previous = workflowHistoryRef.current.past.at(-1);
+        if (!previous) return false;
+        variableRenamesRef.current.clear();
+        reconcileSelection(previous.index);
+        dispatchWorkflowHistory({ type: 'undo' });
+        setSelectionRevision((currentRevision) => currentRevision + 1);
+        return true;
+    }, [reconcileSelection]);
+    const redo = useCallback(() => {
+        const next = workflowHistoryRef.current.future[0];
+        if (!next) return false;
+        variableRenamesRef.current.clear();
+        reconcileSelection(next.index);
+        dispatchWorkflowHistory({ type: 'redo' });
+        setSelectionRevision((currentRevision) => currentRevision + 1);
+        return true;
+    }, [reconcileSelection]);
     const getData = useCallback(() => workflowDataRef.current, []);
     const getWorkflowIndex = useCallback(() => workflowIndexRef.current, []);
-    const [newNodesAdded, setNewNodesAdded] = useState(false);
-    const [iterateVars, setIterateVars] = useState(false);
+    const [iterateVars, setIterateVarsState] = useState(false);
+    const iterateVarsRef = useRef(false);
+    const setIterateVars = useCallback((valueOrUpdater) => {
+        const nextValue =
+            typeof valueOrUpdater === 'function'
+                ? valueOrUpdater(iterateVarsRef.current)
+                : valueOrUpdater;
+        iterateVarsRef.current = nextValue === true;
+        setIterateVarsState(iterateVarsRef.current);
+    }, []);
+    const getVariableMergeMode = useCallback(
+        () => (iterateVarsRef.current ? 'unique' : 'merge'),
+        []
+    );
     const [defaultNodePositions, setDefaultNodePositions] = useState(() =>
         getNodePositions(initialData)
     );
     const [isVisible, setIsVisible] = useState(true);
+    const newNodesAdded = index.nodeCells.some(
+        (cell) => !Object.hasOwn(defaultNodePositions, cell.id)
+    );
 
     const handleToggleVisibility = useCallback(() => {
         setIsVisible((currentVisibility) => !currentVisibility);
@@ -148,9 +176,9 @@ export const NodeProvider = ({ children }) => {
             mergeVariableDeclarations(
                 existingVariables,
                 templateVariables,
-                iterateVars
+                iterateVarsRef.current
             ),
-        [iterateVars]
+        []
     );
 
     const handleUpdateNode = useCallback(
@@ -352,32 +380,28 @@ export const NodeProvider = ({ children }) => {
                 };
             }
 
-            const referenceCount = workflowDataRef.current.cells
-                .filter((cell) => cell.activityName !== 'StartActivity')
-                .reduce(
-                    (count, cell) =>
-                        count + countVariableReferences(cell, variableName),
-                    0
-                );
+            const references = findWorkflowVariableReferences(
+                workflowDataRef.current,
+                variableName
+            );
+            const referenceCount = references.length;
 
             if (referenceCount > 0) {
                 return {
                     ok: false,
                     referenceCount,
+                    references,
                     error: `This variable is used by ${referenceCount} workflow field${referenceCount === 1 ? '' : 's'}. Remove those references before deleting it.`,
                 };
             }
 
             setData((currentData) => {
-                const currentReferenceCount = currentData.cells
-                    .filter((cell) => cell.activityName !== 'StartActivity')
-                    .reduce(
-                        (count, cell) =>
-                            count +
-                            countVariableReferences(cell, variableName),
-                        0
-                    );
-                if (currentReferenceCount > 0) return currentData;
+                const hasCurrentReferences =
+                    findWorkflowVariableReferences(
+                        currentData,
+                        variableName
+                    ).length > 0;
+                if (hasCurrentReferences) return currentData;
 
                 return {
                     ...currentData,
@@ -400,7 +424,7 @@ export const NodeProvider = ({ children }) => {
                     ),
                 };
             });
-            return { ok: true, referenceCount: 0 };
+            return { ok: true, referenceCount: 0, references: [] };
         },
         [setData]
     );
@@ -409,6 +433,7 @@ export const NodeProvider = ({ children }) => {
     const actionsValue = useMemo(
         () => ({
             setData,
+            replaceData,
             getData,
             getWorkflowIndex,
             handleUpdateNode,
@@ -426,6 +451,7 @@ export const NodeProvider = ({ children }) => {
             getWorkflowIndex,
             handleUpdateNode,
             renameDefinedVariable,
+            replaceData,
             setData,
             updateDefinedVariables,
         ]
@@ -435,17 +461,32 @@ export const NodeProvider = ({ children }) => {
         [definedVariables, startActivity, workflowName]
     );
     const templateOptionsValue = useMemo(
-        () => ({ iterateVars, setIterateVars, mergeDefinedVariables }),
-        [iterateVars, mergeDefinedVariables]
+        () => ({
+            iterateVars,
+            setIterateVars,
+            getVariableMergeMode,
+            mergeDefinedVariables,
+        }),
+        [getVariableMergeMode, iterateVars, mergeDefinedVariables, setIterateVars]
     );
     const historyValue = useMemo(
         () => ({
             newNodesAdded,
-            setNewNodesAdded,
             defaultNodePositions,
             setDefaultNodePositions,
+            canUndo: past.length > 0,
+            canRedo: future.length > 0,
+            undo,
+            redo,
         }),
-        [defaultNodePositions, newNodesAdded]
+        [
+            defaultNodePositions,
+            future.length,
+            newNodesAdded,
+            past.length,
+            redo,
+            undo,
+        ]
     );
     const panelVisibilityValue = useMemo(
         () => ({ isVisible, handleToggleVisibility }),

@@ -114,51 +114,98 @@ export const rewriteVariableReferences = (value, renamedVariables) => {
     );
 };
 
-const countVariableNameInPayload = (payload, variableName) => {
+const collectVariableNameInPayload = (
+    payload,
+    variableName,
+    path,
+    references
+) => {
     if (typeof payload === 'string') {
-        return payload === variableName || payload.startsWith(`${variableName}.`)
-            ? 1
-            : 0;
+        if (
+            payload === variableName ||
+            payload.startsWith(`${variableName}.`)
+        ) {
+            references.push({ path: path.join('.'), value: payload });
+        }
+        return;
     }
 
     if (Array.isArray(payload)) {
-        return payload.reduce(
-            (count, item) =>
-                count + countVariableNameInPayload(item, variableName),
-            0
+        payload.forEach((item, index) =>
+            collectVariableNameInPayload(
+                item,
+                variableName,
+                [...path, index],
+                references
+            )
         );
+        return;
     }
 
     if (payload && typeof payload === 'object') {
-        return Object.values(payload).reduce(
-            (count, nestedValue) =>
-                count +
-                countVariableNameInPayload(nestedValue, variableName),
-            0
+        Object.entries(payload).forEach(([key, nestedValue]) =>
+            collectVariableNameInPayload(
+                nestedValue,
+                variableName,
+                [...path, key],
+                references
+            )
         );
     }
-
-    return 0;
 };
 
-export const countVariableReferences = (value, variableName) => {
+export const findVariableReferences = (
+    value,
+    variableName,
+    path = [],
+    references = []
+) => {
     if (Array.isArray(value)) {
-        return value.reduce(
-            (count, item) =>
-                count + countVariableReferences(item, variableName),
-            0
+        value.forEach((item, index) =>
+            findVariableReferences(
+                item,
+                variableName,
+                [...path, index],
+                references
+            )
         );
+        return references;
     }
 
-    if (!value || typeof value !== 'object') return 0;
+    if (!value || typeof value !== 'object') return references;
 
     if (value.type === 'Variable') {
-        return countVariableNameInPayload(value.value, variableName);
+        collectVariableNameInPayload(
+            value.value,
+            variableName,
+            [...path, 'value'],
+            references
+        );
+        return references;
     }
 
-    return Object.values(value).reduce(
-        (count, nestedValue) =>
-            count + countVariableReferences(nestedValue, variableName),
-        0
+    Object.entries(value).forEach(([key, nestedValue]) =>
+        findVariableReferences(
+            nestedValue,
+            variableName,
+            [...path, key],
+            references
+        )
     );
+    return references;
 };
+
+export const findWorkflowVariableReferences = (data, variableName) =>
+    (data?.cells ?? [])
+        .filter((cell) => cell.activityName !== 'StartActivity')
+        .flatMap((cell) =>
+            findVariableReferences(cell, variableName).map((reference) => ({
+                id: cell.id,
+                name: cell.name?.value ?? cell.name ?? '',
+                activityName: cell.activityName ?? '',
+                ...reference,
+            }))
+        );
+
+export const countVariableReferences = (value, variableName) =>
+    findVariableReferences(value, variableName).length;

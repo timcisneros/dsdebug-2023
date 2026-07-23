@@ -23,8 +23,10 @@ a {
     opacity: 0;
 }
 
-.console-handle {
-    transform: translateX(-52.5%);
+/* Prevent a resize gesture from turning into a selection across the console. */
+.react-draggable-transparent-selection,
+.react-draggable-transparent-selection * {
+    user-select: none !important;
 }
 
 .node-resizer-handle {
@@ -63,6 +65,12 @@ a {
 .console {
     scrollbar-color: #888 #333; /* Change the color of the thumb and track */
     scrollbar-width: thin; /* Adjust the width of the scrollbar */
+}
+
+.console-command-input {
+    caret-color: auto;
+    caret-shape: block;
+    caret-animation: manual;
 }
 
 /* @media (prefers-color-scheme: dark) {

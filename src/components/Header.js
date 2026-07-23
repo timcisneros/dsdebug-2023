@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Box, IconButton, Input } from '@chakra-ui/react';
 import { AiOutlineUpload, AiOutlineDownload } from 'react-icons/ai';
+import { FiRotateCcw, FiRotateCw } from 'react-icons/fi';
 import {
     useSelection,
     useWorkflowActions,
@@ -10,9 +11,15 @@ import {
 
 const Header = () => {
     const [errorMessage, setErrorMessage] = useState(null);
-    const { getData, setData } = useWorkflowActions();
+    const { getData, replaceData, setData } = useWorkflowActions();
     const { workflowName } = useWorkflowMetadata();
-    const { setNewNodesAdded, setDefaultNodePositions } = useWorkflowHistory();
+    const {
+        canRedo,
+        canUndo,
+        redo,
+        setDefaultNodePositions,
+        undo,
+    } = useWorkflowHistory();
     const { setSelectedNodeIds, setSelectedEdgeId } = useSelection();
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState('');
@@ -26,21 +33,20 @@ const Header = () => {
             reader.onload = (e) => {
                 try {
                     const jsonData = JSON.parse(e.target.result);
-                    setData(jsonData);
-                    setErrorMessage(null);
-                    setNewNodesAdded(false);
-                    setDefaultNodePositions(
-                        Object.fromEntries(
-                            jsonData.cells
-                                .filter(
-                                    (cell) => cell.type !== 'springcm.Link'
-                                )
-                                .map((cell) => [
-                                    cell.id,
-                                    cell.position ?? { x: 0, y: 0 },
-                                ])
-                        )
+                    if (!jsonData || !Array.isArray(jsonData.cells)) {
+                        throw new Error('Workflow JSON must contain cells.');
+                    }
+                    const importedNodePositions = Object.fromEntries(
+                        jsonData.cells
+                            .filter((cell) => cell.type !== 'springcm.Link')
+                            .map((cell) => [
+                                cell.id,
+                                cell.position ?? { x: 0, y: 0 },
+                            ])
                     );
+                    replaceData(jsonData);
+                    setErrorMessage(null);
+                    setDefaultNodePositions(importedNodePositions);
                     setSelectedNodeIds(null);
                     setSelectedEdgeId(null);
                 } catch (error) {
@@ -92,6 +98,31 @@ const Header = () => {
             inputRef.current?.focus();
         }
     }, [isEditing]);
+
+    useEffect(() => {
+        const handleHistoryShortcut = (event) => {
+            const target = event.target;
+            const isEditableTarget =
+                target instanceof HTMLElement &&
+                (target.isContentEditable ||
+                    ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+            if (isEditableTarget || (!event.ctrlKey && !event.metaKey)) return;
+
+            const key = event.key.toLowerCase();
+            const shouldRedo =
+                (key === 'z' && event.shiftKey) ||
+                (key === 'y' && !event.shiftKey);
+            const shouldUndo = key === 'z' && !event.shiftKey;
+            if (!shouldUndo && !shouldRedo) return;
+
+            const changed = shouldRedo ? redo() : undo();
+            if (changed) event.preventDefault();
+        };
+
+        window.addEventListener('keydown', handleHistoryShortcut);
+        return () =>
+            window.removeEventListener('keydown', handleHistoryShortcut);
+    }, [redo, undo]);
 
     const handleRenameWorkflow = useCallback(
         (nextName) => {
@@ -177,10 +208,41 @@ const Header = () => {
                 )}
             </Box>
 
-            <Box>
+            <Box display="flex" alignItems="center" flexShrink={0}>
                 <span style={{ color: 'red', marginRight: '10px' }}>
                     {errorMessage}
                 </span>
+                <IconButton
+                    rounded="full"
+                    backgroundColor="transparent"
+                    color="#fff"
+                    aria-label="Undo workflow change"
+                    title="Undo (Ctrl/Cmd+Z)"
+                    variant="solid"
+                    size="md"
+                    disabled={!canUndo}
+                    onClick={undo}
+                    _hover={{ backgroundColor: 'white', color: '#000' }}
+                    _disabled={{ opacity: 0.35, cursor: 'not-allowed' }}
+                >
+                    <FiRotateCcw />
+                </IconButton>
+                <IconButton
+                    rounded="full"
+                    backgroundColor="transparent"
+                    color="#fff"
+                    aria-label="Redo workflow change"
+                    title="Redo (Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y)"
+                    variant="solid"
+                    size="md"
+                    disabled={!canRedo}
+                    onClick={redo}
+                    ml={1}
+                    _hover={{ backgroundColor: 'white', color: '#000' }}
+                    _disabled={{ opacity: 0.35, cursor: 'not-allowed' }}
+                >
+                    <FiRotateCw />
+                </IconButton>
                 <label htmlFor="upload-input">
                     <IconButton
                         rounded="full"

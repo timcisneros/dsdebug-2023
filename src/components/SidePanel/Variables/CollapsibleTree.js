@@ -192,9 +192,24 @@ const CollapsibleTree = ({ definedVariable }) => {
         (variableName) => {
             const result = deleteDefinedVariable(variableName);
             if (!result.ok) {
+                const referenceDetails = result.references?.length
+                    ? ` Used by: ${result.references
+                          .slice(0, 3)
+                          .map(
+                              ({ name, id, path }) =>
+                                  `${name || id} at ${path}`
+                          )
+                          .join(', ')}${
+                          result.references.length > 3
+                              ? `, and ${result.references.length - 3} more`
+                              : ''
+                      }.`
+                    : '';
                 toaster.create({
-                    title: 'Variable is still in use',
-                    description: result.error,
+                    title: result.references?.length
+                        ? 'Variable is still in use'
+                        : 'Unable to delete variable',
+                    description: `${result.error}${referenceDetails}`,
                     type: 'warning',
                     duration: 7000,
                     closable: true,

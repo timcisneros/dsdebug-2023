@@ -42,6 +42,11 @@ import DeepFieldExplorer from './NodeSettingsPanel';
 import EdgeSettings from './NodeSettingsPanel/EdgeSettings';
 import { stepDataMapping } from './SidePanel/Steps/StepData';
 import { templateDataMapping } from './SidePanel/Steps/templateData';
+import {
+    readStepDragData,
+    STEP_DRAG_DATA_TYPE,
+} from '../utils/stepDragData';
+import { getAvailableTemplateNames } from '../utils/templateNames';
 
 const proOptions = { hideAttribution: true };
 
@@ -63,6 +68,16 @@ const snapToCanvasGrid = ({ x, y }) => ({
     x: Math.round(x / snapGrid[0]) * snapGrid[0],
     y: Math.round(y / snapGrid[1]) * snapGrid[1],
 });
+const builtInTemplateNames = Object.keys(templateDataMapping);
+const readStoredTemplates = () => {
+    if (typeof window === 'undefined') return [];
+    try {
+        const templates = JSON.parse(localStorage.getItem('templates') ?? '[]');
+        return Array.isArray(templates) ? templates : [];
+    } catch {
+        return [];
+    }
+};
 
 const deleteKeyCode = ['Backspace', 'Delete'];
 const flowStyle = { width: '100%', height: '100%' };
@@ -182,6 +197,7 @@ const FlowCanvas = React.memo(
     ({
         externalNodes,
         edges,
+        selectedNodeIds,
         onNodeSelectionChanges,
         onNodeDragStop,
         onEdgesChange,
@@ -227,6 +243,20 @@ const FlowCanvas = React.memo(
                 externalNodes.map((node) => [node.id, node])
             );
         }, [externalNodes, setNodes]);
+
+        useEffect(() => {
+            const selectedIds = new Set(selectedNodeIds ?? []);
+            setNodes((currentNodes) => {
+                let selectionChanged = false;
+                const nextNodes = currentNodes.map((node) => {
+                    const selected = selectedIds.has(node.id);
+                    if (node.selected === selected) return node;
+                    selectionChanged = true;
+                    return { ...node, selected };
+                });
+                return selectionChanged ? nextNodes : currentNodes;
+            });
+        }, [selectedNodeIds, setNodes]);
 
         const handleNodesChange = useCallback(
             (changes) => {
@@ -327,12 +357,16 @@ FlowCanvas.displayName = 'FlowCanvas';
 const WorkflowDiagram = () => {
     const { data } = useWorkflowData();
     const workflowIndex = useWorkflowIndex();
-    const { setData, generateUniqueName } = useWorkflowActions();
-    const { definedVariables, startActivity } = useWorkflowMetadata();
+    const {
+        generateUniqueName,
+        getData,
+        getWorkflowIndex,
+        setData,
+    } = useWorkflowActions();
+    const { definedVariables } = useWorkflowMetadata();
     const { mergeDefinedVariables } = useTemplateOptions();
     const {
         newNodesAdded,
-        setNewNodesAdded,
         defaultNodePositions,
     } = useWorkflowHistory();
     const {
@@ -496,6 +530,7 @@ const WorkflowDiagram = () => {
                     position: defaultNodePositions[node.id],
                 })),
             }));
+            return true;
         } else {
             if (!toaster.isVisible(id)) {
                 toaster.create({
@@ -507,6 +542,7 @@ const WorkflowDiagram = () => {
                     closable: true,
                 });
             }
+            return false;
         }
     }, [defaultNodePositions, newNodesAdded, setData]);
 
@@ -518,16 +554,174 @@ const WorkflowDiagram = () => {
     const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
     const handleDragOver = useCallback((event) => {
-        event.preventDefault(); // Prevent default behavior to allow drop
+        if (Array.from(event.dataTransfer.types).includes(STEP_DRAG_DATA_TYPE)) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+        }
     }, []);
+
+    const getAvailableTemplates = useCallback(
+        () =>
+            getAvailableTemplateNames(
+                builtInTemplateNames,
+                readStoredTemplates()
+            ),
+        []
+    );
+
+    const insertTemplate = useCallback(
+        (requestedTemplate, requestedPosition = { x: 0, y: 0 }) => {
+            const requestedName =
+                typeof requestedTemplate === 'string'
+                    ? requestedTemplate
+                    : null;
+            const normalizedName = requestedName?.toLowerCase();
+            const builtInName = requestedName
+                ? builtInTemplateNames.find(
+                      (name) => name.toLowerCase() === normalizedName
+                  )
+                : null;
+            const storedTemplate = requestedName
+                ? readStoredTemplates().find(
+                      (template) =>
+                          template?.name?.toLowerCase() === normalizedName
+                  )
+                : null;
+            const templateData = requestedName
+                ? builtInName
+                    ? templateDataMapping[builtInName]
+                    : storedTemplate?.data?.cells
+                : requestedTemplate?.cells;
+
+            if (!Array.isArray(templateData)) {
+                return {
+                    ok: false,
+                    error: requestedName
+                        ? `Template '${requestedName}' was not found.`
+                        : 'Template data is invalid.',
+                };
+            }
+
+            const currentData = getData();
+            const currentStartActivity = getWorkflowIndex().startActivity;
+            if (!currentStartActivity) {
+                return { ok: false, error: 'Start activity missing.' };
+            }
+
+            const dropPosition = snapToCanvasGrid(requestedPosition);
+            const existingNames = new Set(
+                currentData.cells
+                    .map((cell) => cell.name?.value ?? cell.name)
+                    .filter((name) => typeof name === 'string')
+            );
+            const templateStartActivity = templateData.find(
+                (cell) => cell.activityName === 'StartActivity'
+            );
+            const { variables: mergedVariables, renamedVariables } =
+                mergeDefinedVariables(
+                    currentStartActivity.definedVariables?.value ?? [],
+                    templateStartActivity?.definedVariables?.value ?? []
+                );
+            const rewrittenTemplateData = templateData.map((cell) =>
+                cell.activityName === 'StartActivity'
+                    ? cell
+                    : rewriteVariableReferences(cell, renamedVariables)
+            );
+            const stepIdMapping = new Map();
+            const newNodes = [];
+            const newLinks = [];
+
+            rewrittenTemplateData.forEach((step) => {
+                if (
+                    step.type === 'springcm.Link' ||
+                    step.activityName === 'StartActivity'
+                ) {
+                    return;
+                }
+
+                const newId = generateId();
+                stepIdMapping.set(step.id, newId);
+                const originalName = step.name?.value ?? step.name;
+                const uniqueName = generateUniqueName(
+                    originalName,
+                    existingNames
+                );
+                existingNames.add(uniqueName);
+                newNodes.push({
+                    ...step,
+                    id: newId,
+                    position: {
+                        x: dropPosition.x + (step.position?.x ?? 0),
+                        y: dropPosition.y + (step.position?.y ?? 0),
+                    },
+                    name:
+                        step.name && typeof step.name === 'object'
+                            ? { ...step.name, value: uniqueName }
+                            : uniqueName,
+                });
+            });
+
+            rewrittenTemplateData.forEach((step) => {
+                if (step.type !== 'springcm.Link') return;
+                const sourceId = stepIdMapping.get(step.source?.id);
+                const targetId = stepIdMapping.get(step.target?.id);
+                if (!sourceId || !targetId) return;
+
+                const originalName = step.name?.value ?? step.name;
+                const uniqueName = generateUniqueName(
+                    originalName,
+                    existingNames
+                );
+                existingNames.add(uniqueName);
+                newLinks.push({
+                    ...step,
+                    vertices: [],
+                    id: generateId(),
+                    name:
+                        step.name && typeof step.name === 'object'
+                            ? { ...step.name, value: uniqueName }
+                            : uniqueName,
+                    source: { ...step.source, id: sourceId },
+                    target: { ...step.target, id: targetId },
+                });
+            });
+
+            const insertedCells = [...newNodes, ...newLinks];
+            setData((latestData) => ({
+                ...latestData,
+                cells: [
+                    ...latestData.cells.map((cell) =>
+                        cell.activityName === 'StartActivity'
+                            ? {
+                                  ...cell,
+                                  definedVariables: {
+                                      ...cell.definedVariables,
+                                      value: mergedVariables,
+                                  },
+                              }
+                            : cell
+                    ),
+                    ...insertedCells,
+                ],
+            }));
+            return { ok: true, value: insertedCells };
+        },
+        [
+            generateId,
+            generateUniqueName,
+            getData,
+            getWorkflowIndex,
+            mergeDefinedVariables,
+            setData,
+        ]
+    );
 
     const handleDrop = useCallback(
         async (event) => {
             if (data) {
                 event.preventDefault();
-                const nodeData = JSON.parse(
-                    event.dataTransfer.getData('application/json')
-                );
+                const nodeData = readStepDragData(event.dataTransfer);
+                if (!nodeData || !reactFlowInstance) return;
 
                 const flowPosition = reactFlowInstance.screenToFlowPosition({
                     x: event.clientX,
@@ -546,19 +740,21 @@ const WorkflowDiagram = () => {
 
                 // Check if the data dropped is a value that exists in nodeTypes
                 if (nodeData.stepType in nodeTypes) {
-                    setNewNodesAdded(true);
+                    const stepDefinition =
+                        stepDataMapping[nodeData.activityName]?.type;
+                    if (!stepDefinition) return;
+
                     // Add a new StepNode to the nodes state
                     const nodeId = generateId();
                     const newNode = {
-                        ...stepDataMapping[nodeData.activityName].type,
+                        ...stepDefinition,
                         id: nodeId,
                         size: { width: 100, height: 100 },
                         position,
                         name: {
                             type: 'String',
                             value: generateUniqueName(
-                                stepDataMapping[nodeData.activityName].type.name
-                                    .value,
+                                stepDefinition.name.value,
                                 existingStepNames
                             ),
                         },
@@ -568,13 +764,12 @@ const WorkflowDiagram = () => {
 
                     // Update the JSON data object with the new node
                     setData((prevData) => ({
+                        ...prevData,
                         cells: [...prevData.cells, newNode],
                     }));
                 }
 
                 if (nodeData.stepType === 'Template') {
-                    setNewNodesAdded(true);
-
                     // Get the drop position
                     const dropPosition = snapToCanvasGrid(
                         reactFlowInstance.screenToFlowPosition({
@@ -583,129 +778,23 @@ const WorkflowDiagram = () => {
                         })
                     );
 
-                    const newNodes = [];
-                    const newLinks = [];
-                    const stepIdMapping = {};
-
-                    let templateData = [];
-
-                    // Check if this is an imported template, it will have the JSON data directly added to nodeData.stepData instead of referencing templateDataMapping
-                    if (typeof nodeData.stepData === 'object') {
-                        templateData = nodeData.stepData.cells;
+                    const requestedTemplate =
+                        typeof nodeData.stepData === 'object'
+                            ? nodeData.stepData
+                            : nodeData.activityName;
+                    const result = insertTemplate(
+                        requestedTemplate,
+                        dropPosition
+                    );
+                    if (!result.ok) {
+                        console.error('dsdebug-log', result.error);
                     } else {
-                        templateData = templateDataMapping[nodeData.activityName];
-                    }
-
-                    if (!templateData) return;
-
-                    const templateStartActivity = templateData.find(
-                        (step) => step.activityName === 'StartActivity'
-                    );
-
-                    const { variables: mergedVariables, renamedVariables } =
-                        mergeDefinedVariables(
-                            startActivity.definedVariables?.value ?? [],
-                            templateStartActivity.definedVariables?.value ?? []
+                        console.log(
+                            'dsdebug-log',
+                            '- Template Added:',
+                            result.value
                         );
-
-                    const rewrittenTemplateData = templateData.map((cell) =>
-                        cell.activityName === 'StartActivity'
-                            ? cell
-                            : rewriteVariableReferences(
-                                  cell,
-                                  renamedVariables
-                              )
-                    );
-
-                    rewrittenTemplateData.forEach((step) => {
-                        if (
-                            step.type !== 'springcm.Link' &&
-                            step.activityName !== 'StartActivity'
-                        ) {
-                            // Handle step nodes
-                            const oldStepId = step.id;
-                            const newStepId = generateId();
-                            stepIdMapping[oldStepId] = newStepId;
-
-                            const uniqueStepName = generateUniqueName(
-                                step.name.value,
-                                existingStepNames
-                            );
-                            existingStepNames.add(uniqueStepName);
-                            newNodes.push({
-                                ...step,
-                                id: newStepId,
-                                size: {
-                                    width: step.size?.width,
-                                    height: step.size?.height,
-                                },
-                                position: {
-                                    x: dropPosition.x + (step.position?.x || 0),
-                                    y: dropPosition.y + (step.position?.y || 0),
-                                },
-                                name: {
-                                    type: 'String',
-                                    value: uniqueStepName,
-                                },
-                            });
-                        }
-                    });
-
-                    rewrittenTemplateData.forEach((step) => {
-                        if (step.type === 'springcm.Link') {
-                            // Handle link nodes
-                            const oldSourceStepId = step.source.id;
-                            const oldTargetStepId = step.target.id;
-
-                            const newSourceStepId =
-                                stepIdMapping[oldSourceStepId];
-                            const newTargetStepId =
-                                stepIdMapping[oldTargetStepId];
-
-                            if (newSourceStepId && newTargetStepId) {
-                                const uniqueLinkName = generateUniqueName(
-                                    step.name?.value,
-                                    existingStepNames
-                                );
-                                existingStepNames.add(uniqueLinkName);
-                                newLinks.push({
-                                    ...step,
-                                    vertices: [],
-                                    id: generateId(),
-                                    name: uniqueLinkName,
-                                    source: {
-                                        ...step.source,
-                                        id: newSourceStepId,
-                                    },
-                                    target: {
-                                        ...step.target,
-                                        id: newTargetStepId,
-                                    },
-                                });
-                            }
-                        }
-                    });
-
-                    setData((prevData) => ({
-                        ...prevData,
-                        cells: [
-                            ...prevData.cells.map((cell) =>
-                                cell.activityName === 'StartActivity'
-                                    ? {
-                                          ...cell,
-                                          definedVariables: {
-                                              ...cell.definedVariables,
-                                              value: mergedVariables,
-                                          },
-                                      }
-                                    : cell
-                            ),
-                            ...newNodes,
-                            ...newLinks,
-                        ],
-                    }));
-
-                    console.log('dsdebug-log', '- Template Added:', data.cells);
+                    }
                 }
             } else {
                 console.log('dsdebug-log', 'Start activity missing.');
@@ -715,11 +804,9 @@ const WorkflowDiagram = () => {
             data,
             generateId,
             generateUniqueName,
-            mergeDefinedVariables,
+            insertTemplate,
             reactFlowInstance,
             setData,
-            setNewNodesAdded,
-            startActivity,
         ]
     );
 
@@ -872,10 +959,91 @@ const WorkflowDiagram = () => {
     }, [setData]);
 
     const [minimapVisible, setMinimapVisible] = useState(false);
+    const minimapVisibleRef = useRef(minimapVisible);
 
     const handleMinimapVisible = useCallback(() => {
-        setMinimapVisible((prevVisible) => !prevVisible);
+        const nextVisible = !minimapVisibleRef.current;
+        minimapVisibleRef.current = nextVisible;
+        setMinimapVisible(nextVisible);
     }, []);
+
+    const runCanvasAction = useCallback(
+        (action, value) => {
+            if (!reactFlowInstance) {
+                return { ok: false, error: 'Canvas is not ready.' };
+            }
+
+            if (action === 'fit') {
+                void reactFlowInstance.fitView();
+                return { ok: true, message: 'Canvas fitted to workflow.' };
+            }
+
+            if (action === 'zoom') {
+                let nextZoom;
+                if (value === 'in') {
+                    nextZoom = Math.min(
+                        2,
+                        reactFlowInstance.getZoom() * 1.2
+                    );
+                } else if (value === 'out') {
+                    nextZoom = Math.max(
+                        0.1,
+                        reactFlowInstance.getZoom() / 1.2
+                    );
+                } else {
+                    nextZoom = Number(value);
+                }
+                if (!Number.isFinite(nextZoom) || nextZoom < 0.1 || nextZoom > 2) {
+                    return {
+                        ok: false,
+                        error: 'Usage: canvas zoom <in|out|0.1-2>',
+                    };
+                }
+                void reactFlowInstance.zoomTo(nextZoom);
+                return {
+                    ok: true,
+                    value: nextZoom,
+                    message: `Canvas zoom set to ${nextZoom.toFixed(2)}.`,
+                };
+            }
+
+            if (action === 'minimap') {
+                if (!['on', 'off', 'toggle'].includes(value)) {
+                    return {
+                        ok: false,
+                        error: 'Usage: canvas minimap <on|off|toggle>',
+                    };
+                }
+                const nextVisible =
+                    value === 'toggle'
+                        ? !minimapVisibleRef.current
+                        : value === 'on';
+                minimapVisibleRef.current = nextVisible;
+                setMinimapVisible(nextVisible);
+                return {
+                    ok: true,
+                    value: nextVisible,
+                    message: `Canvas minimap ${nextVisible ? 'shown' : 'hidden'}.`,
+                };
+            }
+
+            if (action === 'reset') {
+                const reset = handleReset();
+                return reset
+                    ? { ok: true, message: 'Node positions reset.' }
+                    : {
+                          ok: false,
+                          error: 'Reset is not allowed after adding new nodes.',
+                      };
+            }
+
+            return {
+                ok: false,
+                error: 'Usage: canvas <fit|zoom|minimap|reset> ...',
+            };
+        },
+        [handleReset, reactFlowInstance]
+    );
 
     return (
         <>
@@ -899,12 +1067,12 @@ const WorkflowDiagram = () => {
                     >
                         <Grid
                             h="100%" // Use Grid to divide the space vertically
-                            templateRows={`1fr 
-                                ${splitHeight}px`} // Set two rows, the first will adjust automatically, and the second will be controlled by the splitHeight state
+                            templateRows={`minmax(0, 1fr) ${splitHeight}px`} // Set two rows, the first will adjust automatically, and the second will be controlled by the splitHeight state
                         >
                             <FlowCanvas
                                 externalNodes={externalNodes}
                                 edges={edges}
+                                selectedNodeIds={selectedNodeIds}
                                 onNodeSelectionChanges={
                                     handleNodeSelectionChanges
                                 }
@@ -930,6 +1098,9 @@ const WorkflowDiagram = () => {
                                 getWorkflowProjection={getWorkflowProjection}
                                 generateId={generateId}
                                 generateUniqueName={generateUniqueName}
+                                getAvailableTemplates={getAvailableTemplates}
+                                insertTemplate={insertTemplate}
+                                runCanvasAction={runCanvasAction}
                             />
                         </Grid>
                     </Flex>

@@ -8,8 +8,13 @@ import {
     Text,
 } from '@chakra-ui/react';
 import { FiChevronRight } from 'react-icons/fi';
+import {
+    readConsoleEntry,
+    shouldDisplayConsoleEntry,
+} from './commandRuntime';
 
 const consoleMethods = ['log', 'info', 'warn', 'error'];
+const stderrMethods = new Set(['warn', 'error']);
 const maxConsoleEntries = 500;
 const maxConsoleRetentionWeight = 5000;
 const expandedEntryBatchSize = 200;
@@ -111,8 +116,12 @@ const retainRecentLogs = (logs) => {
     return retainedLogs.reverse();
 };
 
-const ConsoleValue = memo(function ConsoleValue({ value, depth = 0 }) {
-    const [isOpen, setIsOpen] = useState(false);
+const ConsoleValue = memo(function ConsoleValue({
+    initiallyExpanded = false,
+    value,
+    depth = 0,
+}) {
+    const [isOpen, setIsOpen] = useState(initiallyExpanded);
     const [entryLimit, setEntryLimit] = useState(expandedEntryBatchSize);
 
     if (value === null || (typeof value !== 'object' && typeof value !== 'function')) {
@@ -230,16 +239,26 @@ const LogsContainer = memo(forwardRef(({ logs, setLogs }, ref) => {
         consoleMethods.forEach((method) => {
             window.console[method] = (...args) => {
                 originalMethods[method](...args);
-                if (typeof args[0] === 'string' && args[0].includes('dsdebug-log')) {
+                if (
+                    typeof args[0] === 'string' &&
+                    args[0].includes('dsdebug-log') &&
+                    shouldDisplayConsoleEntry(method)
+                ) {
+                    const entry = readConsoleEntry(args.slice(1));
                     setLogs((currentLogs) => {
                         const nextLogs = [
                             ...currentLogs,
                             {
                                 method,
-                                data: args.slice(1),
+                                stream: stderrMethods.has(method)
+                                    ? 'stderr'
+                                    : 'stdout',
+                                data: entry.values,
+                                initiallyExpandedValueIndexes:
+                                    entry.initiallyExpandedValueIndexes,
                                 timestamp: Date.now(),
                                 retentionWeight: getRetentionWeight(
-                                    args.slice(1)
+                                    entry.values
                                 ),
                             },
                         ];
@@ -276,7 +295,15 @@ const LogsContainer = memo(forwardRef(({ logs, setLogs }, ref) => {
                     minWidth={0}
                 >
                     {log.data.map((value, index) => (
-                        <ConsoleValue key={index} value={value} />
+                        <ConsoleValue
+                            key={index}
+                            initiallyExpanded={
+                                log.initiallyExpandedValueIndexes?.includes(
+                                    index
+                                ) ?? false
+                            }
+                            value={value}
+                        />
                     ))}
                 </Flex>
             ))}

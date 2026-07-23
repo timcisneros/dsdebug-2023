@@ -166,14 +166,23 @@ const getVisibleFieldConfigs = (node) => {
     });
 };
 
+export const getNodeValidationErrors = (node) =>
+    getVisibleFieldConfigs(node)
+        .filter(
+            (field) =>
+                field.config?.required &&
+                !hasRequiredValue(getValueAtPath(node, field.pathParts))
+        )
+        .map((field) => ({
+            path: field.path,
+            displayName: getDisplayName(
+                field.path,
+                node?.data?.activityName || 'default'
+            ),
+        }));
+
 const withValidationState = (node) => {
-    const hasMissingRequiredField = getVisibleFieldConfigs(node).some(
-        (field) =>
-            field.config?.required &&
-            !hasRequiredValue(
-                getValueAtPath(node, field.pathParts)
-            )
-    );
+    const hasMissingRequiredField = getNodeValidationErrors(node).length > 0;
 
     return {
         ...node,
@@ -205,6 +214,7 @@ const SettingsField = memo(function SettingsField({
     displayPaths,
     displayIsArray,
     handleInputChange,
+    handleInputBlur,
     handleStructuredNodeUpdate,
     getNestedValue,
 }) {
@@ -216,6 +226,7 @@ const SettingsField = memo(function SettingsField({
             required={field.config.required}
             invalid={isError}
             width="100%"
+            onBlur={handleInputBlur}
         >
             {displayPaths && (
                 <Text color="blue.400" mb={2}>
@@ -339,6 +350,7 @@ const SettingsField = memo(function SettingsField({
         previousProps.displayPaths === nextProps.displayPaths &&
         previousProps.displayIsArray === nextProps.displayIsArray &&
         previousProps.handleInputChange === nextProps.handleInputChange &&
+        previousProps.handleInputBlur === nextProps.handleInputBlur &&
         previousProps.handleStructuredNodeUpdate ===
             nextProps.handleStructuredNodeUpdate &&
         previousProps.getNestedValue === nextProps.getNestedValue &&
@@ -423,14 +435,19 @@ const DeepFieldExplorer = ({ selectedNode }) => {
         [handleUpdateNode]
     );
 
+    const flushNodePersistence = useCallback(() => {
+        clearTimeout(persistenceTimerRef.current);
+        const pendingNode = pendingNodeRef.current;
+        if (!pendingNode) return;
+        pendingNodeRef.current = null;
+        handleUpdateNode(pendingNode);
+    }, [handleUpdateNode]);
+
     useEffect(
         () => () => {
-            clearTimeout(persistenceTimerRef.current);
-            if (pendingNodeRef.current) {
-                handleUpdateNode(pendingNodeRef.current);
-            }
+            flushNodePersistence();
         },
-        [handleUpdateNode]
+        [flushNodePersistence]
     );
 
     const handleInputChange = useCallback(
@@ -522,6 +539,9 @@ const DeepFieldExplorer = ({ selectedNode }) => {
                                                 }
                                                 handleInputChange={
                                                     handleInputChange
+                                                }
+                                                handleInputBlur={
+                                                    flushNodePersistence
                                                 }
                                                 handleStructuredNodeUpdate={
                                                     handleStructuredNodeUpdate

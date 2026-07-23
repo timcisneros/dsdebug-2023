@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import SvgIcon from '../../ui/SvgIcon';
+import { STEP_DRAG_DATA_TYPE } from '../../../utils/stepDragData';
 
 const Step = ({
     stepName,
@@ -50,13 +51,13 @@ const Step = ({
 
     const onDragStart = (event) => {
         event.dataTransfer.setData(
-            'application/json',
+            STEP_DRAG_DATA_TYPE,
             JSON.stringify({
                 stepType,
                 activityName,
                 stepData,
             })
-        ); // Use 'application/json' as the data type
+        );
         if (!nativeDragImageRef.current) {
             const transparentImage = document.createElement('canvas');
             transparentImage.width = 1;
